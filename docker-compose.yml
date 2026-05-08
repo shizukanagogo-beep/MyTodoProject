@@ -1,0 +1,26 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: alltask_db
+      MYSQL_ROOT_PASSWORD: "0002"
+    ports:
+      - "3306:3306"
+
+  # backend:
+  #   build: ./AllTaskTodo
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/alltask_db
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: password
+
+  # frontend:
+  #   build: ./alltask-frontend
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - backend
