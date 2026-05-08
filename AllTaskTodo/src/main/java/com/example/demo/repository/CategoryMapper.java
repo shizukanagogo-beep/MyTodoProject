@@ -9,4 +9,6 @@ import com.example.demo.entity.Category;
 @Mapper
 public interface CategoryMapper {
     List<Category> findAll();
+
+    void addCategory(Category category);
 }

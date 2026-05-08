@@ -6,4 +6,8 @@
         SELECT id, name FROM categories
     </select>
 
+    <insert id="addCategory" useGeneratedKeys="true" keyProperty="id">
+        insert INTO categories(name) VALUES(#{name})
+    </insert>
+
 </mapper>

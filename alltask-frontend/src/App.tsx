@@ -18,6 +18,8 @@ function App() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const[newCategoryName,setNewCategoryName]=useState('');
+  const[isCategoryModalOpen,setIsCategoryModalOpen]=useState(false);
 
   const [newTodo, setNewTodo] = useState({
     title: '', details: '', categoryId: '' as number | '', 
@@ -63,6 +65,21 @@ function App() {
       setNewTodo({ title: '', details: '', categoryId: '', dueDate: '', daily: false, hasFlag: false, autoCarryOver: false, overdueBehavior: 0 });
       setIsModalOpen(false);
     } catch (error) { console.error('作成失敗:', error); }
+  };
+
+  const addCategory=async()=>{
+    if(!newCategoryName.trim())return;
+    try{
+      const response=await axios.post<Category>('http://localhost:8080/categories',{
+        name:newCategoryName
+      });
+      setCategories([...categories,response.data]);
+      setNewCategoryName('');
+        setIsCategoryModalOpen(false);
+    }catch(error){
+      console.log('カテゴリ作成失敗:',error);
+      alert('カテゴリ作成に失敗しました。')
+    }
   };
 
   const toggleStatus = async (id: number, currentStatus: string) => {
@@ -166,6 +183,39 @@ function App() {
           </div>
         )}
 
+        {/* ↓↓↓ ここから追加 ↓↓↓ */}
+        {/* カテゴリ追加用モーダル */}
+        {isCategoryModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setIsCategoryModalOpen(false)}>
+            <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-xl font-bold text-slate-800 mb-4">新しいカテゴリ</h3>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-4"
+                placeholder="カテゴリ名 (例: 仕事、買い物)"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <button 
+                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors" 
+                  onClick={() => setIsCategoryModalOpen(false)}
+                >
+                  キャンセル
+                </button>
+                <button 
+                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-md" 
+                  onClick={addCategory}
+                >
+                  作成
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* ↑↑↑ ここまで追加 ↑↑↑ */}
+
         {/* メインコンテンツ */}
         {viewMode === 'TOP' ? (
           <div className="space-y-8">
@@ -190,8 +240,9 @@ function App() {
                     <h3 className="font-bold text-slate-800">{cat.name}</h3>
                   </div>
                 ))}
-                <button className="p-6 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-indigo-300 hover:text-indigo-400 transition-all">
-                  + 追加
+                <button className="p-6 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-indigo-300 hover:text-indigo-400 transition-all"
+                onClick={()=>setIsCategoryModalOpen(true)}>
+                  + カテゴリを追加
                 </button>
               </div>
             </section>
