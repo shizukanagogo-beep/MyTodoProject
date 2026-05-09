@@ -23,7 +23,7 @@ function App() {
   const[isCategoryModalOpen,setIsCategoryModalOpen]=useState(false);
   const [refreshKey,setRefreshKey]=useState(0);
 
-  const [newTodo, setNewTodo] = useState<newTodo>({
+  const [newTodo, setNewTodo] = useState<NewTodo>({
     title: '', details: '', categoryId: '' as number | '', 
     dueDate: '', daily: false, hasFlag: false, autoCarryOver: false, overdueBehavior: 0
   });
