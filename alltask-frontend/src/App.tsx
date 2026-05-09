@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  fetchCategories as fetchCategoriesApi,
-  addCategory as addCategoryApi,
-} from "./services/categoryService";
-
+import { useCategories } from "./hooks/useCategories";
 import {
   fetchTodos as fetchTodosApi,
   addTodo as addTodoApi,
@@ -16,23 +12,15 @@ import TopView from "./components/TopView";
 import TodoListView from "./components/TodoListView";
 import Header from "./components/Header";
 import AddTodoButton from "./components/AddTodoButton";
-import type {
-  Category,
-  Todo,
-  TodoSearchParams,
-  ViewMode,
-  NewTodo,
-} from "./types";
+import type { Todo, TodoSearchParams, ViewMode, NewTodo } from "./types";
 
 // --------------------------------------------------------------------------
 function App() {
-  const [categories, setCategories] = useState<Category[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("TOP");
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null,
   );
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -47,21 +35,11 @@ function App() {
     autoCarryOver: false,
     overdueBehavior: 0,
   });
-
-  // --- APIロジック (変更なし) ---
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const categories = await fetchCategoriesApi();
-        setCategories(categories);
-      } catch (error) {
-        console.error("カテゴリの取得に失敗:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadCategories();
-  }, []);
+  const {
+    categories,
+    loadingCategories,
+    addCategory: addCategoryToList,
+  } = useCategories();
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -128,8 +106,7 @@ function App() {
   const addCategory = async () => {
     if (!newCategoryName.trim()) return;
     try {
-      const createdCategory = await addCategoryApi(newCategoryName);
-      setCategories((prev) => [...prev, createdCategory]);
+      await addCategoryToList(newCategoryName);
       setNewCategoryName("");
       setIsCategoryModalOpen(false);
     } catch (error) {
@@ -164,7 +141,7 @@ function App() {
     return 0;
   });
 
-  if (loading)
+  if (loadingCategories)
     return (
       <div className="flex justify-center items-center h-screen text-xl font-bold text-gray-500">
         読み込み中...
