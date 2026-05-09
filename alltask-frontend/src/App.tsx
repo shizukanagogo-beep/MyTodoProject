@@ -3,6 +3,7 @@ import axios from 'axios';
 import CategoryModal from './components/CategoryModal';
 import TodoItem from './components/TodoItem';
 import TodoModal from './components/TodoModal';
+import CategoryCard from './components/CategoryCard';
 import type {
   Category,
   Todo,
@@ -62,7 +63,7 @@ function App() {
     };
 
     fetchTodos();
-  }, [viewMode, selectedCategoryId, refreshKey]); // ← 末尾に refreshKey を追加！
+  }, [viewMode, selectedCategoryId, refreshKey]); 
 
 
  const addTodo = async () => {
@@ -189,18 +190,16 @@ function App() {
             <section>
               <h2 className="text-lg font-bold text-slate-700 mb-4 px-1">カテゴリ一覧</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {categories.map((cat) => (
-                  <div 
-                    key={cat.id} 
-                    className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-200 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
-                    onClick={() => { setSelectedCategoryId(cat.id); setViewMode('CATEGORY_DETAIL'); }}
-                  >
-                    <div className="w-12 h-12 bg-indigo-50 rounded-full mb-3 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                      <span className="text-indigo-600 font-bold">{cat.name[0]}</span>
-                    </div>
-                    <h3 className="font-bold text-slate-800">{cat.name}</h3>
-                  </div>
-                ))}
+               {categories.map((category)=>(
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  onClick={(categoryId)=>{
+                    setSelectedCategoryId(categoryId);
+                    setViewMode('CATEGORY_DETAIL');
+                  }}
+                  />
+               )) }
                 <button className="p-6 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-indigo-300 hover:text-indigo-400 transition-all"
                 onClick={()=>setIsCategoryModalOpen(true)}>
                   + カテゴリを追加
