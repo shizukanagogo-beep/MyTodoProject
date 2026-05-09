@@ -1,7 +1,7 @@
 import { api } from "../api";
 import type { Todo, TodoSearchParams, NewTodo } from "../types";
 
-type AddTodoPayload = NewTodo & {
+export type AddTodoPayload = Omit<NewTodo, "categoryId" | "dueDate"> & {
   categoryId: number;
   dueDate: string | null;
   status: "INCOMPLETE";

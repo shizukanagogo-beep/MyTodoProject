@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { api } from "./api";
 import {
-  fetchCategories,
+  fetchCategories as fetchCategoriesApi,
   addCategory as addCategoryApi,
 } from "./services/categoryService";
 
 import {
-  fetchTodos,
+  fetchTodos as fetchTodosApi,
   addTodo as addTodoApi,
   updateTodoStatus,
   deleteTodo as deleteTodoApi,
@@ -51,9 +50,9 @@ function App() {
 
   // --- APIロジック (変更なし) ---
   useEffect(() => {
-    const fetchCategories = async () => {
+    const loadCategories = async () => {
       try {
-        const categories = await fetchCategories();
+        const categories = await fetchCategoriesApi();
         setCategories(categories);
       } catch (error) {
         console.error("カテゴリの取得に失敗:", error);
@@ -61,29 +60,29 @@ function App() {
         setLoading(false);
       }
     };
-    fetchCategories();
+    loadCategories();
   }, []);
 
   useEffect(() => {
     if (viewMode === "TOP") return;
-
-    const fetchTodos = async () => {
+    const loadTodos = async () => {
       const params: TodoSearchParams = {};
-      if (viewMode === "CATEGORY_DETAIL")
+
+      if (viewMode === "CATEGORY_DETAIL") {
         params.categoryId = selectedCategoryId;
+      }
       if (viewMode === "DATED") params.existsDueDate = true;
       if (viewMode === "DAILY") params.daily = true;
       if (viewMode === "FLAGGED") params.hasFlag = true;
 
       try {
-        const todos = await fetchTodos(params);
+        const todos = await fetchTodosApi(params);
         setTodos(todos);
       } catch (error) {
         console.error("タスクの取得に失敗:", error);
       }
     };
-
-    fetchTodos();
+    loadTodos();
   }, [viewMode, selectedCategoryId, refreshKey]);
 
   const addTodo = async () => {
@@ -130,7 +129,7 @@ function App() {
     if (!newCategoryName.trim()) return;
     try {
       const createdCategory = await addCategoryApi(newCategoryName);
-      setCategories((prev) => [...prev.createdCategory]);
+      setCategories((prev) => [...prev, createdCategory]);
       setNewCategoryName("");
       setIsCategoryModalOpen(false);
     } catch (error) {
@@ -151,9 +150,9 @@ function App() {
 
   const deleteTodo = async (id: number) => {
     if (!window.confirm("削除しますか？")) return;
-    setTodos(todos.filter((t) => t.id !== id));
+    setTodos((prev) => prev.filter((todo) => todo.id !== id));
     try {
-      await deleteTodo(id);
+      await deleteTodoApi(id);
     } catch (error) {
       console.error("削除失敗:", error);
     }
