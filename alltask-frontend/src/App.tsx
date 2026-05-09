@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
+import {
+  fetchCategories,
+  addCategory as addCategoryApi,
+} from "./services/categoryService";
+
+import {
+  fetchTodos,
+  addTodo as addTodoApi,
+  updateTodoStatus,
+  deleteTodo as deleteTodoApi,
+} from "./services/todoService";
 import CategoryModal from "./components/CategoryModal";
 import TodoModal from "./components/TodoModal";
 import TopView from "./components/TopView";
@@ -42,8 +53,8 @@ function App() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get<Category[]>("/categories");
-        setCategories(response.data);
+        const categories = await fetchCategories();
+        setCategories(categories);
       } catch (error) {
         console.error("カテゴリの取得に失敗:", error);
       } finally {
@@ -65,8 +76,8 @@ function App() {
       if (viewMode === "FLAGGED") params.hasFlag = true;
 
       try {
-        const response = await api.get<Todo[]>("/todos", { params });
-        setTodos(response.data);
+        const todos = await fetchTodos(params);
+        setTodos(todos);
       } catch (error) {
         console.error("タスクの取得に失敗:", error);
       }
@@ -95,7 +106,7 @@ function App() {
     };
 
     try {
-      await api.post("/todos", payload);
+      await addTodoApi(payload);
 
       // タスク一覧を再取得するために useEffect を再実行する
       setRefreshKey((prev) => prev + 1);
@@ -118,10 +129,8 @@ function App() {
   const addCategory = async () => {
     if (!newCategoryName.trim()) return;
     try {
-      const response = await api.post<Category>("/categories", {
-        name: newCategoryName,
-      });
-      setCategories((prev) => [...prev, response.data]);
+      const createdCategory = await addCategoryApi(newCategoryName);
+      setCategories((prev) => [...prev.createdCategory]);
       setNewCategoryName("");
       setIsCategoryModalOpen(false);
     } catch (error) {
@@ -134,9 +143,7 @@ function App() {
     const newStatus = currentStatus === "DONE" ? "INCOMPLETE" : "DONE";
     setTodos(todos.map((t) => (t.id === id ? { ...t, status: newStatus } : t)));
     try {
-      await api.patch(`/todos/${id}/status`, `"${newStatus}"`, {
-        headers: { "Content-Type": "application/json" },
-      });
+      await updateTodoStatus(id, newStatus);
     } catch (error) {
       console.error("更新失敗:", error);
     }
@@ -146,7 +153,7 @@ function App() {
     if (!window.confirm("削除しますか？")) return;
     setTodos(todos.filter((t) => t.id !== id));
     try {
-      await api.delete(`/todos/${id}`);
+      await deleteTodo(id);
     } catch (error) {
       console.error("削除失敗:", error);
     }
