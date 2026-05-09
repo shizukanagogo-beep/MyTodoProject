@@ -22,12 +22,17 @@ function App() {
   const[newCategoryName,setNewCategoryName]=useState('');
   const[isCategoryModalOpen,setIsCategoryModalOpen]=useState(false);
   const [refreshKey,setRefreshKey]=useState(0);
-
   const [newTodo, setNewTodo] = useState<NewTodo>({
-    title: '', details: '', categoryId: '' as number | '', 
-    dueDate: '', daily: false, hasFlag: false, autoCarryOver: false, overdueBehavior: 0
+    title: '',
+    details: '',
+    categoryId: '',
+    dueDate: '',
+    daily: false,
+    hasFlag: false,
+    autoCarryOver: false,
+    overdueBehavior: 0,
   });
-
+ 
   // --- APIロジック (変更なし) ---
   useEffect(() => {
     const fetchCategories = async () => {
