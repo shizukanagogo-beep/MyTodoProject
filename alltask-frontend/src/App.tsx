@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import CategoryModal from './components/CategoryModal';
-import TodoItem from './components/TodoItem';
 import TodoModal from './components/TodoModal';
 import TopView from './components/TopView';
+import TodoListView from './components/TodoListView';
 import type {
   Category,
   Todo,
@@ -187,29 +187,15 @@ function App() {
             onOpenCategoryModal={()=>setIsCategoryModalOpen(true)}
           />
         ) : (
-          <div>
-            <div className="flex items-center gap-4 mb-8">
-              <button onClick={() => setViewMode('TOP')} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600">←</button>
-              <h2 className="text-2xl font-bold text-slate-800">
-                {viewMode === 'CATEGORY_DETAIL' && `${categories.find(c => c.id === selectedCategoryId)?.name}`}
-                {viewMode === 'DATED' && '日付ありタスク'}
-                {viewMode === 'DAILY' && '日課タスク'}
-                {viewMode === 'FLAGGED' && 'フラグ付き'}
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              {sortedTodos.map((todo) => (
-               <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggleStatus={toggleStatus}
-                  onDeleteTodo={deleteTodo}
-                />
-              ))}
-              {sortedTodos.length === 0 && <div className="text-center py-20 text-slate-400">タスクがありません</div>}
-            </div>
-          </div>
+          <TodoListView
+            viewMode={viewMode}
+            categories={categories}
+            selectedCategoryId={selectedCategoryId}
+            sortedTodos={sortedTodos}
+            onBackToTop={() => setViewMode('TOP')}
+            onToggleStatus={toggleStatus}
+            onDeleteTodo={deleteTodo}
+          />
         )}
       </div>
     </div>
