@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "./api";
 import CategoryModal from "./components/CategoryModal";
 import TodoModal from "./components/TodoModal";
 import TopView from "./components/TopView";
@@ -42,9 +42,7 @@ function App() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get<Category[]>(
-          "http://localhost:8080/categories",
-        );
+        const response = await api.get<Category[]>("/categories");
         setCategories(response.data);
       } catch (error) {
         console.error("カテゴリの取得に失敗:", error);
@@ -67,10 +65,7 @@ function App() {
       if (viewMode === "FLAGGED") params.hasFlag = true;
 
       try {
-        const response = await axios.get<Todo[]>(
-          "http://localhost:8080/todos",
-          { params },
-        );
+        const response = await api.get<Todo[]>("/todos", { params });
         setTodos(response.data);
       } catch (error) {
         console.error("タスクの取得に失敗:", error);
@@ -100,7 +95,7 @@ function App() {
     };
 
     try {
-      await axios.post("http://localhost:8080/todos", payload);
+      await api.post("/todos", payload);
 
       // タスク一覧を再取得するために useEffect を再実行する
       setRefreshKey((prev) => prev + 1);
@@ -123,12 +118,9 @@ function App() {
   const addCategory = async () => {
     if (!newCategoryName.trim()) return;
     try {
-      const response = await axios.post<Category>(
-        "http://localhost:8080/categories",
-        {
-          name: newCategoryName,
-        },
-      );
+      const response = await api.post<Category>("/categories", {
+        name: newCategoryName,
+      });
       setCategories((prev) => [...prev, response.data]);
       setNewCategoryName("");
       setIsCategoryModalOpen(false);
@@ -142,13 +134,9 @@ function App() {
     const newStatus = currentStatus === "DONE" ? "INCOMPLETE" : "DONE";
     setTodos(todos.map((t) => (t.id === id ? { ...t, status: newStatus } : t)));
     try {
-      await axios.patch(
-        `http://localhost:8080/todos/${id}/status`,
-        `"${newStatus}"`,
-        {
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      await api.patch(`/todos/${id}/status`, `"${newStatus}"`, {
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (error) {
       console.error("更新失敗:", error);
     }
@@ -158,7 +146,7 @@ function App() {
     if (!window.confirm("削除しますか？")) return;
     setTodos(todos.filter((t) => t.id !== id));
     try {
-      await axios.delete(`http://localhost:8080/todos/${id}`);
+      await api.delete(`/todos/${id}`);
     } catch (error) {
       console.error("削除失敗:", error);
     }
