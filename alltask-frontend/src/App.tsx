@@ -20,6 +20,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const[newCategoryName,setNewCategoryName]=useState('');
   const[isCategoryModalOpen,setIsCategoryModalOpen]=useState(false);
+  const [refreshKey,setRefreshKey]=useState(0);
 
   const [newTodo, setNewTodo] = useState({
     title: '', details: '', categoryId: '' as number | '', 
@@ -40,31 +41,49 @@ function App() {
 
   useEffect(() => {
     if (viewMode === 'TOP') return;
+    
     const fetchTodos = async () => {
       const params: TodoSearchParams = {};
       if (viewMode === 'CATEGORY_DETAIL') params.categoryId = selectedCategoryId;
       if (viewMode === 'DATED') params.existsDueDate = true;
       if (viewMode === 'DAILY') params.daily = true;
       if (viewMode === 'FLAGGED') params.hasFlag = true;
+      
       try {
         const response = await axios.get<Todo[]>('http://localhost:8080/todos', { params });
         setTodos(response.data);
       } catch (error) { console.error('タスクの取得に失敗:', error); }
     };
-    fetchTodos();
-  }, [viewMode, selectedCategoryId]);
 
-  const addTodo = async () => {
+    fetchTodos();
+  }, [viewMode, selectedCategoryId, refreshKey]); // ← 末尾に refreshKey を追加！
+
+
+ const addTodo = async () => {
     if (!newTodo.title.trim()) { alert('タイトルを入力してください'); return; }
     const finalCategoryId = viewMode === 'CATEGORY_DETAIL' ? selectedCategoryId : newTodo.categoryId;
     if (!finalCategoryId) { alert('カテゴリを選択してください'); return; }
-    const payload = { ...newTodo, categoryId: finalCategoryId, dueDate: newTodo.dueDate || null, status: 'INCOMPLETE' };
+
+    const payload = { 
+      ...newTodo, 
+      categoryId: Number(finalCategoryId), 
+      dueDate: newTodo.dueDate || null, 
+      status: 'INCOMPLETE' 
+    };
+
     try {
-      const response = await axios.post<Todo>('http://localhost:8080/todos', payload);
-      if (viewMode !== 'TOP') { setTodos([...todos, response.data]); }
-      setNewTodo({ title: '', details: '', categoryId: '', dueDate: '', daily: false, hasFlag: false, autoCarryOver: false, overdueBehavior: 0 });
-      setIsModalOpen(false);
-    } catch (error) { console.error('作成失敗:', error); }
+      await axios.post('http://localhost:8080/todos', payload);
+      
+      // タスク一覧を再取得するために useEffect を再実行する
+      setRefreshKey(prev => prev + 1);
+      setNewTodo({ 
+        title: '', details: '', categoryId: '', 
+        dueDate: '', daily: false, hasFlag: false, autoCarryOver: false, overdueBehavior: 0 
+      });
+      setIsModalOpen(false); 
+    } catch (error) { 
+      console.error('作成失敗:', error); 
+    }
   };
 
   const addCategory=async()=>{
@@ -73,7 +92,7 @@ function App() {
       const response=await axios.post<Category>('http://localhost:8080/categories',{
         name:newCategoryName
       });
-      setCategories([...categories,response.data]);
+      setCategories(prev=>[...prev,response.data]);
       setNewCategoryName('');
         setIsCategoryModalOpen(false);
     }catch(error){
@@ -152,7 +171,8 @@ function App() {
                     <select 
                       className="px-4 py-3 border border-slate-200 rounded-lg bg-white"
                       value={newTodo.categoryId} 
-                      onChange={e => setNewTodo({...newTodo, categoryId: Number(e.target.value)})}
+                      onChange={e=>setNewTodo({
+                        ...newTodo,categoryId:e.target.value===''?'':Number(e.target.value)})}
                     >
                       <option value="">カテゴリを選択</option>
                       {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
