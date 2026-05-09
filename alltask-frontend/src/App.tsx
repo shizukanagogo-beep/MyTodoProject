@@ -101,7 +101,7 @@ function App() {
       ...newTodo,
       categoryId: Number(finalCategoryId),
       dueDate: newTodo.dueDate || null,
-      status: "INCOMPLETE",
+      status: "INCOMPLETE" as const,
     };
 
     try {
