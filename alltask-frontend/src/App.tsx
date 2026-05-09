@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import CategoryModal from './components/CategoryModal';
+import TodoItem from './components/TodoItem';
+import type {
+  Category,
+  Todo,
+  TodoSearchParams,
+  ViewMode,
+} from './types';
 
-// --- 型定義 (変更なし) ---
-interface Category { id: number; name: string; }
-interface Todo {
-  id: number; categoryId: number | null; title: string; status: 'INCOMPLETE' | 'DONE';
-  details: string | null; dueDate: string | null; daily: boolean; hasFlag: boolean;
-  autoCarryOver: boolean; overdueBehavior: number;
-}
-interface TodoSearchParams { categoryId?: number | null; existsDueDate?: boolean; daily?: boolean; hasFlag?: boolean; }
-type ViewMode = 'TOP' | 'CATEGORY_DETAIL' | 'DATED' | 'DAILY' | 'FLAGGED';
-
+// --------------------------------------------------------------------------
 function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -101,7 +100,7 @@ function App() {
     }
   };
 
-  const toggleStatus = async (id: number, currentStatus: string) => {
+  const toggleStatus = async (id: number, currentStatus: Todo['status']) => {
     const newStatus = currentStatus === 'DONE' ? 'INCOMPLETE' : 'DONE';
     setTodos(todos.map(t => t.id === id ? { ...t, status: newStatus } : t));
     try {
@@ -203,38 +202,13 @@ function App() {
           </div>
         )}
 
-        {/* ↓↓↓ ここから追加 ↓↓↓ */}
-        {/* カテゴリ追加用モーダル */}
-        {isCategoryModalOpen && (
-          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setIsCategoryModalOpen(false)}>
-            <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-xl font-bold text-slate-800 mb-4">新しいカテゴリ</h3>
-              <input 
-                type="text" 
-                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-4"
-                placeholder="カテゴリ名 (例: 仕事、買い物)"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                autoFocus
-              />
-              <div className="flex gap-2">
-                <button 
-                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors" 
-                  onClick={() => setIsCategoryModalOpen(false)}
-                >
-                  キャンセル
-                </button>
-                <button 
-                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-md" 
-                  onClick={addCategory}
-                >
-                  作成
-                </button>
-              </div>
-            </div>
-          </div>
+        {isCategoryModalOpen&&(
+          <CategoryModal
+            newCategoryName={newCategoryName}
+            setNewCategoryName={setNewCategoryName}
+            onClose={()=>setIsCategoryModalOpen(false)}
+            onAddCategory={addCategory}/>
         )}
-        {/* ↑↑↑ ここまで追加 ↑↑↑ */}
 
         {/* メインコンテンツ */}
         {viewMode === 'TOP' ? (
@@ -281,37 +255,12 @@ function App() {
 
             <div className="space-y-3">
               {sortedTodos.map((todo) => (
-                <div 
-                  key={todo.id} 
-                  className={`flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-slate-100 group ${todo.status === 'DONE' ? 'opacity-60 bg-slate-50' : ''}`}
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <input 
-                      type="checkbox" checked={todo.status === 'DONE'} 
-                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      onChange={() => toggleStatus(todo.id, todo.status)} 
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center flex-wrap gap-2 mb-1">
-                        <span className={`font-bold truncate ${todo.status === 'DONE' ? 'line-through text-slate-400' : 'text-slate-700'}`}>
-                          {todo.title}
-                        </span>
-                        <div className="flex gap-1">
-                          {todo.hasFlag && <span className="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full border border-amber-100">🚩</span>}
-                          {todo.daily && <span className="text-xs bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-100">🔄</span>}
-                          {todo.dueDate && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">{todo.dueDate}</span>}
-                        </div>
-                      </div>
-                      {todo.details && <p className="text-sm text-slate-500 line-clamp-1">{todo.details}</p>}
-                    </div>
-                  </div>
-                  <button 
-                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                    onClick={() => deleteTodo(todo.id)}
-                  >
-                    🗑️
-                  </button>
-                </div>
+               <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggleStatus={toggleStatus}
+                  onDeleteTodo={deleteTodo}
+                />
               ))}
               {sortedTodos.length === 0 && <div className="text-center py-20 text-slate-400">タスクがありません</div>}
             </div>
