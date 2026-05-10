@@ -101,6 +101,22 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
+  const matchesCurrentView = (todo: Todo) => {
+    if (viewMode === "CATEGORY_DETAIL") {
+      return todo.categoryId === selectedCategoryId;
+    }
+    if (viewMode === "DATED") {
+      return !!todo.dueDate;
+    }
+    if (viewMode === "DAILY") {
+      return todo.daily;
+    }
+    if (viewMode === "FLAGGED") {
+      return todo.hasFlag;
+    }
+    return true;
+  };
+
   const updateTodo = async (
     id: number,
     payload: {
@@ -133,10 +149,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       });
 
       setTodos((prev) => {
-        if (
-          viewMode === "CATEGORY_DETAIL" &&
-          updatedTodo.categoryId !== selectedCategoryId
-        ) {
+        if (!matchesCurrentView(updatedTodo)) {
           return prev.filter((todo) => todo.id !== id);
         }
 
