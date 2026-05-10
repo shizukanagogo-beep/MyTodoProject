@@ -3,12 +3,11 @@ import { useTodos } from "./hooks/useTodos";
 import { useTodoModal } from "./hooks/useTodoModal";
 import { useCategoryModal } from "./hooks/useCategoryModal";
 import { useViewMode } from "./hooks/useViewMode";
-import CategoryModal from "./components/CategoryModal";
-import TodoModal from "./components/TodoModal";
 import AddTodoButton from "./components/AddTodoButton";
 import Loading from "./components/Loading";
 import AppLayout from "./components/AppLayout";
 import MainContent from "./components/MainContent";
+import Modals from "./components/Modals";
 
 function App() {
   const {
@@ -66,25 +65,20 @@ function App() {
         <AddTodoButton onClick={openTodoModal} />
       )}
 
-      {isTodoModalOpen && (
-        <TodoModal
-          newTodo={newTodo}
-          setNewTodo={setNewTodo}
-          categories={categories}
-          viewMode={viewMode}
-          onClose={closeTodoModal}
-          onAddTodo={addTodoAndCloseModal}
-        />
-      )}
-
-      {isCategoryModalOpen && (
-        <CategoryModal
-          newCategoryName={newCategoryName}
-          setNewCategoryName={setNewCategoryName}
-          onClose={closeCategoryModal}
-          onAddCategory={addCategoryAndCloseModal}
-        />
-      )}
+      <Modals
+        isTodoModalOpen={isTodoModalOpen}
+        isCategoryModalOpen={isCategoryModalOpen}
+        newTodo={newTodo}
+        setNewTodo={setNewTodo}
+        categories={categories}
+        viewMode={viewMode}
+        onCloseTodoModal={closeTodoModal}
+        onAddTodo={addTodoAndCloseModal}
+        newCategoryName={newCategoryName}
+        setNewCategoryName={setNewCategoryName}
+        onCloseCategoryModal={closeCategoryModal}
+        onAddCategory={addCategoryAndCloseModal}
+      />
 
       <MainContent
         viewMode={viewMode}
