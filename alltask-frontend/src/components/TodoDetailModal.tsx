@@ -21,14 +21,16 @@ function TodoDetailModal({
   onClose,
   onDeleteTodo,
 }: TodoDetailModalProps) {
-  const [editTodo, setEditTodo] = useState<EditableTodo>({
+  const initialTodoState: EditableTodo = {
     title: todo.title,
     details: todo.details || "",
     dueDate: todo.dueDate || "",
     status: todo.status,
     daily: todo.daily,
     hasFlag: todo.hasFlag,
-  });
+  };
+
+  const [editTodo, setEditTodo] = useState<EditableTodo>(initialTodoState);
 
   const hasChanges = useMemo(() => {
     return (
@@ -45,14 +47,13 @@ function TodoDetailModal({
     onDeleteTodo(todo.id);
     onClose();
   };
-
+  const handleCancelChanges = () => {
+    setEditTodo(initialTodoState);
+    onClose();
+  };
   const handleMainButton = () => {
-    if (!hasChanges) {
-      onClose();
-      return;
-    }
-
     alert("保存処理は次に実装します");
+    onClose();
   };
 
   return (
@@ -92,13 +93,6 @@ function TodoDetailModal({
               placeholder="タイトル"
             />
           </div>
-
-          <button
-            onClick={onClose}
-            className="text-2xl text-slate-400 hover:text-slate-600"
-          >
-            ×
-          </button>
         </div>
 
         <div className="space-y-4">
@@ -151,23 +145,39 @@ function TodoDetailModal({
           </div>
 
           <div className="flex gap-2 pt-2">
-            <button
-              className={`flex-1 py-3 rounded-xl font-bold transition-colors ${
-                hasChanges
-                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-              onClick={handleMainButton}
-            >
-              {hasChanges ? "保存" : "閉じる"}
-            </button>
+            {hasChanges ? (
+              <>
+                <button
+                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                  onClick={handleCancelChanges}
+                >
+                  キャンセル
+                </button>
 
-            <button
-              className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors"
-              onClick={handleDelete}
-            >
-              削除
-            </button>
+                <button
+                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors"
+                  onClick={handleMainButton}
+                >
+                  保存
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                  onClick={onClose}
+                >
+                  閉じる
+                </button>
+
+                <button
+                  className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors"
+                  onClick={handleDelete}
+                >
+                  削除
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
