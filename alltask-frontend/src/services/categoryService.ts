@@ -10,3 +10,8 @@ export async function addCategory(name: string) {
   const response = await api.post<Category>("/categories", { name });
   return response.data;
 }
+
+export async function updateCategory(id: number, name: string) {
+  const response = await api.put<Category>(`/categories/${id}`, { name });
+  return response.data;
+}

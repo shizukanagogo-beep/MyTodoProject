@@ -3,6 +3,7 @@ import type { Category } from "../types";
 import {
   fetchCategories as fetchCategoriesApi,
   addCategory as addCategoryApi,
+  updateCategory as updateCategoryApi,
 } from "../services/categoryService";
 
 export function useCategories() {
@@ -31,9 +32,30 @@ export function useCategories() {
     setCategories((prev) => [...prev, createdCategory]);
   };
 
+  const updateCategory = async (id: number, name: string) => {
+    if (!name.trim()) {
+      alert("カテゴリ名を入力してください");
+      return false;
+    }
+    try {
+      const updatedCategory = await updateCategoryApi(id, name);
+      setCategories((prev) =>
+        prev.map((category) =>
+          category.id === id ? updatedCategory : category,
+        ),
+      );
+      return true;
+    } catch (error) {
+      console.error("カテゴリ更新失敗:", error);
+      alert("カテゴリ更新に失敗しました。");
+      return false;
+    }
+  };
+
   return {
     categories,
     loadingCategories,
     addCategory,
+    updateCategory,
   };
 }
