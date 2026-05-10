@@ -106,7 +106,7 @@ function CategoryModal({
 
           <input
             type="text"
-            className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-3"
+            className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 mb-3"
             placeholder="カテゴリ名 (例: 仕事、買い物)"
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
