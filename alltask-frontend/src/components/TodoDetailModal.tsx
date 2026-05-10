@@ -65,15 +65,33 @@ function TodoDetailModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-start gap-4 mb-6">
-          <input
-            type="text"
-            className="w-full text-xl font-bold text-slate-800 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none px-1 py-1"
-            value={editTodo.title}
-            onChange={(e) =>
-              setEditTodo({ ...editTodo, title: e.target.value })
-            }
-            placeholder="タイトル"
-          />
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <input
+              type="checkbox"
+              checked={editTodo.status === "DONE"}
+              className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              onChange={(e) =>
+                setEditTodo({
+                  ...editTodo,
+                  status: e.target.checked ? "DONE" : "INCOMPLETE",
+                })
+              }
+            />
+
+            <input
+              type="text"
+              className={`w-full text-xl font-bold bg-white border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none px-1 py-1 ${
+                editTodo.status === "DONE"
+                  ? "line-through text-slate-400"
+                  : "text-slate-800"
+              }`}
+              value={editTodo.title}
+              onChange={(e) =>
+                setEditTodo({ ...editTodo, title: e.target.value })
+              }
+              placeholder="タイトル"
+            />
+          </div>
 
           <button
             onClick={onClose}
@@ -85,21 +103,7 @@ function TodoDetailModal({
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
-            <label className="flex items-center gap-2 text-sm bg-slate-50 border border-slate-100 px-3 py-2 rounded-full cursor-pointer hover:bg-slate-100">
-              <input
-                type="checkbox"
-                checked={editTodo.status === "DONE"}
-                onChange={(e) =>
-                  setEditTodo({
-                    ...editTodo,
-                    status: e.target.checked ? "DONE" : "INCOMPLETE",
-                  })
-                }
-              />
-              {editTodo.status === "DONE" ? "完了" : "未完了"}
-            </label>
-
-            <label className="flex items-center gap-2 text-sm bg-amber-50 text-amber-600 border border-amber-100 px-3 py-2 rounded-full cursor-pointer hover:bg-amber-100">
+            <label className="flex items-center gap-2 text-sm bg-white text-slate-600 border border-slate-200 px-3 py-2 rounded-full cursor-pointer hover:bg-slate-50">
               <input
                 type="checkbox"
                 checked={editTodo.hasFlag}
@@ -126,7 +130,7 @@ function TodoDetailModal({
             <p className="text-sm font-bold text-slate-500 mb-1">期限</p>
             <input
               type="date"
-              className="w-full px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
+              className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
               value={editTodo.dueDate}
               onChange={(e) =>
                 setEditTodo({ ...editTodo, dueDate: e.target.value })
@@ -137,7 +141,7 @@ function TodoDetailModal({
           <div>
             <p className="text-sm font-bold text-slate-500 mb-1">詳細</p>
             <textarea
-              className="w-full min-h-28 px-1 py-2 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded-lg outline-none text-slate-700 resize-none"
+              className="w-full min-h-28 bg-white px-1 py-2 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded-lg outline-none text-slate-700 resize-none"
               value={editTodo.details}
               onChange={(e) =>
                 setEditTodo({ ...editTodo, details: e.target.value })
