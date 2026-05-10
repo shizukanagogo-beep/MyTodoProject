@@ -59,8 +59,13 @@ function App() {
   } = useCategoryModal({
     addCategoryToList,
   });
-  const { selectedTodo, openTodoDetailModal, closeTodoDetailModal } =
-    useSelectedTodoModal();
+
+  const {
+    selectedTodo,
+    openTodoDetailModal,
+    closeTodoDetailModal,
+    updateSelectedTodo,
+  } = useSelectedTodoModal();
 
   if (loadingCategories) return <Loading />;
 
@@ -75,7 +80,14 @@ function App() {
           categories={categories}
           onClose={closeTodoDetailModal}
           onDeleteTodo={deleteTodo}
-          onUpdateTodo={updateTodo}
+          onUpdateTodo={async (id, payload) => {
+            const updatedTodo = await updateTodo(id, payload);
+            if (updatedTodo) {
+              updateSelectedTodo(updatedTodo);
+              return true;
+            }
+            return false;
+          }}
         />
       )}
 

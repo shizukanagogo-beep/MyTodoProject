@@ -155,10 +155,10 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
         return prev.map((todo) => (todo.id === id ? updatedTodo : todo));
       });
-      return true;
+      return updatedTodo;
     } catch (error) {
       console.error("更新失敗:", error);
-      return false;
+      return null;
     }
   };
 

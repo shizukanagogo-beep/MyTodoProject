@@ -12,9 +12,14 @@ export function useSelectedTodoModal() {
     setSelectedTodo(null);
   };
 
+  const updateSelectedTodo = (todo: Todo) => {
+    setSelectedTodo(todo);
+  };
+
   return {
     selectedTodo,
     openTodoDetailModal,
     closeTodoDetailModal,
+    updateSelectedTodo,
   };
 }
