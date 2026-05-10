@@ -25,6 +25,8 @@ function MainContent({
   categories,
   selectedCategoryId,
   sortedTodos,
+  showDoneTodos,
+  onToggleShowDoneTodos,
   onOpenCategoryModal,
   onOpenCategoryDetail,
   onOpenDated,

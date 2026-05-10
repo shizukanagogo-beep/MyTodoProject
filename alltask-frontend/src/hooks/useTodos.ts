@@ -109,7 +109,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       title: string;
       details: string;
       categoryId: number | null;
-      dueDate: string;
+      dueDate: string | null;
       status: Todo["status"];
       daily: boolean;
       hasFlag: boolean;
