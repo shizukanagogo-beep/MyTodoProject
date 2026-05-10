@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { NewTodo, Todo, TodoSearchParams, ViewMode } from "../types";
+import { matchesTodoView } from "../utils/todoFilters";
 import {
   fetchTodos as fetchTodosApi,
   addTodo as addTodoApi,
@@ -101,22 +102,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const matchesCurrentView = (todo: Todo) => {
-    if (viewMode === "CATEGORY_DETAIL") {
-      return todo.categoryId === selectedCategoryId;
-    }
-    if (viewMode === "DATED") {
-      return !!todo.dueDate;
-    }
-    if (viewMode === "DAILY") {
-      return todo.daily;
-    }
-    if (viewMode === "FLAGGED") {
-      return todo.hasFlag;
-    }
-    return true;
-  };
-
   const updateTodo = async (
     id: number,
     payload: {
@@ -149,7 +134,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       });
 
       setTodos((prev) => {
-        if (!matchesCurrentView(updatedTodo)) {
+        if (!matchesTodoView(updatedTodo, viewMode, selectedCategoryId)) {
           return prev.filter((todo) => todo.id !== id);
         }
 
