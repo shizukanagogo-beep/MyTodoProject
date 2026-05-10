@@ -51,7 +51,7 @@ public class TodoController {
         return ResponseEntity.ok(todo);
     }
 
-    // １っ件---------------------------------------------------------------------
+    // １件get---------------------------------------------------------------------
     @GetMapping("/{id}")
     public ResponseEntity<?> getOne(@PathVariable("id") Integer id) {
         Todo todo = todoService.getOne(id);
@@ -100,8 +100,6 @@ public class TodoController {
             return ResponseEntity.status(400).body(Map.of("error", errorMessage));
         }
 
-        // 2. サービスのアップデートメソッドを呼び出す
-        // 引数はご提示いただいた通り (id, form) です
         boolean isUpdated = todoService.update(id, form);
 
         // 3. 更新に失敗した場合（対象のIDが存在しないなど）

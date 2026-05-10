@@ -72,6 +72,7 @@ function App() {
       {selectedTodo && (
         <TodoDetailModal
           todo={selectedTodo}
+          categories={categories}
           onClose={closeTodoDetailModal}
           onDeleteTodo={deleteTodo}
           onUpdateTodo={updateTodo}

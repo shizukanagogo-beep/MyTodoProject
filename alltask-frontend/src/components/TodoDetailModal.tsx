@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import type { Todo } from "../types";
+import type { Category, Todo } from "../types";
 
 type EditableTodo = {
   title: string;
   details: string;
+  categoryId: number | null;
   dueDate: string;
   status: Todo["status"];
   daily: boolean;
@@ -12,6 +13,7 @@ type EditableTodo = {
 
 type TodoDetailModalProps = {
   todo: Todo;
+  categories: Category[];
   onClose: () => void;
   onDeleteTodo: (id: number) => void;
   onUpdateTodo: (
@@ -32,6 +34,7 @@ type TodoDetailModalProps = {
 
 function TodoDetailModal({
   todo,
+  categories,
   onClose,
   onDeleteTodo,
   onUpdateTodo,
@@ -39,6 +42,7 @@ function TodoDetailModal({
   const initialTodoState: EditableTodo = {
     title: todo.title,
     details: todo.details || "",
+    categoryId: todo.categoryId,
     dueDate: todo.dueDate || "",
     status: todo.status,
     daily: todo.daily,
@@ -51,6 +55,7 @@ function TodoDetailModal({
     return (
       editTodo.title !== todo.title ||
       editTodo.details !== (todo.details || "") ||
+      editTodo.categoryId !== todo.categoryId ||
       editTodo.dueDate !== (todo.dueDate || "") ||
       editTodo.status !== todo.status ||
       editTodo.daily !== todo.daily ||
@@ -71,7 +76,7 @@ function TodoDetailModal({
     const isSuccess = await onUpdateTodo(todo.id, {
       title: editTodo.title,
       details: editTodo.details,
-      categoryId: todo.categoryId,
+      categoryId: editTodo.categoryId,
       dueDate: editTodo.dueDate,
       status: editTodo.status,
       daily: editTodo.daily,
@@ -135,6 +140,28 @@ function TodoDetailModal({
               />
               🚩重要
             </label>
+
+            <div>
+              <p className="text-sm font-bold text-slate-500 mb-1">カテゴリ</p>
+              <select
+                className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
+                value={editTodo.categoryId ?? ""}
+                onChange={(e) =>
+                  setEditTodo({
+                    ...editTodo,
+                    categoryId:
+                      e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+              >
+                <option value="">カテゴリを選択</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="relative group">
               <label
