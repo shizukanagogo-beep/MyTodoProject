@@ -110,19 +110,20 @@ public class TodoService {
     }
 
     // 共通メソッド｜日付あり／日課／プレーンの選択（排他制御ロジック）----------------------------------
-    private void adjustTaskOptions(TodoForm form) {
-        if (form.getDaily()) {
-            // 日課の場合は期限をなしにし、自動繰り越しもオフにする
-            form.setDueDate(null);
-            form.setAutoCarryOver(false);
-        } else if (form.getDueDate() != null) {
-            // 期限がある場合は日課フラグをオフにする
-            form.setDaily(false);
-        } else {
-            // どちらでもない（プレーンなタスク）は繰り越しオフ
-            form.setAutoCarryOver(false);
-        }
+   private void adjustTaskOptions(TodoForm form) {
+    if (Boolean.TRUE.equals(form.getDaily())) {
+        form.setDueDate(null);
+        form.setAutoCarryOver(false);
+        return;
     }
+
+    if (form.getDueDate() != null) {
+        form.setDaily(false);
+        return;
+    }
+
+    form.setAutoCarryOver(false);
+}
 
     // 共通メソッド｜form(DTO) ->
     // Todo(Entity)へ変換----------------------------------------------

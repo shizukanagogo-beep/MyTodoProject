@@ -136,28 +136,66 @@ function TodoDetailModal({
               🚩重要
             </label>
 
-            <label className="flex items-center gap-2 text-sm bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-2 rounded-full cursor-pointer hover:bg-emerald-100">
-              <input
-                type="checkbox"
-                checked={editTodo.daily}
-                onChange={(e) =>
-                  setEditTodo({ ...editTodo, daily: e.target.checked })
-                }
-              />
-              🔄日課
-            </label>
+            <div className="relative group">
+              <label
+                className={`flex items-center gap-2 text-sm border px-3 py-2 rounded-full ${
+                  editTodo.dueDate
+                    ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed"
+                    : "bg-white text-slate-600 border-slate-200 cursor-pointer hover:bg-slate-50"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  disabled={!!editTodo.dueDate}
+                  checked={editTodo.daily}
+                  onChange={(e) =>
+                    setEditTodo({
+                      ...editTodo,
+                      daily: e.target.checked,
+                      dueDate: e.target.checked ? "" : editTodo.dueDate,
+                    })
+                  }
+                />
+                🔄日課
+              </label>
+
+              {editTodo.dueDate && (
+                <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-10">
+                  <div className="bg-slate-800 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                    日付設定がある場合は日課として設定できません
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
             <p className="text-sm font-bold text-slate-500 mb-1">期限</p>
-            <input
-              type="date"
-              className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
-              value={editTodo.dueDate}
-              onChange={(e) =>
-                setEditTodo({ ...editTodo, dueDate: e.target.value })
-              }
-            />
+            <div className="relative group">
+              <input
+                type="date"
+                disabled={editTodo.daily}
+                className={`w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 ${
+                  editTodo.daily ? "opacity-40 cursor-not-allowed" : ""
+                }`}
+                value={editTodo.dueDate}
+                onChange={(e) =>
+                  setEditTodo({
+                    ...editTodo,
+                    dueDate: e.target.value,
+                    daily: e.target.value ? false : editTodo.daily,
+                  })
+                }
+              />
+
+              {editTodo.daily && (
+                <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-10">
+                  <div className="bg-slate-800 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                    日課設定されている場合は日付設定はできません
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>

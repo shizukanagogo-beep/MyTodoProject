@@ -48,9 +48,21 @@
 
     <!-- 2. １件取得 -->
     <select id="getOne" parameterType="java.lang.Integer" resultType="com.example.demo.entity.Todo">
-        SELECT * FROM todos WHERE id = #{id}
+    SELECT
+        id,
+        title,
+        status,
+        details,
+        due_date as dueDate,
+        auto_carry_over as autoCarryOver,
+        is_daily as daily,
+        has_flag as hasFlag,
+        category_id as categoryId,
+        overdue_behavior as overdueBehavior
+    FROM todos
+    WHERE id = #{id}
     </select>
-
+    
     <!-- 3. ランダムピック -->
     <select id="getRandom" resultType="com.example.demo.entity.Todo">
         SELECT * FROM todos ORDER BY RAND() LIMIT 1
