@@ -50,11 +50,11 @@ function TodoListView({
           onClick={onToggleShowDoneTodos}
           className={`shrink-0 px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
             showDoneTodos
-              ? "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-              : "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+              ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+              : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
           }`}
         >
-          {showDoneTodos ? "完了済みを隠す" : "完了済みを表示"}
+          {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
         </button>
       </div>
 
