@@ -3,6 +3,7 @@ import type { NewTodo, Todo, TodoSearchParams, ViewMode } from "../types";
 import {
   fetchTodos as fetchTodosApi,
   addTodo as addTodoApi,
+  updateTodo as updateTodoApi,
   updateTodoStatus,
   deleteTodo as deleteTodoApi,
 } from "../services/todoService";
@@ -100,6 +101,47 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
+  const updateTodo = async (
+    id: number,
+    payload: {
+      title: string;
+      details: string;
+      categoryId: number | null;
+      dueDate: string;
+      status: Todo["status"];
+      daily: boolean;
+      hasFlag: boolean;
+      autoCarryOver: boolean;
+      overdueBehavior: number;
+    },
+  ) => {
+    if (!payload.title.trim()) {
+      alert("タイトルを入力してください");
+      return false;
+    }
+
+    if (!payload.categoryId) {
+      alert("カテゴリが不正です");
+      return false;
+    }
+
+    try {
+      const updatedTodo = await updateTodoApi(id, {
+        ...payload,
+        categoryId: payload.categoryId,
+        dueDate: payload.dueDate || null,
+      });
+
+      setTodos((prev) =>
+        prev.map((todo) => (todo.id === id ? updatedTodo : todo)),
+      );
+      return true;
+    } catch (error) {
+      console.error("更新失敗:", error);
+      return false;
+    }
+  };
+
   const deleteTodo = async (id: number) => {
     if (!window.confirm("削除しますか？")) return;
 
@@ -123,6 +165,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     newTodo,
     setNewTodo,
     addTodo,
+    updateTodo,
     toggleStatus,
     deleteTodo,
   };

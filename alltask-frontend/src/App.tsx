@@ -26,6 +26,7 @@ function App() {
     newTodo,
     setNewTodo,
     addTodo,
+    updateTodo,
     toggleStatus,
     deleteTodo,
   } = useTodos({
@@ -73,6 +74,7 @@ function App() {
           todo={selectedTodo}
           onClose={closeTodoDetailModal}
           onDeleteTodo={deleteTodo}
+          onUpdateTodo={updateTodo}
         />
       )}
 

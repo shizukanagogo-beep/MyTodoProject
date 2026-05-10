@@ -14,12 +14,27 @@ type TodoDetailModalProps = {
   todo: Todo;
   onClose: () => void;
   onDeleteTodo: (id: number) => void;
+  onUpdateTodo: (
+    id: number,
+    payload: {
+      title: string;
+      details: string;
+      categoryId: number | null;
+      dueDate: string;
+      status: Todo["status"];
+      daily: boolean;
+      hasFlag: boolean;
+      autoCarryOver: boolean;
+      overdueBehavior: number;
+    },
+  ) => Promise<boolean>;
 };
 
 function TodoDetailModal({
   todo,
   onClose,
   onDeleteTodo,
+  onUpdateTodo,
 }: TodoDetailModalProps) {
   const initialTodoState: EditableTodo = {
     title: todo.title,
@@ -51,9 +66,22 @@ function TodoDetailModal({
     setEditTodo(initialTodoState);
     onClose();
   };
-  const handleMainButton = () => {
-    alert("保存処理は次に実装します");
-    onClose();
+
+  const handleMainButton = async () => {
+    const isSuccess = await onUpdateTodo(todo.id, {
+      title: editTodo.title,
+      details: editTodo.details,
+      categoryId: todo.categoryId,
+      dueDate: editTodo.dueDate,
+      status: editTodo.status,
+      daily: editTodo.daily,
+      hasFlag: editTodo.hasFlag,
+      autoCarryOver: todo.autoCarryOver,
+      overdueBehavior: todo.overdueBehavior,
+    });
+    if (isSuccess) {
+      onClose();
+    }
   };
 
   return (

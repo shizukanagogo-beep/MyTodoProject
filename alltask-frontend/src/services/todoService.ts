@@ -7,6 +7,12 @@ export type AddTodoPayload = Omit<NewTodo, "categoryId" | "dueDate"> & {
   status: "INCOMPLETE";
 };
 
+export type UpdateTodoPayload = Omit<NewTodo, "categoryId" | "dueDate"> & {
+  categoryId: number;
+  dueDate: string | null;
+  status: Todo["status"];
+};
+
 export async function fetchTodos(params: TodoSearchParams) {
   const response = await api.get<Todo[]>("/todos", { params });
   return response.data;
@@ -14,6 +20,11 @@ export async function fetchTodos(params: TodoSearchParams) {
 
 export async function addTodo(payload: AddTodoPayload) {
   await api.post("/todos", payload);
+}
+
+export async function updateTodo(id: number, payload: UpdateTodoPayload) {
+  const response = await api.put<Todo>(`/todos/${id}`, payload);
+  return response.data;
 }
 
 export async function updateTodoStatus(id: number, status: Todo["status"]) {
