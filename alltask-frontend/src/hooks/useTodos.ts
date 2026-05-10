@@ -133,12 +133,12 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   ) => {
     if (!payload.title.trim()) {
       alert("タイトルを入力してください");
-      return false;
+      return null;
     }
 
     if (!payload.categoryId) {
       alert("カテゴリが不正です");
-      return false;
+      return null;
     }
 
     try {
