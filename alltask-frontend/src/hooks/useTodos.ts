@@ -132,9 +132,16 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         dueDate: payload.dueDate || null,
       });
 
-      setTodos((prev) =>
-        prev.map((todo) => (todo.id === id ? updatedTodo : todo)),
-      );
+      setTodos((prev) => {
+        if (
+          viewMode === "CATEGORY_DETAIL" &&
+          updatedTodo.categoryId !== selectedCategoryId
+        ) {
+          return prev.filter((todo) => todo.id !== id);
+        }
+
+        return prev.map((todo) => (todo.id === id ? updatedTodo : todo));
+      });
       return true;
     } catch (error) {
       console.error("更新失敗:", error);
