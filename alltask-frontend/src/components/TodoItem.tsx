@@ -1,32 +1,40 @@
 import type { Todo } from "../types";
 
-type TodoItemProps={
-    todo:Todo;
-    onToggleStatus:(id:number,currentStatus:Todo['status'])=>void;
-    onDeleteTodo:(id:number)=>void;
+type TodoItemProps = {
+  todo: Todo;
+  onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
+  onDeleteTodo: (id: number) => void;
+  onOpenTodoDetail: (todo: Todo) => void;
 };
 
-function TodoItem({ todo, onToggleStatus, onDeleteTodo }: TodoItemProps) {
+function TodoItem({
+  todo,
+  onToggleStatus,
+  onDeleteTodo,
+  onOpenTodoDetail,
+}: TodoItemProps) {
   return (
     <div
-      className={`flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-slate-100 group ${
-        todo.status === 'DONE' ? 'opacity-60 bg-slate-50' : ''
+      className={`flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-slate-100 group cursor-pointer ${
+        todo.status === "DONE" ? "opacity-60 bg-slate-50" : ""
       }`}
+      onClick={() => onOpenTodoDetail(todo)}
     >
       <div className="flex items-center gap-4 flex-1">
         <input
           type="checkbox"
-          checked={todo.status === 'DONE'}
+          checked={todo.status === "DONE"}
           className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          onClick={(e) => e.stopPropagation()}
           onChange={() => onToggleStatus(todo.id, todo.status)}
         />
-          <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center flex-wrap gap-2 mb-1">
             <span
               className={`font-bold truncate ${
-                todo.status === 'DONE'
-                  ? 'line-through text-slate-400'
-                  : 'text-slate-700'
+                todo.status === "DONE"
+                  ? "line-through text-slate-400"
+                  : "text-slate-700"
               }`}
             >
               {todo.title}
@@ -44,7 +52,7 @@ function TodoItem({ todo, onToggleStatus, onDeleteTodo }: TodoItemProps) {
                   🔄
                 </span>
               )}
-                {todo.dueDate && (
+              {todo.dueDate && (
                 <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">
                   {todo.dueDate}
                 </span>
@@ -59,15 +67,17 @@ function TodoItem({ todo, onToggleStatus, onDeleteTodo }: TodoItemProps) {
           )}
         </div>
       </div>
-
       <button
         className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-        onClick={() => onDeleteTodo(todo.id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDeleteTodo(todo.id);
+        }}
       >
         🗑️
       </button>
     </div>
   );
-  }
+}
 
 export default TodoItem;

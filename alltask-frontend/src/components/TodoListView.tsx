@@ -1,5 +1,5 @@
-import TodoItem from './TodoItem';
-import type { Category, Todo, ViewMode } from '../types';
+import TodoItem from "./TodoItem";
+import type { Category, Todo, ViewMode } from "../types";
 
 type TodoListViewProps = {
   viewMode: ViewMode;
@@ -7,8 +7,9 @@ type TodoListViewProps = {
   selectedCategoryId: number | null;
   sortedTodos: Todo[];
   onBackToTop: () => void;
-  onToggleStatus: (id: number, currentStatus: Todo['status']) => void;
+  onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
+  onOpenTodoDetail: (todo: Todo) => void;
 };
 
 function TodoListView({
@@ -19,6 +20,7 @@ function TodoListView({
   onBackToTop,
   onToggleStatus,
   onDeleteTodo,
+  onOpenTodoDetail,
 }: TodoListViewProps) {
   return (
     <div>
@@ -31,11 +33,11 @@ function TodoListView({
         </button>
 
         <h2 className="text-2xl font-bold text-slate-800">
-          {viewMode === 'CATEGORY_DETAIL' &&
+          {viewMode === "CATEGORY_DETAIL" &&
             `${categories.find((category) => category.id === selectedCategoryId)?.name}`}
-          {viewMode === 'DATED' && '日付ありタスク'}
-          {viewMode === 'DAILY' && '日課タスク'}
-          {viewMode === 'FLAGGED' && 'フラグ付き'}
+          {viewMode === "DATED" && "日付ありタスク"}
+          {viewMode === "DAILY" && "日課タスク"}
+          {viewMode === "FLAGGED" && "フラグ付き"}
         </h2>
       </div>
 
@@ -46,6 +48,7 @@ function TodoListView({
             todo={todo}
             onToggleStatus={onToggleStatus}
             onDeleteTodo={onDeleteTodo}
+            onOpenTodoDetail={onOpenTodoDetail}
           />
         ))}
 

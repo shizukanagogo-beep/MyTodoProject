@@ -8,6 +8,8 @@ import Loading from "./components/Loading";
 import AppLayout from "./components/AppLayout";
 import MainContent from "./components/MainContent";
 import Modals from "./components/Modals";
+import TodoDetailModal from "./components/TodoDetailModal";
+import { useSelectedTodoModal } from "./hooks/useSelectedTodoModal";
 
 function App() {
   const {
@@ -56,6 +58,8 @@ function App() {
   } = useCategoryModal({
     addCategoryToList,
   });
+  const { selectedTodo, openTodoDetailModal, closeTodoDetailModal } =
+    useSelectedTodoModal();
 
   if (loadingCategories) return <Loading />;
 
@@ -63,6 +67,13 @@ function App() {
     <AppLayout onTitleClick={goTop}>
       {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
         <AddTodoButton onClick={openTodoModal} />
+      )}
+      {selectedTodo && (
+        <TodoDetailModal
+          todo={selectedTodo}
+          onClose={closeTodoDetailModal}
+          onDeleteTodo={deleteTodo}
+        />
       )}
 
       <Modals
