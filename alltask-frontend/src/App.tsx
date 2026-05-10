@@ -5,11 +5,10 @@ import { useCategoryModal } from "./hooks/useCategoryModal";
 import { useViewMode } from "./hooks/useViewMode";
 import CategoryModal from "./components/CategoryModal";
 import TodoModal from "./components/TodoModal";
-import TopView from "./components/TopView";
-import TodoListView from "./components/TodoListView";
 import AddTodoButton from "./components/AddTodoButton";
 import Loading from "./components/Loading";
 import AppLayout from "./components/AppLayout";
+import MainContent from "./components/MainContent";
 
 function App() {
   const {
@@ -87,26 +86,20 @@ function App() {
         />
       )}
 
-      {viewMode === "TOP" ? (
-        <TopView
-          categories={categories}
-          onOpenCategoryModal={openCategoryModal}
-          onOpenCategoryDetail={goCategoryDetail}
-          onOpenDated={goDated}
-          onOpenDaily={goDaily}
-          onOpenFlagged={goFlagged}
-        />
-      ) : (
-        <TodoListView
-          viewMode={viewMode}
-          categories={categories}
-          selectedCategoryId={selectedCategoryId}
-          sortedTodos={sortedTodos}
-          onBackToTop={goTop}
-          onToggleStatus={toggleStatus}
-          onDeleteTodo={deleteTodo}
-        />
-      )}
+      <MainContent
+        viewMode={viewMode}
+        categories={categories}
+        selectedCategoryId={selectedCategoryId}
+        sortedTodos={sortedTodos}
+        onOpenCategoryModal={openCategoryModal}
+        onOpenCategoryDetail={goCategoryDetail}
+        onOpenDated={goDated}
+        onOpenDaily={goDaily}
+        onOpenFlagged={goFlagged}
+        onBackToTop={goTop}
+        onToggleStatus={toggleStatus}
+        onDeleteTodo={deleteTodo}
+      />
     </AppLayout>
   );
 }

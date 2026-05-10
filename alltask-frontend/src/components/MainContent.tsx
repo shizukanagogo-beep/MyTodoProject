@@ -1,0 +1,56 @@
+import TopView from "./TopView";
+import TodoListView from "./TodoListView";
+import type { Category, Todo, ViewMode } from "../types";
+
+type MainContentProps = {
+  viewMode: ViewMode;
+  categories: Category[];
+  selectedCategoryId: number | null;
+  sortedTodos: Todo[];
+  onOpenCategoryModal: () => void;
+  onOpenCategoryDetail: (categoryId: number) => void;
+  onOpenDated: () => void;
+  onOpenDaily: () => void;
+  onOpenFlagged: () => void;
+  onBackToTop: () => void;
+  onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
+  onDeleteTodo: (id: number) => void;
+};
+
+function MainContent({
+  viewMode,
+  categories,
+  selectedCategoryId,
+  sortedTodos,
+  onOpenCategoryModal,
+  onOpenCategoryDetail,
+  onOpenDated,
+  onOpenDaily,
+  onOpenFlagged,
+  onBackToTop,
+  onToggleStatus,
+  onDeleteTodo,
+}: MainContentProps) {
+  return viewMode === "TOP" ? (
+    <TopView
+      categories={categories}
+      onOpenCategoryModal={onOpenCategoryModal}
+      onOpenCategoryDetail={onOpenCategoryDetail}
+      onOpenDated={onOpenDated}
+      onOpenDaily={onOpenDaily}
+      onOpenFlagged={onOpenFlagged}
+    />
+  ) : (
+    <TodoListView
+      viewMode={viewMode}
+      categories={categories}
+      selectedCategoryId={selectedCategoryId}
+      sortedTodos={sortedTodos}
+      onBackToTop={onBackToTop}
+      onToggleStatus={onToggleStatus}
+      onDeleteTodo={onDeleteTodo}
+    />
+  );
+}
+
+export default MainContent;
