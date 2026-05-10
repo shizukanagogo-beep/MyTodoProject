@@ -49,6 +49,7 @@ function Modals({
 
       {isCategoryModalOpen && (
         <CategoryModal
+          categories={categories}
           newCategoryName={newCategoryName}
           setNewCategoryName={setNewCategoryName}
           onClose={onCloseCategoryModal}
