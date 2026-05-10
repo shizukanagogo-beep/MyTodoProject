@@ -7,9 +7,9 @@ import CategoryModal from "./components/CategoryModal";
 import TodoModal from "./components/TodoModal";
 import TopView from "./components/TopView";
 import TodoListView from "./components/TodoListView";
-import Header from "./components/Header";
 import AddTodoButton from "./components/AddTodoButton";
 import Loading from "./components/Loading";
+import AppLayout from "./components/AppLayout";
 
 function App() {
   const {
@@ -62,55 +62,52 @@ function App() {
   if (loadingCategories) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <Header onTitleClick={goTop} />
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
-          <AddTodoButton onClick={openTodoModal} />
-        )}
+    <AppLayout onTitleClick={goTop}>
+      {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
+        <AddTodoButton onClick={openTodoModal} />
+      )}
 
-        {isTodoModalOpen && (
-          <TodoModal
-            newTodo={newTodo}
-            setNewTodo={setNewTodo}
-            categories={categories}
-            viewMode={viewMode}
-            onClose={closeTodoModal}
-            onAddTodo={addTodoAndCloseModal}
-          />
-        )}
+      {isTodoModalOpen && (
+        <TodoModal
+          newTodo={newTodo}
+          setNewTodo={setNewTodo}
+          categories={categories}
+          viewMode={viewMode}
+          onClose={closeTodoModal}
+          onAddTodo={addTodoAndCloseModal}
+        />
+      )}
 
-        {isCategoryModalOpen && (
-          <CategoryModal
-            newCategoryName={newCategoryName}
-            setNewCategoryName={setNewCategoryName}
-            onClose={closeCategoryModal}
-            onAddCategory={addCategoryAndCloseModal}
-          />
-        )}
+      {isCategoryModalOpen && (
+        <CategoryModal
+          newCategoryName={newCategoryName}
+          setNewCategoryName={setNewCategoryName}
+          onClose={closeCategoryModal}
+          onAddCategory={addCategoryAndCloseModal}
+        />
+      )}
 
-        {viewMode === "TOP" ? (
-          <TopView
-            categories={categories}
-            onOpenCategoryModal={openCategoryModal}
-            onOpenCategoryDetail={goCategoryDetail}
-            onOpenDated={goDated}
-            onOpenDaily={goDaily}
-            onOpenFlagged={goFlagged}
-          />
-        ) : (
-          <TodoListView
-            viewMode={viewMode}
-            categories={categories}
-            selectedCategoryId={selectedCategoryId}
-            sortedTodos={sortedTodos}
-            onBackToTop={goTop}
-            onToggleStatus={toggleStatus}
-            onDeleteTodo={deleteTodo}
-          />
-        )}
-      </div>
-    </div>
+      {viewMode === "TOP" ? (
+        <TopView
+          categories={categories}
+          onOpenCategoryModal={openCategoryModal}
+          onOpenCategoryDetail={goCategoryDetail}
+          onOpenDated={goDated}
+          onOpenDaily={goDaily}
+          onOpenFlagged={goFlagged}
+        />
+      ) : (
+        <TodoListView
+          viewMode={viewMode}
+          categories={categories}
+          selectedCategoryId={selectedCategoryId}
+          sortedTodos={sortedTodos}
+          onBackToTop={goTop}
+          onToggleStatus={toggleStatus}
+          onDeleteTodo={deleteTodo}
+        />
+      )}
+    </AppLayout>
   );
 }
 
