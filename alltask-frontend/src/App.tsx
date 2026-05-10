@@ -104,6 +104,7 @@ function App() {
         onBackToTop={goTop}
         onToggleStatus={toggleStatus}
         onDeleteTodo={deleteTodo}
+        onOpenTodoDetail={openTodoDetailModal}
       />
     </AppLayout>
   );

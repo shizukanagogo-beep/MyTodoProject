@@ -52,7 +52,6 @@ function MainContent({
       onToggleStatus={onToggleStatus}
       onDeleteTodo={onDeleteTodo}
       onOpenTodoDetail={onOpenTodoDetail}
-      onOpenTodoDetail={openTodoDetailModal}
     />
   );
 }
