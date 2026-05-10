@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCategories } from "./hooks/useCategories";
 import { useTodos } from "./hooks/useTodos";
+import { useCategoryModal } from "./hooks/useCategoryModal";
 import CategoryModal from "./components/CategoryModal";
 import TodoModal from "./components/TodoModal";
 import TopView from "./components/TopView";
@@ -27,25 +28,22 @@ function App() {
     selectedCategoryId,
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const {
     categories,
     loadingCategories,
     addCategory: addCategoryToList,
   } = useCategories();
 
-  const addCategory = async () => {
-    if (!newCategoryName.trim()) return;
-    try {
-      await addCategoryToList(newCategoryName);
-      setNewCategoryName("");
-      setIsCategoryModalOpen(false);
-    } catch (error) {
-      console.log("カテゴリ作成失敗:", error);
-      alert("カテゴリ作成に失敗しました。");
-    }
-  };
+  const {
+    newCategoryName,
+    setNewCategoryName,
+    isCategoryModalOpen,
+    openCategoryModal,
+    closeCategoryModal,
+    addCategory,
+  } = useCategoryModal({
+    addCategoryToList,
+  });
 
   if (loadingCategories) return <Loading />;
 
@@ -80,7 +78,7 @@ function App() {
           <CategoryModal
             newCategoryName={newCategoryName}
             setNewCategoryName={setNewCategoryName}
-            onClose={() => setIsCategoryModalOpen(false)}
+            onClose={closeCategoryModal}
             onAddCategory={addCategory}
           />
         )}
@@ -91,7 +89,7 @@ function App() {
             categories={categories}
             setViewMode={setViewMode}
             setSelectedCategoryId={setSelectedCategoryId}
-            onOpenCategoryModal={() => setIsCategoryModalOpen(true)}
+            onOpenCategoryModal={openCategoryModal}
           />
         ) : (
           <TodoListView
