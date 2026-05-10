@@ -27,7 +27,10 @@ function CategoryModal({
     >
       <div
         className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpenMenuCategoryId(null);
+        }}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-slate-800">カテゴリの編集</h3>
@@ -50,17 +53,21 @@ function CategoryModal({
 
               <button
                 className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
-                onClick={() =>
+                onClick={(e) => {
+                  e.stopPropagation();
                   setOpenMenuCategoryId((currentId) =>
                     currentId === category.id ? null : category.id,
-                  )
-                }
+                  );
+                }}
               >
                 ⋯
               </button>
 
               {openMenuCategoryId === category.id && (
-                <div className="absolute right-3 top-11 z-10 w-28 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                <div
+                  className="absolute right-3 top-11 z-10 w-28 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50"
                     onClick={() => {
