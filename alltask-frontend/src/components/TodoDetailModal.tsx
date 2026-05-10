@@ -61,6 +61,10 @@ function TodoDetailModal({
   };
 
   const handleMainButton = async () => {
+    if (editTodo.categoryId === null) {
+      alert("カテゴリを選択してください");
+      return;
+    }
     const isSuccess = await onUpdateTodo(todo.id, {
       title: editTodo.title,
       details: editTodo.details,
