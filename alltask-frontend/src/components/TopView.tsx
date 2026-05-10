@@ -44,9 +44,16 @@ function TopView({
       </section>
 
       <section>
-        <h2 className="text-lg font-bold text-slate-700 mb-4 px-1">
-          カテゴリ一覧
-        </h2>
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h2 className="text-lg font-bold text-slate-700">カテゴリ一覧</h2>
+
+          <button
+            className="text-sm font-bold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-colors"
+            onClick={onOpenCategoryModal}
+          >
+            カテゴリの編集
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {categories.map((category) => (
@@ -56,13 +63,6 @@ function TopView({
               onClick={onOpenCategoryDetail}
             />
           ))}
-
-          <button
-            className="p-6 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-indigo-300 hover:text-indigo-400 transition-all"
-            onClick={onOpenCategoryModal}
-          >
-            + カテゴリを追加
-          </button>
         </div>
       </section>
     </div>
