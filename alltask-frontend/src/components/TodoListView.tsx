@@ -6,6 +6,8 @@ type TodoListViewProps = {
   categories: Category[];
   selectedCategoryId: number | null;
   sortedTodos: Todo[];
+  showDoneTodos: boolean;
+  onToggleShowDoneTodos: () => void;
   onBackToTop: () => void;
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
@@ -17,6 +19,8 @@ function TodoListView({
   categories,
   selectedCategoryId,
   sortedTodos,
+  showDoneTodos,
+  onToggleShowDoneTodos,
   onBackToTop,
   onToggleStatus,
   onDeleteTodo,
@@ -24,21 +28,34 @@ function TodoListView({
 }: TodoListViewProps) {
   return (
     <div>
-      <div className="flex items-center gap-4 mb-8">
-        <button
-          onClick={onBackToTop}
-          className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600"
-        >
-          ←
-        </button>
+      <div className="flex items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4 min-w-0">
+          <button
+            onClick={onBackToTop}
+            className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600"
+          >
+            ←
+          </button>
 
-        <h2 className="text-2xl font-bold text-slate-800">
-          {viewMode === "CATEGORY_DETAIL" &&
-            `${categories.find((category) => category.id === selectedCategoryId)?.name}`}
-          {viewMode === "DATED" && "日付ありタスク"}
-          {viewMode === "DAILY" && "日課タスク"}
-          {viewMode === "FLAGGED" && "フラグ付き"}
-        </h2>
+          <h2 className="text-2xl font-bold text-slate-800 truncate">
+            {viewMode === "CATEGORY_DETAIL" &&
+              `${categories.find((category) => category.id === selectedCategoryId)?.name}`}
+            {viewMode === "DATED" && "日付ありタスク"}
+            {viewMode === "DAILY" && "日課タスク"}
+            {viewMode === "FLAGGED" && "フラグ付き"}
+          </h2>
+        </div>
+
+        <button
+          onClick={onToggleShowDoneTodos}
+          className={`shrink-0 px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+            showDoneTodos
+              ? "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+              : "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+          }`}
+        >
+          {showDoneTodos ? "完了済みを隠す" : "完了済みを表示"}
+        </button>
       </div>
 
       <div className="space-y-3">

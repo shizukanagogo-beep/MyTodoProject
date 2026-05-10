@@ -29,6 +29,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState<NewTodo>(initialNewTodo);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showDoneTodos, setShowDoneTodos] = useState(true);
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -159,7 +160,11 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const sortedTodos = [...todos].sort((a, b) => {
+  const visibleTodos = showDoneTodos
+    ? todos
+    : todos.filter((todo) => todo.status !== "DONE");
+
+  const sortedTodos = [...visibleTodos].sort((a, b) => {
     if (a.status === "DONE" && b.status !== "DONE") return 1;
     if (a.status !== "DONE" && b.status === "DONE") return -1;
     return 0;
@@ -167,6 +172,8 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   return {
     sortedTodos,
+    showDoneTodos,
+    setShowDoneTodos,
     newTodo,
     setNewTodo,
     addTodo,

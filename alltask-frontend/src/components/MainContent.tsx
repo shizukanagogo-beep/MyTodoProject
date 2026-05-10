@@ -7,6 +7,8 @@ type MainContentProps = {
   categories: Category[];
   selectedCategoryId: number | null;
   sortedTodos: Todo[];
+  showDoneTodos: boolean;
+  onToggleShowDoneTodos: () => void;
   onOpenCategoryModal: () => void;
   onOpenCategoryDetail: (categoryId: number) => void;
   onOpenDated: () => void;
@@ -48,6 +50,8 @@ function MainContent({
       categories={categories}
       selectedCategoryId={selectedCategoryId}
       sortedTodos={sortedTodos}
+      showDoneTodos={showDoneTodos}
+      onToggleShowDoneTodos={onToggleShowDoneTodos}
       onBackToTop={onBackToTop}
       onToggleStatus={onToggleStatus}
       onDeleteTodo={onDeleteTodo}

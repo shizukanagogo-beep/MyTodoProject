@@ -21,8 +21,11 @@ function App() {
     goDaily,
     goFlagged,
   } = useViewMode();
+
   const {
     sortedTodos,
+    showDoneTodos,
+    setShowDoneTodos,
     newTodo,
     setNewTodo,
     addTodo,
@@ -111,6 +114,8 @@ function App() {
         categories={categories}
         selectedCategoryId={selectedCategoryId}
         sortedTodos={sortedTodos}
+        showDoneTodos={showDoneTodos}
+        onToggleShowDoneTodos={() => setShowDoneTodos((prev) => !prev)}
         onOpenCategoryModal={openCategoryModal}
         onOpenCategoryDetail={goCategoryDetail}
         onOpenDated={goDated}
