@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCategories } from "./hooks/useCategories";
 import { useTodos } from "./hooks/useTodos";
+import { useTodoModal } from "./hooks/useTodoModal";
 import { useCategoryModal } from "./hooks/useCategoryModal";
 import CategoryModal from "./components/CategoryModal";
 import TodoModal from "./components/TodoModal";
@@ -27,7 +28,12 @@ function App() {
     viewMode,
     selectedCategoryId,
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { isTodoModalOpen, openTodoModal, closeTodoModal, submitTodo } =
+    useTodoModal({
+      addTodo,
+    });
+
   const {
     categories,
     loadingCategories,
@@ -54,23 +60,18 @@ function App() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* モーダル起動ボタン */}
         {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
-          <AddTodoButton onClick={() => setIsModalOpen(true)} />
+          <AddTodoButton onClick={openTodoModal} />
         )}
 
         {/* モーダル */}
-        {isModalOpen && (
+        {isTodoModalOpen && (
           <TodoModal
             newTodo={newTodo}
             setNewTodo={setNewTodo}
             categories={categories}
             viewMode={viewMode}
-            onClose={() => setIsModalOpen(false)}
-            onAddTodo={async () => {
-              const isSuccess = await addTodo();
-              if (isSuccess) {
-                setIsModalOpen(false);
-              }
-            }}
+            onClose={closeTodoModal}
+            onAddTodo={submitTodo}
           />
         )}
 
