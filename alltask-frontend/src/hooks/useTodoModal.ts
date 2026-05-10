@@ -15,7 +15,7 @@ export function useTodoModal({ addTodo }: UseTodoModalArgs) {
     setIsTodoModalOpen(false);
   };
 
-  const submitTodo = async () => {
+  const addTodoAndCloseModal = async () => {
     const isSuccess = await addTodo();
 
     if (isSuccess) {
@@ -27,6 +27,6 @@ export function useTodoModal({ addTodo }: UseTodoModalArgs) {
     isTodoModalOpen,
     openTodoModal,
     closeTodoModal,
-    submitTodo,
+    addTodoAndCloseModal,
   };
 }

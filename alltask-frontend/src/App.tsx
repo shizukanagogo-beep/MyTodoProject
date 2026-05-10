@@ -10,7 +10,7 @@ import TodoListView from "./components/TodoListView";
 import Header from "./components/Header";
 import AddTodoButton from "./components/AddTodoButton";
 import Loading from "./components/Loading";
-// --------------------------------------------------------------------------
+
 function App() {
   const {
     viewMode,
@@ -33,10 +33,14 @@ function App() {
     selectedCategoryId,
   });
 
-  const { isTodoModalOpen, openTodoModal, closeTodoModal, submitTodo } =
-    useTodoModal({
-      addTodo,
-    });
+  const {
+    isTodoModalOpen,
+    openTodoModal,
+    closeTodoModal,
+    addTodoAndCloseModal,
+  } = useTodoModal({
+    addTodo,
+  });
 
   const {
     categories,
@@ -50,7 +54,7 @@ function App() {
     isCategoryModalOpen,
     openCategoryModal,
     closeCategoryModal,
-    addCategory,
+    addCategoryAndCloseModal,
   } = useCategoryModal({
     addCategoryToList,
   });
@@ -59,15 +63,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      {/* ヘッダー */}
       <Header onTitleClick={goTop} />
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* モーダル起動ボタン */}
         {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
           <AddTodoButton onClick={openTodoModal} />
         )}
 
-        {/* モーダル */}
         {isTodoModalOpen && (
           <TodoModal
             newTodo={newTodo}
@@ -75,7 +76,7 @@ function App() {
             categories={categories}
             viewMode={viewMode}
             onClose={closeTodoModal}
-            onAddTodo={submitTodo}
+            onAddTodo={addTodoAndCloseModal}
           />
         )}
 
@@ -84,11 +85,10 @@ function App() {
             newCategoryName={newCategoryName}
             setNewCategoryName={setNewCategoryName}
             onClose={closeCategoryModal}
-            onAddCategory={addCategory}
+            onAddCategory={addCategoryAndCloseModal}
           />
         )}
 
-        {/* メインコンテンツ */}
         {viewMode === "TOP" ? (
           <TopView
             categories={categories}

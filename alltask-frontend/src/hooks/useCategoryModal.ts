@@ -16,7 +16,7 @@ export function useCategoryModal({ addCategoryToList }: UseCategoryModalArgs) {
     setIsCategoryModalOpen(false);
   };
 
-  const addCategory = async () => {
+  const addCategoryAndCloseModal = async () => {
     if (!newCategoryName.trim()) return;
 
     try {
@@ -35,6 +35,6 @@ export function useCategoryModal({ addCategoryToList }: UseCategoryModalArgs) {
     isCategoryModalOpen,
     openCategoryModal,
     closeCategoryModal,
-    addCategory,
+    addCategoryAndCloseModal,
   };
 }
