@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { useCategories } from "./hooks/useCategories";
 import { useTodos } from "./hooks/useTodos";
 import { useTodoModal } from "./hooks/useTodoModal";
 import { useCategoryModal } from "./hooks/useCategoryModal";
+import { useViewMode } from "./hooks/useViewMode";
 import CategoryModal from "./components/CategoryModal";
 import TodoModal from "./components/TodoModal";
 import TopView from "./components/TopView";
@@ -10,13 +10,17 @@ import TodoListView from "./components/TodoListView";
 import Header from "./components/Header";
 import AddTodoButton from "./components/AddTodoButton";
 import Loading from "./components/Loading";
-import type { ViewMode } from "./types";
 // --------------------------------------------------------------------------
 function App() {
-  const [viewMode, setViewMode] = useState<ViewMode>("TOP");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    null,
-  );
+  const {
+    viewMode,
+    selectedCategoryId,
+    goTop,
+    goCategoryDetail,
+    goDated,
+    goDaily,
+    goFlagged,
+  } = useViewMode();
   const {
     sortedTodos,
     newTodo,
@@ -56,7 +60,7 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* ヘッダー */}
-      <Header onTitleClick={() => setViewMode("TOP")} />
+      <Header onTitleClick={goTop} />
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* モーダル起動ボタン */}
         {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
@@ -88,9 +92,11 @@ function App() {
         {viewMode === "TOP" ? (
           <TopView
             categories={categories}
-            setViewMode={setViewMode}
-            setSelectedCategoryId={setSelectedCategoryId}
             onOpenCategoryModal={openCategoryModal}
+            onOpenCategoryDetail={goCategoryDetail}
+            onOpenDated={goDated}
+            onOpenDaily={goDaily}
+            onOpenFlagged={goFlagged}
           />
         ) : (
           <TodoListView
@@ -98,7 +104,7 @@ function App() {
             categories={categories}
             selectedCategoryId={selectedCategoryId}
             sortedTodos={sortedTodos}
-            onBackToTop={() => setViewMode("TOP")}
+            onBackToTop={goTop}
             onToggleStatus={toggleStatus}
             onDeleteTodo={deleteTodo}
           />

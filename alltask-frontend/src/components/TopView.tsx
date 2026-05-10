@@ -1,38 +1,42 @@
-import CategoryCard from './CategoryCard';
-import type { Category, ViewMode } from '../types';
+import CategoryCard from "./CategoryCard";
+import type { Category } from "../types";
 
 type TopViewProps = {
   categories: Category[];
-  setViewMode: (viewMode: ViewMode) => void;
-  setSelectedCategoryId: (categoryId: number) => void;
   onOpenCategoryModal: () => void;
+  onOpenCategoryDetail: (categoryId: number) => void;
+  onOpenDated: () => void;
+  onOpenDaily: () => void;
+  onOpenFlagged: () => void;
 };
 
 function TopView({
   categories,
-  setViewMode,
-  setSelectedCategoryId,
   onOpenCategoryModal,
+  onOpenCategoryDetail,
+  onOpenDated,
+  onOpenDaily,
+  onOpenFlagged,
 }: TopViewProps) {
   return (
     <div className="space-y-8">
       <section className="grid grid-cols-3 gap-4">
         <button
-          onClick={() => setViewMode('DATED')}
+          onClick={onOpenDated}
           className="p-4 bg-blue-500 text-white rounded-xl font-bold shadow-md hover:bg-blue-600"
         >
           📅 日付あり
         </button>
 
         <button
-          onClick={() => setViewMode('DAILY')}
+          onClick={onOpenDaily}
           className="p-4 bg-emerald-500 text-white rounded-xl font-bold shadow-md hover:bg-emerald-600"
         >
           🔄 日課
         </button>
 
         <button
-          onClick={() => setViewMode('FLAGGED')}
+          onClick={onOpenFlagged}
           className="p-4 bg-amber-500 text-white rounded-xl font-bold shadow-md hover:bg-amber-600"
         >
           🚩 フラグ
@@ -49,10 +53,7 @@ function TopView({
             <CategoryCard
               key={category.id}
               category={category}
-              onClick={(categoryId) => {
-                setSelectedCategoryId(categoryId);
-                setViewMode('CATEGORY_DETAIL');
-              }}
+              onClick={onOpenCategoryDetail}
             />
           ))}
 
