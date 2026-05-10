@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { UpdateTodoPayload } from "../services/todoService";
 import type { Category, Todo } from "../types";
 
 type EditableTodo = {
@@ -16,20 +17,7 @@ type TodoDetailModalProps = {
   categories: Category[];
   onClose: () => void;
   onDeleteTodo: (id: number) => void;
-  onUpdateTodo: (
-    id: number,
-    payload: {
-      title: string;
-      details: string;
-      categoryId: number | null;
-      dueDate: string;
-      status: Todo["status"];
-      daily: boolean;
-      hasFlag: boolean;
-      autoCarryOver: boolean;
-      overdueBehavior: number;
-    },
-  ) => Promise<boolean>;
+  onUpdateTodo: (id: number, payload: UpdateTodoPayload) => Promise<boolean>;
 };
 
 function TodoDetailModal({
