@@ -110,17 +110,19 @@ function CategoryModal({
                   </button>
                 </div>
               )}
-              <button
-                className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenMenuCategoryId((currentId) =>
-                    currentId === category.id ? null : category.id,
-                  );
-                }}
-              >
-                ⋯
-              </button>
+              {editingCategoryId !== category.id && (
+                <button
+                  className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMenuCategoryId((currentId) =>
+                      currentId === category.id ? null : category.id,
+                    );
+                  }}
+                >
+                  ⋯
+                </button>
+              )}
 
               {openMenuCategoryId === category.id && (
                 <div
