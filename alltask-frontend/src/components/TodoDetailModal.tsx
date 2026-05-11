@@ -80,6 +80,7 @@ function TodoDetailModal({
       hasFlag: editTodo.hasFlag,
       autoCarryOver: todo.autoCarryOver,
       overdueBehavior: editTodo.overdueBehavior,
+      sortOrder: todo.sortOrder,
     });
 
     if (isSuccess) {

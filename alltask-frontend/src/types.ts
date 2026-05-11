@@ -33,6 +33,7 @@ export interface NewTodo {
   hasFlag: boolean;
   autoCarryOver: boolean;
   overdueBehavior: number;
+  sortOrder: number | null;
 }
 
 export type ViewMode =
