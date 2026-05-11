@@ -94,10 +94,10 @@ public class TodoService {
                     todo.setDueDate(today);
                     updated = true;
                 } else if (Integer.valueOf(2).equals(behavior)) {
-                    todo.setDueDate(null);
+                    todo.setStatus(Status.DONE);
                     updated = true;
                 } else if (Integer.valueOf(3).equals(behavior)) {
-                    todo.setStatus(Status.DONE);
+                    todo.setDueDate(null);
                     updated = true;
                 }
 
@@ -110,20 +110,20 @@ public class TodoService {
     }
 
     // 共通メソッド｜日付あり／日課／プレーンの選択（排他制御ロジック）----------------------------------
-   private void adjustTaskOptions(TodoForm form) {
-    if (Boolean.TRUE.equals(form.getDaily())) {
-        form.setDueDate(null);
+    private void adjustTaskOptions(TodoForm form) {
+        if (Boolean.TRUE.equals(form.getDaily())) {
+            form.setDueDate(null);
+            form.setAutoCarryOver(false);
+            return;
+        }
+
+        if (form.getDueDate() != null) {
+            form.setDaily(false);
+            return;
+        }
+
         form.setAutoCarryOver(false);
-        return;
     }
-
-    if (form.getDueDate() != null) {
-        form.setDaily(false);
-        return;
-    }
-
-    form.setAutoCarryOver(false);
-}
 
     // 共通メソッド｜form(DTO) ->
     // Todo(Entity)へ変換----------------------------------------------
