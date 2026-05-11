@@ -18,6 +18,7 @@ const initialNewTodo: NewTodo = {
   hasFlag: false,
   autoCarryOver: false,
   overdueBehavior: 0,
+  sortOrder: null,
 };
 
 type UseTodosArgs = {
