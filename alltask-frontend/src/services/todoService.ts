@@ -13,6 +13,11 @@ export type UpdateTodoPayload = Omit<NewTodo, "categoryId" | "dueDate"> & {
   status: Todo["status"];
 };
 
+export type TodoSortOrderPayload = {
+  id: number;
+  sortOrder: number;
+};
+
 export async function fetchTodos(params: TodoSearchParams) {
   const response = await api.get<Todo[]>("/todos", { params });
   return response.data;
@@ -31,6 +36,10 @@ export async function updateTodoStatus(id: number, status: Todo["status"]) {
   await api.patch(`/todos/${id}/status`, `"${status}"`, {
     headers: { "Content-Type": "application/json" },
   });
+}
+
+export async function updatedTodoSortOrder(payload: TodoSortOrderPayload[]) {
+  await api.patch("/todos/sort-order", payload);
 }
 
 export async function deleteTodo(id: number) {
