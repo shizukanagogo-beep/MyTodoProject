@@ -34,6 +34,7 @@ function Modals({
   setNewCategoryName,
   onCloseCategoryModal,
   onAddCategory,
+  onUpdateCategory,
 }: ModalsProps) {
   return (
     <>
