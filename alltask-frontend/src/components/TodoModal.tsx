@@ -1,5 +1,5 @@
-import type { Dispatch, SetStateAction } from 'react';
-import type { Category, NewTodo, ViewMode } from '../types';
+import type { Dispatch, SetStateAction } from "react";
+import type { Category, NewTodo, ViewMode } from "../types";
 
 type TodoModalProps = {
   newTodo: NewTodo;
@@ -43,13 +43,11 @@ function TodoModal({
             placeholder="タイトル"
             className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
             value={newTodo.title}
-            onChange={(e) =>
-              setNewTodo({ ...newTodo, title: e.target.value })
-            }
+            onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
           />
 
           <div className="grid grid-cols-2 gap-4">
-            {viewMode === 'TOP' && (
+            {viewMode === "TOP" && (
               <select
                 className="px-4 py-3 border border-slate-200 rounded-lg bg-white"
                 value={newTodo.categoryId}
@@ -57,7 +55,7 @@ function TodoModal({
                   setNewTodo({
                     ...newTodo,
                     categoryId:
-                      e.target.value === '' ? '' : Number(e.target.value),
+                      e.target.value === "" ? "" : Number(e.target.value),
                   })
                 }
               >
@@ -78,6 +76,34 @@ function TodoModal({
                 setNewTodo({ ...newTodo, dueDate: e.target.value })
               }
             />
+
+            {newTodo.dueDate && !newTodo.daily && (
+              <div className="col-span-2">
+                <p className="text-sm font-bold text-slate-500 mb-1">
+                  期限超過時の動き
+                </p>
+
+                <select
+                  className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
+                  value={newTodo.overdueBehavior}
+                  onChange={(e) =>
+                    setNewTodo({
+                      ...newTodo,
+                      dueDate: e.target.value,
+                      daily: e.target.value ? false : newTodo.daily,
+                      overdueBehavior: e.target.value
+                        ? newTodo.overdueBehavior
+                        : 0,
+                    })
+                  }
+                >
+                  <option value={0}>日付を赤文字でそのまま</option>
+                  <option value={1}>日付を今日に繰り越す</option>
+                  <option value={2}>自動的に完了済みにする</option>
+                  <option value={3}>日付を削除する</option>
+                </select>
+              </div>
+            )}
           </div>
 
           <textarea
@@ -108,7 +134,14 @@ function TodoModal({
                 className="w-4 h-4"
                 checked={newTodo.daily}
                 onChange={(e) =>
-                  setNewTodo({ ...newTodo, daily: e.target.checked })
+                  setNewTodo({
+                    ...newTodo,
+                    daily: e.target.checked,
+                    dueDate: e.target.checked ? "" : newTodo.dueDate,
+                    overdueBehavior: e.target.checked
+                      ? 0
+                      : newTodo.overdueBehavior,
+                  })
                 }
               />
               🔄日課

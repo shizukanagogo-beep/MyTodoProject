@@ -10,6 +10,7 @@ type EditableTodo = {
   status: Todo["status"];
   daily: boolean;
   hasFlag: boolean;
+  overdueBehavior: number;
 };
 
 type TodoDetailModalProps = {
@@ -35,6 +36,7 @@ function TodoDetailModal({
     status: todo.status,
     daily: todo.daily,
     hasFlag: todo.hasFlag,
+    overdueBehavior: todo.overdueBehavior,
   };
 
   const [editTodo, setEditTodo] = useState<EditableTodo>(initialTodoState);
@@ -48,6 +50,7 @@ function TodoDetailModal({
       editTodo.status !== todo.status ||
       editTodo.daily !== todo.daily ||
       editTodo.hasFlag !== todo.hasFlag
+      editTodo.overdueBehavior !== todo.overdueBehavior
     );
   }, [editTodo, todo]);
 
@@ -74,7 +77,7 @@ function TodoDetailModal({
       daily: editTodo.daily,
       hasFlag: editTodo.hasFlag,
       autoCarryOver: todo.autoCarryOver,
-      overdueBehavior: todo.overdueBehavior,
+      overdueBehavior: editTodo.overdueBehavior,
     });
     if (isSuccess) {
       onClose();
@@ -206,7 +209,6 @@ function TodoDetailModal({
                   })
                 }
               />
-
               {editTodo.daily && (
                 <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-10">
                   <div className="bg-slate-800 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
@@ -216,7 +218,29 @@ function TodoDetailModal({
               )}
             </div>
           </div>
+          {editTodo.dueDate && !editTodo.daily && (
+  <div>
+    <p className="text-sm font-bold text-slate-500 mb-1">
+      期限超過時の動き
+    </p>
 
+    <select
+      className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
+      value={editTodo.overdueBehavior}
+      onChange={(e) =>
+        setEditTodo({
+          ...editTodo,
+          overdueBehavior: Number(e.target.value),
+        })
+      }
+    >
+      <option value={0}>日付を赤文字でそのまま</option>
+      <option value={1}>日付を今日に繰り越す</option>
+      <option value={2}>自動的に完了済みにする</option>
+      <option value={3}>日付を削除する</option>
+    </select>
+  </div>
+)}
           <div>
             <p className="text-sm font-bold text-slate-500 mb-1">詳細</p>
             <textarea
