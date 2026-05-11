@@ -12,7 +12,7 @@ public interface CategoryMapper {
 
     void updateCategory(Category category);
 
-    Category findById(int id);
+    Category findById(Integer id);
 
     void deleteTodosByCategoryId(Integer categoryId);
 
