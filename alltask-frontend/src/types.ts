@@ -14,7 +14,7 @@ export interface Todo {
   hasFlag: boolean;
   autoCarryOver: boolean;
   overdueBehavior: number;
-  sortOrder: number;
+  sortOrder: number | null;
 }
 
 export interface TodoSearchParams {
