@@ -11,4 +11,5 @@ public interface CategoryMapper {
     List<Category> findAll();
 
     void addCategory(Category category);
+
 }

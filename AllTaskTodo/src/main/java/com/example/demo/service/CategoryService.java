@@ -24,4 +24,11 @@ public class CategoryService {
         return category;
     }
 
+    // -------------------------------------------------------------
+    public Category updateCategory(int id, Category category) {
+        category.setId(id);
+        categoryMapper.updateCategory(category);
+        return categoryMapper.findById(id);
+    }
+
 }
