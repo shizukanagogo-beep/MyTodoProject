@@ -13,6 +13,9 @@ function TodoItem({
   onDeleteTodo,
   onOpenTodoDetail,
 }: TodoItemProps) {
+  const today = new Date().toISOString().slice(0, 10);
+  const isOverdue =
+    todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
   return (
     <div
       className={`flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-slate-100 group cursor-pointer ${
@@ -53,7 +56,13 @@ function TodoItem({
                 </span>
               )}
               {todo.dueDate && (
-                <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full border ${
+                    isOverdue
+                      ? "bg-red-50 text-red-600 border-red-100"
+                      : "bg-blue-50 text-blue-600 border-blue-100"
+                  }`}
+                >
                   {todo.dueDate}
                 </span>
               )}
