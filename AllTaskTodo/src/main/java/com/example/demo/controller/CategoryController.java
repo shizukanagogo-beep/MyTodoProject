@@ -15,6 +15,7 @@ import com.example.demo.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,6 +25,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    // -----------------------------------------------------------
     @GetMapping
     public List<Category> findAll() {
         return categoryService.findAll();
@@ -38,8 +40,14 @@ public class CategoryController {
     // -----------------------------------------------------==
     @PutMapping("/{id}")
     public Category updateCategory(
-            @PathVariable int id,
+            @PathVariable Integer id,
             @RequestBody Category category) {
         return categoryService.updateCategory(id, category);
+    }
+
+    // ------------------------------------------------------
+    @DeleteMapping("/{id}")
+    public void deleteCategory(@PathVariable Integer id) {
+        categoryService.deleteCategory(id);
     }
 }

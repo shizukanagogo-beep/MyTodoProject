@@ -25,10 +25,16 @@ public class CategoryService {
     }
 
     // -------------------------------------------------------------
-    public Category updateCategory(int id, Category category) {
+    public Category updateCategory(Integer id, Category category) {
         category.setId(id);
         categoryMapper.updateCategory(category);
         return categoryMapper.findById(id);
+    }
+
+    // -------------------------------------------------------------
+    public void deleteCategory(Integer id) {
+        categoryMapper.deleteTodosByCategoryId(id);
+        categoryMapper.deleteCategory(id);
     }
 
 }
