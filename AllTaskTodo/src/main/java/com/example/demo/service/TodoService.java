@@ -138,9 +138,10 @@ public class TodoService {
         todo.setDaily(form.getDaily());
         todo.setHasFlag(form.getHasFlag());
 
-        // カテゴリー・日付超過挙動（新しく追加したフィールド）
+        // カテゴリー・日付超過挙動
         todo.setCategoryId(form.getCategoryId());
         todo.setOverdueBehavior(form.getOverdueBehavior());
+        todo.setSortOrder(form.getSortOrder());
 
         // ステータスの初期値設定
         if (form.getStatus() != null) {
