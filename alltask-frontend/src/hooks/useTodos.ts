@@ -116,6 +116,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       hasFlag: boolean;
       autoCarryOver: boolean;
       overdueBehavior: number;
+      sortOrder: number | null;
     },
   ) => {
     if (!payload.title.trim()) {
@@ -133,6 +134,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         ...payload,
         categoryId: payload.categoryId,
         dueDate: payload.dueDate || null,
+        sortOrder: payload.sortOrder,
       });
 
       setTodos((prev) => {
