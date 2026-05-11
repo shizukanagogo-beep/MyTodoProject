@@ -59,7 +59,7 @@ function App() {
     isCategoryModalOpen,
     openCategoryModal,
     closeCategoryModal,
-    addCategoryAndCloseModal,
+    addCategoryFromModal,
   } = useCategoryModal({
     addCategoryToList,
   });
@@ -107,7 +107,7 @@ function App() {
         newCategoryName={newCategoryName}
         setNewCategoryName={setNewCategoryName}
         onCloseCategoryModal={closeCategoryModal}
-        onAddCategory={addCategoryAndCloseModal}
+        onAddCategory={addCategoryFromModal}
         onUpdateCategory={updateCategory}
       />
 

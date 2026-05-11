@@ -16,25 +16,23 @@ export function useCategoryModal({ addCategoryToList }: UseCategoryModalArgs) {
     setIsCategoryModalOpen(false);
   };
 
-  const addCategoryAndCloseModal = async () => {
+  const addCategoryFromModal = async () => {
     if (!newCategoryName.trim()) return;
 
     try {
       await addCategoryToList(newCategoryName);
       setNewCategoryName("");
-      closeCategoryModal();
     } catch (error) {
       console.log("カテゴリ作成失敗:", error);
       alert("カテゴリ作成に失敗しました。");
     }
   };
-
   return {
     newCategoryName,
     setNewCategoryName,
     isCategoryModalOpen,
     openCategoryModal,
     closeCategoryModal,
-    addCategoryAndCloseModal,
+    addCategoryFromModal,
   };
 }
