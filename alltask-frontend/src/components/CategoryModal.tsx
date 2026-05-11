@@ -7,6 +7,7 @@ type CategoryModalProps = {
   setNewCategoryName: (value: string) => void;
   onClose: () => void;
   onAddCategory: () => void;
+  onUpdateCategory: (id: number, name: string) => Promise<boolean>;
 };
 
 function CategoryModal({
@@ -15,10 +16,23 @@ function CategoryModal({
   setNewCategoryName,
   onClose,
   onAddCategory,
+  onUpdateCategory,
 }: CategoryModalProps) {
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
+    null,
+  );
+  const [editingCategoryName, setEditingCategoryName] = useState("");
   const [openMenuCategoryId, setOpenMenuCategoryId] = useState<number | null>(
     null,
   );
+  const saveCategoryName = async (categoryId: number) => {
+    const isSuccess = await onUpdateCategory(categoryId, editingCategoryName);
+
+    if (isSuccess) {
+      setEditingCategoryId(null);
+      setEditingCategoryName("");
+    }
+  };
 
   return (
     <div
@@ -49,8 +63,53 @@ function CategoryModal({
               key={category.id}
               className="relative flex items-center justify-between px-4 py-3 bg-slate-50 rounded-xl border border-slate-100"
             >
-              <span className="font-bold text-slate-700">{category.name}</span>
+              {editingCategoryId === category.id ? (
+                <input
+                  className="flex-1 bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 font-bold"
+                  value={editingCategoryName}
+                  autoFocus
+                  onChange={(e) => setEditingCategoryName(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      saveCategoryName(category.id);
+                    }
 
+                    if (e.key === "Escape") {
+                      setEditingCategoryId(null);
+                      setEditingCategoryName("");
+                    }
+                  }}
+                />
+              ) : (
+                <span className="font-bold text-slate-700">
+                  {category.name}
+                </span>
+              )}
+              {editingCategoryId === category.id && (
+                <div className="flex gap-2 ml-2">
+                  <button
+                    className="text-xs font-bold text-slate-500 hover:text-slate-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingCategoryId(null);
+                      setEditingCategoryName("");
+                    }}
+                  >
+                    キャンセル
+                  </button>
+
+                  <button
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      saveCategoryName(category.id);
+                    }}
+                  >
+                    保存
+                  </button>
+                </div>
+              )}
               <button
                 className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
                 onClick={(e) => {
@@ -71,7 +130,8 @@ function CategoryModal({
                   <button
                     className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50"
                     onClick={() => {
-                      alert("カテゴリ編集は次に実装します");
+                      setEditingCategoryId(category.id);
+                      setEditingCategoryName(category.name);
                       setOpenMenuCategoryId(null);
                     }}
                   >

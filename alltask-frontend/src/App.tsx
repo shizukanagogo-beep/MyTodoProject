@@ -49,6 +49,7 @@ function App() {
   const {
     categories,
     loadingCategories,
+    updateCategory,
     addCategory: addCategoryToList,
   } = useCategories();
 
@@ -107,6 +108,7 @@ function App() {
         setNewCategoryName={setNewCategoryName}
         onCloseCategoryModal={closeCategoryModal}
         onAddCategory={addCategoryAndCloseModal}
+        onUpdateCategory={updateCategory}
       />
 
       <MainContent
