@@ -51,6 +51,7 @@ function App() {
     loadingCategories,
     updateCategory,
     addCategory: addCategoryToList,
+    deleteCategory,
   } = useCategories();
 
   const {
@@ -109,6 +110,7 @@ function App() {
         onCloseCategoryModal={closeCategoryModal}
         onAddCategory={addCategoryFromModal}
         onUpdateCategory={updateCategory}
+        onDeleteCategory={deleteCategory}
       />
 
       <MainContent

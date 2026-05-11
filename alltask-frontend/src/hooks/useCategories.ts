@@ -4,6 +4,7 @@ import {
   fetchCategories as fetchCategoriesApi,
   addCategory as addCategoryApi,
   updateCategory as updateCategoryApi,
+  deleteCategory as deleteCategoryApi,
 } from "../services/categoryService";
 
 export function useCategories() {
@@ -52,10 +53,23 @@ export function useCategories() {
     }
   };
 
+  const deleteCategory = async (id: number) => {
+    try {
+      await deleteCategoryApi(id);
+      setCategories((prev) => prev.filter((category) => category.id !== id));
+      return true;
+    } catch (error) {
+      console.error("カテゴリ削除失敗:", error);
+      alert("カテゴリ削除に失敗しました。");
+      return false;
+    }
+  };
+
   return {
     categories,
     loadingCategories,
     addCategory,
     updateCategory,
+    deleteCategory,
   };
 }

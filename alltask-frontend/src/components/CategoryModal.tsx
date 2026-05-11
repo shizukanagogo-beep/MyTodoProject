@@ -8,6 +8,7 @@ type CategoryModalProps = {
   onClose: () => void;
   onAddCategory: () => void;
   onUpdateCategory: (id: number, name: string) => Promise<boolean>;
+  onDeleteCategory: (id: number) => Promise<boolean>;
 };
 
 function CategoryModal({
@@ -17,6 +18,7 @@ function CategoryModal({
   onClose,
   onAddCategory,
   onUpdateCategory,
+  onDeleteCategory,
 }: CategoryModalProps) {
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
     null,
@@ -142,9 +144,23 @@ function CategoryModal({
 
                   <button
                     className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50"
-                    onClick={() => {
-                      alert("カテゴリ削除は次に実装します");
-                      setOpenMenuCategoryId(null);
+                    onClick={async () => {
+                      const ok = window.confirm(
+                        `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\n本当に削除しますか？`,
+                      );
+
+                      if (!ok) return;
+
+                      const isSuccess = await onDeleteCategory(category.id);
+
+                      if (isSuccess) {
+                        setOpenMenuCategoryId(null);
+
+                        if (editingCategoryId === category.id) {
+                          setEditingCategoryId(null);
+                          setEditingCategoryName("");
+                        }
+                      }
                     }}
                   >
                     削除

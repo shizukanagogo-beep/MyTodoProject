@@ -15,3 +15,7 @@ export async function updateCategory(id: number, name: string) {
   const response = await api.put<Category>(`/categories/${id}`, { name });
   return response.data;
 }
+
+export async function deleteCategory(id: number) {
+  await api.delete(`/categories/${id}`);
+}
