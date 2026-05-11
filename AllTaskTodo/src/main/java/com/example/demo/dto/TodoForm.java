@@ -18,4 +18,6 @@ public class TodoForm {
     private Integer overdueBehavior;
     private String details;
     private Boolean autoCarryOver;
+    private Integer sortOrder;
+
 }

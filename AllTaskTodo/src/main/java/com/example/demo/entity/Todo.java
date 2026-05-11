@@ -16,4 +16,5 @@ public class Todo {
     private Boolean daily;
     private Boolean hasFlag;
     private Integer overdueBehavior;
+    private Integer sortOrder;
 }

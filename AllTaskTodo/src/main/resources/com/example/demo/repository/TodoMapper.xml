@@ -13,7 +13,7 @@
           is_daily AS daily,
           has_flag AS hasFlag,
           category_id AS categoryId,
-          overdue_behavior AS overdueBehavior
+          overdue_behavior AS overdueBehavior sort_order AS sortOrder
         FROM
           todos
         <where>
@@ -44,6 +44,7 @@
             WHEN status = 'INCOMPLETE' THEN 1
             ELSE 2
           END ASC,
+          sort_order ASC,
           id DESC
     </select>
     <!-- 2. １件取得 -->
@@ -58,7 +59,7 @@
           is_daily AS daily,
           has_flag AS hasFlag,
           category_id AS categoryId,
-          overdue_behavior AS overdueBehavior
+          overdue_behavior AS overdueBehavior sort_order AS sortOrder
         FROM
           todos
         WHERE
@@ -86,7 +87,8 @@
             is_daily,
             has_flag,
             category_id,
-            overdue_behavior
+            overdue_behavior,
+            sort_order
           )
         VALUES
           (
@@ -98,7 +100,8 @@
             #{daily},
             #{hasFlag},
             #{categoryId},
-            #{overdueBehavior}
+            #{overdueBehavior},
+            #{sortOrder}
           )
     </insert>
     <!-- 5. 全項目更新 (Todoエンティティを使用) -->
@@ -113,7 +116,8 @@
           is_daily = #{daily},
           has_flag = #{hasFlag},
           category_id = #{categoryId},
-          overdue_behavior = #{overdueBehavior}
+          overdue_behavior = #{overdueBehavior},
+          sort_order = #{sortOrder}
         WHERE
           id = #{id}
     </update>
