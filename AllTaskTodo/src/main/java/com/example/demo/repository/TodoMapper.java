@@ -22,6 +22,8 @@ public interface TodoMapper {
 
 	boolean update(Todo todo);
 
+	void updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
+
 	// カテゴリーのみ変更
 	void updateCategory(@Param("id") Integer id, @Param("categoryId") Integer categoryId);
 

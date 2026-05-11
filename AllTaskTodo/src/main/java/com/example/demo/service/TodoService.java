@@ -10,6 +10,7 @@ import com.example.demo.dto.TodoForm;
 import com.example.demo.entity.Status;
 import com.example.demo.entity.Todo;
 import com.example.demo.repository.TodoMapper;
+import com.example.demo.dto.TodoSortOrderForm;
 
 import lombok.RequiredArgsConstructor;
 
@@ -76,6 +77,14 @@ public class TodoService {
         todo.setId(id);
 
         return todoMapper.update(todo);
+    }
+
+    // 並び順変更-------------------------------------------------
+    @Transactional
+    public void updateSortOrder(List<TodoSortOrderForm> forms) {
+        for (TodoSortOrderForm form : forms) {
+            todoMapper.updateSortOrder(form.getId(), form.getSortOrder());
+        }
     }
 
     // 超過タスク処理ロジック（日付超過時の挙動オプション）-------------------------------------------

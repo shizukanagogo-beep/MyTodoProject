@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.TodoForm;
+import com.example.demo.dto.TodoSortOrderForm;
 import com.example.demo.entity.Status;
 import com.example.demo.entity.Todo;
 import com.example.demo.service.TodoService;
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -123,6 +123,13 @@ public class TodoController {
     @PatchMapping("/{id}/category")
     public ResponseEntity<Void> updateCategory(@PathVariable("id") Integer id, @RequestBody Integer categoryId) {
         todoService.updateCategory(id, categoryId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 並び順変更-------------------------------------------------------------
+    @PatchMapping("/sort-order")
+    public ResponseEntity<Void> updateSortOrder(@RequestBody List<TodoSortOrderForm> forms) {
+        todoService.updateSortOrder(forms);
         return ResponseEntity.ok().build();
     }
 }
