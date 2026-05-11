@@ -38,7 +38,7 @@ export async function updateTodoStatus(id: number, status: Todo["status"]) {
   });
 }
 
-export async function updatedTodoSortOrder(payload: TodoSortOrderPayload[]) {
+export async function updateTodoSortOrder(payload: TodoSortOrderPayload[]) {
   await api.patch("/todos/sort-order", payload);
 }
 
