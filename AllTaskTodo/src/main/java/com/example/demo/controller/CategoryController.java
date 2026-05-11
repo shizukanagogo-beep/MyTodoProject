@@ -36,7 +36,7 @@ public class CategoryController {
     }
 
     // -----------------------------------------------------==
-    @PutMapping("/categories/{id}")
+    @PutMapping("/{id}")
     public Category updateCategory(
             @PathVariable int id,
             @RequestBody Category category) {

@@ -71,10 +71,10 @@ function CategoryModal({
                   onChange={(e) => setEditingCategoryName(e.target.value)}
                   onClick={(e) => e.stopPropagation()}
                   onKeyDown={(e) => {
+                    if (e.nativeEvent.isComposing) return;
                     if (e.key === "Enter") {
                       saveCategoryName(category.id);
                     }
-
                     if (e.key === "Escape") {
                       setEditingCategoryId(null);
                       setEditingCategoryName("");

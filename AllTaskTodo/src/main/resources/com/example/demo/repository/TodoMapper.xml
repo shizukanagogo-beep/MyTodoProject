@@ -1,30 +1,27 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.repository.TodoMapper">
-
     <!-- 1. 検索・一覧取得 (TodoFormを使用) -->
     <select id="getList" parameterType="com.example.demo.dto.TodoForm" resultType="com.example.demo.entity.Todo">
-        SELECT 
-            id, 
-            title, 
-            status, 
-            details, 
-            due_date as dueDate, 
-            auto_carry_over as autoCarryOver, 
-            is_daily as daily, 
-            has_flag as hasFlag, 
-            category_id as categoryId, 
-            overdue_behavior as overdueBehavior
-        FROM todos
+        SELECT
+          id,
+          title,
+          status,
+          details,
+          due_date AS dueDate,
+          auto_carry_over AS autoCarryOver,
+          is_daily AS daily,
+          has_flag AS hasFlag,
+          category_id AS categoryId,
+          overdue_behavior AS overdueBehavior
+        FROM
+          todos
         <where>
             <if test="status != null">
                 AND status = #{status}
             </if>
             <if test="title != null and title != ''">
-                AND title LIKE CONCAT('%', #{title}, '%')
+                AND title LIKE CONCAT ('%', #{title}, '%')
             </if>
             <if test="categoryId != null">
                 AND category_id = #{categoryId}
@@ -39,93 +36,115 @@
                 AND due_date = #{dueDate}
             </if>
             <if test="existsDueDate == true">
-            AND due_date IS NOT NULL
+                AND due_date IS NOT NULL
             </if>
         </where>
-        ORDER BY 
-        CASE WHEN status = 'INCOMPLETE' THEN 1 ELSE 2 END ASC, id DESC
+        ORDER BY
+          CASE
+            WHEN status = 'INCOMPLETE' THEN 1
+            ELSE 2
+          END ASC,
+          id DESC
     </select>
-
     <!-- 2. １件取得 -->
     <select id="getOne" parameterType="java.lang.Integer" resultType="com.example.demo.entity.Todo">
-    SELECT
-        id,
-        title,
-        status,
-        details,
-        due_date as dueDate,
-        auto_carry_over as autoCarryOver,
-        is_daily as daily,
-        has_flag as hasFlag,
-        category_id as categoryId,
-        overdue_behavior as overdueBehavior
-    FROM todos
-    WHERE id = #{id}
+        SELECT
+          id,
+          title,
+          status,
+          details,
+          due_date AS dueDate,
+          auto_carry_over AS autoCarryOver,
+          is_daily AS daily,
+          has_flag AS hasFlag,
+          category_id AS categoryId,
+          overdue_behavior AS overdueBehavior
+        FROM
+          todos
+        WHERE
+          id = #{id}
     </select>
-    
     <!-- 3. ランダムピック -->
     <select id="getRandom" resultType="com.example.demo.entity.Todo">
-        SELECT * FROM todos ORDER BY RAND() LIMIT 1
+        SELECT
+          *
+        FROM
+          todos
+        ORDER BY
+          RAND ()
+        LIMIT
+          1
     </select>
-
     <!-- 4. 新規登録 (TodoForm/Todo両方に対応可能) -->
     <insert id="add" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO todos (
-            title, 
-            status, 
-            details, 
-            due_date, 
-            auto_carry_over, 
-            is_daily, 
-            has_flag, 
-            category_id, 
+            title,
+            status,
+            details,
+            due_date,
+            auto_carry_over,
+            is_daily,
+            has_flag,
+            category_id,
             overdue_behavior
-        ) VALUES (
-            #{title}, 
-            #{status}, 
-            #{details}, 
-            #{dueDate}, 
-            #{autoCarryOver}, 
-            #{daily}, 
-            #{hasFlag}, 
-            #{categoryId}, 
+          )
+        VALUES
+          (
+            #{title},
+            #{status},
+            #{details},
+            #{dueDate},
+            #{autoCarryOver},
+            #{daily},
+            #{hasFlag},
+            #{categoryId},
             #{overdueBehavior}
-        )
+          )
     </insert>
-
     <!-- 5. 全項目更新 (Todoエンティティを使用) -->
     <update id="update" parameterType="com.example.demo.entity.Todo">
-        UPDATE todos SET
-            title = #{title},
-            status = #{status},
-            details = #{details},
-            due_date = #{dueDate},
-            auto_carry_over = #{autoCarryOver},
-            is_daily = #{daily},
-            has_flag = #{hasFlag},
-            category_id = #{categoryId},
-            overdue_behavior = #{overdueBehavior}
-        WHERE id = #{id}
+        UPDATE todos
+        SET
+          title = #{title},
+          status = #{status},
+          details = #{details},
+          due_date = #{dueDate},
+          auto_carry_over = #{autoCarryOver},
+          is_daily = #{daily},
+          has_flag = #{hasFlag},
+          category_id = #{categoryId},
+          overdue_behavior = #{overdueBehavior}
+        WHERE
+          id = #{id}
     </update>
-
     <!-- 6. ステータスのみ更新 -->
     <update id="updateStatus">
-        UPDATE todos SET status = #{Status} WHERE id = #{id}
+        UPDATE todos
+        SET
+          status = #{Status}
+        WHERE
+          id = #{id}
     </update>
-
     <!-- 7. カテゴリーのみ移動 -->
     <update id="updateCategory">
-        UPDATE todos SET category_id = #{CategoryId} WHERE id = #{id}
+        UPDATE todos
+        SET
+          category_id = #{CategoryId}
+        WHERE
+          id = #{id}
     </update>
-
     <!-- 8. 削除 -->
     <delete id="delete" parameterType="java.lang.Integer">
-        DELETE FROM todos WHERE id = #{id}
+        DELETE FROM todos
+        WHERE
+          id = #{id}
     </delete>
-
     <!-- 9. 日課のリセット (Serviceから呼ばれる) -->
     <update id="resetDailyTasks">
-        UPDATE todos SET status = 'INCOMPLETE' WHERE is_daily = TRUE
+        UPDATE todos
+        SET
+          status = 'INCOMPLETE'
+        WHERE
+          is_daily = TRUE
     </update>
-
 </mapper>
