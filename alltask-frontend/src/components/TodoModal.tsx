@@ -103,57 +103,6 @@ function TodoModal({
                 </select>
               </div>
             )}
-            {newTodo.dueDate && !newTodo.daily && (
-              <div className="col-span-2">
-                <p className="text-sm font-bold text-slate-500 mb-1">
-                  期限超過時の動き
-                </p>
-
-                <select
-                  className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
-                  value={newTodo.overdueBehavior}
-                  onChange={(e) =>
-                    setNewTodo({
-                      ...newTodo,
-                      overdueBehavior: Number(e.target.value),
-                    })
-                  }
-                >
-                  <option value={0}>日付を赤文字でそのまま</option>
-                  <option value={1}>日付を今日に繰り越す</option>
-                  <option value={2}>自動的に完了済みにする</option>
-                  <option value={3}>日付を削除する</option>
-                </select>
-              </div>
-            )}
-
-            {newTodo.dueDate && !newTodo.daily && (
-              <div className="col-span-2">
-                <p className="text-sm font-bold text-slate-500 mb-1">
-                  期限超過時の動き
-                </p>
-
-                <select
-                  className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
-                  value={newTodo.overdueBehavior}
-                  onChange={(e) =>
-                    setNewTodo({
-                      ...newTodo,
-                      dueDate: e.target.value,
-                      daily: e.target.value ? false : newTodo.daily,
-                      overdueBehavior: e.target.value
-                        ? newTodo.overdueBehavior
-                        : 0,
-                    })
-                  }
-                >
-                  <option value={0}>日付を赤文字でそのまま</option>
-                  <option value={1}>日付を今日に繰り越す</option>
-                  <option value={2}>自動的に完了済みにする</option>
-                  <option value={3}>日付を削除する</option>
-                </select>
-              </div>
-            )}
           </div>
 
           <textarea
