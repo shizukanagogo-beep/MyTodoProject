@@ -13,7 +13,8 @@
           is_daily AS daily,
           has_flag AS hasFlag,
           category_id AS categoryId,
-          overdue_behavior AS overdueBehavior sort_order AS sortOrder
+          overdue_behavior AS overdueBehavior,
+          sort_order AS sortOrder
         FROM
           todos
         <where>
@@ -59,7 +60,8 @@
           is_daily AS daily,
           has_flag AS hasFlag,
           category_id AS categoryId,
-          overdue_behavior AS overdueBehavior sort_order AS sortOrder
+          overdue_behavior AS overdueBehavior,
+          sort_order AS sortOrder
         FROM
           todos
         WHERE
