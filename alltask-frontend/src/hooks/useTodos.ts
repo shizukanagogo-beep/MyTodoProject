@@ -6,6 +6,7 @@ import {
   addTodo as addTodoApi,
   updateTodo as updateTodoApi,
   updateTodoStatus,
+  updateTodoSortOrder,
   deleteTodo as deleteTodoApi,
 } from "../services/todoService";
 
@@ -163,6 +164,39 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
+  const reorderTodos = async (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+
+    const reorderedTodos = [...sortedTodos];
+    const [movedTodo] = reorderedTodos.splice(fromIndex, 1);
+    reorderedTodos.splice(toIndex, 0, movedTodo);
+
+    const updatedTodos = reorderedTodos.map((todo, index) => ({
+      ...todo,
+      sortOrder: index + 1,
+    }));
+
+    setTodos((prev) => {
+      const updatedTodoMap = new Map(
+        updatedTodos.map((todo) => [todo.id, todo]),
+      );
+
+      return prev.map((todo) => updatedTodoMap.get(todo.id) ?? todo);
+    });
+
+    try {
+      await updateTodoSortOrder(
+        updatedTodos.map((todo) => ({
+          id: todo.id,
+          sortOrder: todo.sortOrder,
+        })),
+      );
+    } catch (error) {
+      console.error("並び順更新失敗:", error);
+      setRefreshKey((prev) => prev + 1);
+    }
+  };
+
   const visibleTodos = showDoneTodos
     ? todos
     : todos.filter((todo) => todo.status !== "DONE");
@@ -183,5 +217,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     updateTodo,
     toggleStatus,
     deleteTodo,
+    reorderTodos,
   };
 }
