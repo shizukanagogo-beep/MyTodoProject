@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { NewTodo, Todo, TodoSearchParams, ViewMode } from "../types";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
@@ -202,37 +202,32 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const visibleTodos = useMemo(
-    () =>
-      showDoneTodos ? todos : todos.filter((todo) => todo.status !== "DONE"),
-    [showDoneTodos, todos],
-  );
+  const visibleTodos = showDoneTodos
+    ? todos
+    : todos.filter((todo) => todo.status !== "DONE");
 
-  const sortedTodos = useMemo(
-    () =>
-      [...visibleTodos].sort((a, b) => {
-        if (a.status === "DONE" && b.status !== "DONE") return 1;
-        if (a.status !== "DONE" && b.status === "DONE") return -1;
+  const sortedTodos = [...visibleTodos].sort((a, b) => {
+    if (a.status === "DONE" && b.status !== "DONE") return 1;
+    if (a.status !== "DONE" && b.status === "DONE") return -1;
 
-        if (viewMode === "DATED" && datedSortMode === "dueDate") {
-          if (a.dueDate === null && b.dueDate !== null) return 1;
-          if (a.dueDate !== null && b.dueDate === null) return -1;
-          if (a.dueDate !== null && b.dueDate !== null) {
-            const dueDateOrder = a.dueDate.localeCompare(b.dueDate);
-            if (dueDateOrder !== 0) return dueDateOrder;
-          }
-        }
+    if (viewMode === "DATED" && datedSortMode === "dueDate") {
+      if (a.dueDate === null && b.dueDate !== null) return 1;
+      if (a.dueDate !== null && b.dueDate === null) return -1;
+      if (a.dueDate !== null && b.dueDate !== null) {
+        const dueDateOrder = a.dueDate.localeCompare(b.dueDate);
+        if (dueDateOrder !== 0) return dueDateOrder;
+      }
+    }
 
-        if (a.sortOrder === null && b.sortOrder !== null) return 1;
-        if (a.sortOrder !== null && b.sortOrder === null) return -1;
-        if (a.sortOrder !== null && b.sortOrder !== null) {
-          return a.sortOrder - b.sortOrder;
-        }
+    if (a.sortOrder === null && b.sortOrder !== null) return 1;
+    if (a.sortOrder !== null && b.sortOrder === null) return -1;
+    if (a.sortOrder !== null && b.sortOrder !== null) {
+      return a.sortOrder - b.sortOrder;
+    }
 
-        return b.id - a.id;
-      }),
-    [datedSortMode, viewMode, visibleTodos],
-  );
+    return b.id - a.id;
+  });
+
   const pickRandomTodo = () => {
     const incompleteTodos = sortedTodos.filter(
       (todo) => todo.status === "INCOMPLETE",
