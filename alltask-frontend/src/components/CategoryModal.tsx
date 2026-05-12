@@ -63,130 +63,147 @@ function CategoryModal({
         </div>
 
         <div className="space-y-2 mb-6">
-          {categories.map((category, index) => (
-            <div
-              key={category.id}
-              draggable={editingCategoryId !== category.id}
-              onDragStart={() => setDraggingIndex(index)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => {
-                if (draggingIndex === null) return;
+          {categories.map((category, index) => {
+            const canDragCategory =
+              editingCategoryId !== category.id && openMenuCategoryId === null;
 
-                onReorderCategories(draggingIndex, index);
-                setDraggingIndex(null);
-              }}
-              onDragEnd={() => setDraggingIndex(null)}
-              className={`relative flex items-center justify-between px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 ${
-                draggingIndex === index ? "opacity-50" : ""
-              }`}
-            >
-              {editingCategoryId === category.id ? (
-                <input
-                  draggable={false}
-                  className="flex-1 bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 font-bold"
-                  value={editingCategoryName}
-                  autoFocus
-                  onChange={(e) => setEditingCategoryName(e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => {
-                    if (e.nativeEvent.isComposing) return;
-                    if (e.key === "Enter") {
-                      saveCategoryName(category.id);
-                    }
-                    if (e.key === "Escape") {
-                      setEditingCategoryId(null);
-                      setEditingCategoryName("");
-                    }
-                  }}
-                />
-              ) : (
-                <span className="font-bold text-slate-700">
-                  {category.name}
-                </span>
-              )}
-              {editingCategoryId === category.id && (
-                <div className="flex gap-2 ml-2">
-                  <button
-                    className="text-xs font-bold text-slate-500 hover:text-slate-700"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingCategoryId(null);
-                      setEditingCategoryName("");
-                    }}
-                  >
-                    キャンセル
-                  </button>
+            return (
+              <div
+                key={category.id}
+                draggable={canDragCategory}
+                onDragStart={(e) => {
+                  if (!canDragCategory) {
+                    e.preventDefault();
+                    return;
+                  }
 
-                  <button
-                    className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      saveCategoryName(category.id);
-                    }}
-                  >
-                    保存
-                  </button>
-                </div>
-              )}
-              {editingCategoryId !== category.id && (
-                <button
-                  className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
-                  onDragStart={(e) => e.preventDefault()}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenuCategoryId((currentId) =>
-                      currentId === category.id ? null : category.id,
-                    );
-                  }}
-                >
-                  ⋯
-                </button>
-              )}
+                  setDraggingIndex(index);
+                }}
+                onDragOver={(e) => {
+                  if (canDragCategory) {
+                    e.preventDefault();
+                  }
+                }}
+                onDrop={() => {
+                  if (!canDragCategory) return;
+                  if (draggingIndex === null) return;
 
-              {openMenuCategoryId === category.id && (
-                <div
-                  className="absolute right-3 top-11 z-10 w-28 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
-                  onClick={(e) => e.stopPropagation()}
-                  onDragStart={(e) => e.preventDefault()}
-                >
-                  <button
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50"
-                    onClick={() => {
-                      setEditingCategoryId(category.id);
-                      setEditingCategoryName(category.name);
-                      setOpenMenuCategoryId(null);
-                    }}
-                  >
-                    編集
-                  </button>
-
-                  <button
-                    className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50"
-                    onClick={async () => {
-                      const ok = window.confirm(
-                        `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\n本当に削除しますか？`,
-                      );
-
-                      if (!ok) return;
-
-                      const isSuccess = await onDeleteCategory(category.id);
-
-                      if (isSuccess) {
-                        setOpenMenuCategoryId(null);
-
-                        if (editingCategoryId === category.id) {
-                          setEditingCategoryId(null);
-                          setEditingCategoryName("");
-                        }
+                  onReorderCategories(draggingIndex, index);
+                  setDraggingIndex(null);
+                }}
+                onDragEnd={() => setDraggingIndex(null)}
+                className={`relative flex items-center justify-between px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 ${
+                  draggingIndex === index ? "opacity-50" : ""
+                }`}
+              >
+                {editingCategoryId === category.id ? (
+                  <input
+                    draggable={false}
+                    className="flex-1 bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 font-bold"
+                    value={editingCategoryName}
+                    autoFocus
+                    onChange={(e) => setEditingCategoryName(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.nativeEvent.isComposing) return;
+                      if (e.key === "Enter") {
+                        saveCategoryName(category.id);
+                      }
+                      if (e.key === "Escape") {
+                        setEditingCategoryId(null);
+                        setEditingCategoryName("");
                       }
                     }}
+                  />
+                ) : (
+                  <span className="font-bold text-slate-700">
+                    {category.name}
+                  </span>
+                )}
+                {editingCategoryId === category.id && (
+                  <div className="flex gap-2 ml-2">
+                    <button
+                      className="text-xs font-bold text-slate-500 hover:text-slate-700"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingCategoryId(null);
+                        setEditingCategoryName("");
+                      }}
+                    >
+                      キャンセル
+                    </button>
+
+                    <button
+                      className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        saveCategoryName(category.id);
+                      }}
+                    >
+                      保存
+                    </button>
+                  </div>
+                )}
+                {editingCategoryId !== category.id && (
+                  <button
+                    className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
+                    onDragStart={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuCategoryId((currentId) =>
+                        currentId === category.id ? null : category.id,
+                      );
+                    }}
                   >
-                    削除
+                    ⋯
                   </button>
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+
+                {openMenuCategoryId === category.id && (
+                  <div
+                    className="absolute right-3 top-11 z-10 w-28 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}
+                    onDragStart={(e) => e.preventDefault()}
+                  >
+                    <button
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50"
+                      onClick={() => {
+                        setEditingCategoryId(category.id);
+                        setEditingCategoryName(category.name);
+                        setOpenMenuCategoryId(null);
+                      }}
+                    >
+                      編集
+                    </button>
+
+                    <button
+                      className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+                      onClick={async () => {
+                        const ok = window.confirm(
+                          `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\n本当に削除しますか？`,
+                        );
+
+                        if (!ok) return;
+
+                        const isSuccess = await onDeleteCategory(category.id);
+
+                        if (isSuccess) {
+                          setOpenMenuCategoryId(null);
+
+                          if (editingCategoryId === category.id) {
+                            setEditingCategoryId(null);
+                            setEditingCategoryName("");
+                          }
+                        }
+                      }}
+                    >
+                      削除
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {categories.length === 0 && (
             <p className="text-center py-8 text-slate-400">
