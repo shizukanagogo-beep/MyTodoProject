@@ -18,4 +18,6 @@ public interface CategoryMapper {
 
     void deleteCategory(Integer id);
 
+    void updateSortOrder(Integer id, Integer sortOrder);
+
 }

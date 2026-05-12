@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.Category;
 import com.example.demo.service.CategoryService;
+import org.springframework.web.bind.annotation.PatchMapping;
+import com.example.demo.dto.CategorySortOrderForm;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,5 +51,11 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public void deleteCategory(@PathVariable Integer id) {
         categoryService.deleteCategory(id);
+    }
+
+    // ---------------------------------------------------------------
+    @PatchMapping("/sort-order")
+    public void updateSortOrder(@RequestBody List<CategorySortOrderForm> forms) {
+        categoryService.updateSortOrder(forms);
     }
 }

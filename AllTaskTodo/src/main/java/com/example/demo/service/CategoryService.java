@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import com.example.demo.entity.Category;
 import com.example.demo.repository.CategoryMapper;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.demo.dto.CategorySortOrderForm;
 
 @Service
 public class CategoryService {
@@ -35,6 +37,14 @@ public class CategoryService {
     public void deleteCategory(Integer id) {
         categoryMapper.deleteTodosByCategoryId(id);
         categoryMapper.deleteCategory(id);
+    }
+
+    // ---------------------------------------------------------------
+    @Transactional
+    public void updateSortOrder(List<CategorySortOrderForm> forms) {
+        for (CategorySortOrderForm form : forms) {
+            categoryMapper.updateSortOrder(form.getId(), form.getSortOrder());
+        }
     }
 
 }

@@ -55,4 +55,12 @@
           id = #{id}
     </delete>
     <!-- ====================================================================== -->
+    <update id="updateSortOrder">
+        UPDATE categories
+        SET
+          sort_order = #{sortOrder}
+        WHERE
+          id = #{id}
+    </update>
+    <!-- =========================================================================== -->
 </mapper>
