@@ -7,6 +7,6 @@ dist/
 build/
 .gradle/
 .idea/
-.vscode/
+.vscode/*
 .vscode
 .DS_Store
