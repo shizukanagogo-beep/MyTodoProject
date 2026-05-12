@@ -82,6 +82,7 @@ function CategoryModal({
             >
               {editingCategoryId === category.id ? (
                 <input
+                  draggable={false}
                   className="flex-1 bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 font-bold"
                   value={editingCategoryName}
                   autoFocus
@@ -130,6 +131,7 @@ function CategoryModal({
               {editingCategoryId !== category.id && (
                 <button
                   className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
+                  onDragStart={(e) => e.preventDefault()}
                   onClick={(e) => {
                     e.stopPropagation();
                     setOpenMenuCategoryId((currentId) =>
@@ -145,6 +147,7 @@ function CategoryModal({
                 <div
                   className="absolute right-3 top-11 z-10 w-28 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
+                  onDragStart={(e) => e.preventDefault()}
                 >
                   <button
                     className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50"
