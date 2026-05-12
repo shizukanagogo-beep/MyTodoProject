@@ -74,12 +74,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     loadTodos();
   }, [viewMode, selectedCategoryId, refreshKey]);
 
-  useEffect(() => {
-    if (viewMode !== "DATED") {
-      setShowTodayOnly(false);
-    }
-  }, [viewMode]);
-
   const addTodo = async () => {
     if (!newTodo.title.trim()) {
       alert("タイトルを入力してください");
@@ -251,6 +245,11 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     setRandomTodoId(null);
   };
 
+  const resetDatedFilters = () => {
+    setShowTodayOnly(false);
+    setRandomTodoId(null);
+  };
+
   const toggleRandomTodo = () => {
     if (randomTodoId !== null) {
       setRandomTodoId(null);
@@ -322,5 +321,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     reorderTodos,
     showTodayOnly: effectiveShowTodayOnly,
     toggleShowTodayOnly,
+    resetDatedFilters,
   };
 }

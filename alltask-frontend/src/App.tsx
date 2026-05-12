@@ -39,6 +39,7 @@ function App() {
     toggleRandomTodo,
     showTodayOnly,
     toggleShowTodayOnly,
+    resetDatedFilters,
   } = useTodos({
     viewMode,
     selectedCategoryId,
@@ -91,7 +92,12 @@ function App() {
   if (loadingCategories) return <Loading />;
 
   return (
-    <AppLayout onTitleClick={goTop}>
+    <AppLayout
+      onTitleClick={() => {
+        resetDatedFilters();
+        goTop();
+      }}
+    >
       {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
         <AddTodoButton onClick={openTodoModal} />
       )}
@@ -140,11 +146,23 @@ function App() {
         onToggleShowDoneTodos={() => setShowDoneTodos((prev) => !prev)}
         onChangeDatedSortMode={setDatedSortMode}
         onOpenCategoryModal={openCategoryModal}
-        onOpenCategoryDetail={goCategoryDetail}
+        onOpenCategoryDetail={(categoryId) => {
+          resetDatedFilters();
+          goCategoryDetail(categoryId);
+        }}
         onOpenDated={goDated}
-        onOpenDaily={goDaily}
-        onOpenFlagged={goFlagged}
-        onBackToTop={goTop}
+        onOpenDaily={() => {
+          resetDatedFilters();
+          goDaily();
+        }}
+        onOpenFlagged={() => {
+          resetDatedFilters();
+          goFlagged();
+        }}
+        onBackToTop={() => {
+          resetDatedFilters();
+          goTop();
+        }}
         onToggleStatus={toggleStatus}
         onDeleteTodo={deleteTodo}
         onOpenTodoDetail={openTodoDetailModal}
