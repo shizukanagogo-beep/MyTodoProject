@@ -1,4 +1,5 @@
 import TodoItem from "./TodoItem";
+import { useState } from "react";
 import type { Category, Todo, ViewMode } from "../types";
 
 type TodoListViewProps = {
@@ -12,6 +13,7 @@ type TodoListViewProps = {
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
+  onReorderTodos: (fromIndex: number, toIndex: number) => void;
 };
 
 function TodoListView({
@@ -25,7 +27,9 @@ function TodoListView({
   onToggleStatus,
   onDeleteTodo,
   onOpenTodoDetail,
+  onReorderTodos,
 }: TodoListViewProps) {
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   return (
     <div>
       <div className="flex items-center justify-between gap-4 mb-8">
@@ -59,14 +63,28 @@ function TodoListView({
       </div>
 
       <div className="space-y-3">
-        {sortedTodos.map((todo) => (
-          <TodoItem
+        {sortedTodos.map((todo, index) => (
+          <div
             key={todo.id}
-            todo={todo}
-            onToggleStatus={onToggleStatus}
-            onDeleteTodo={onDeleteTodo}
-            onOpenTodoDetail={onOpenTodoDetail}
-          />
+            draggable
+            onDragStart={() => setDraggingIndex(index)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => {
+              if (draggingIndex === null) return;
+
+              onReorderTodos(draggingIndex, index);
+              setDraggingIndex(null);
+            }}
+            onDragEnd={() => setDraggingIndex(null)}
+            className={draggingIndex === index ? "opacity-50" : ""}
+          >
+            <TodoItem
+              todo={todo}
+              onToggleStatus={onToggleStatus}
+              onDeleteTodo={onDeleteTodo}
+              onOpenTodoDetail={onOpenTodoDetail}
+            />
+          </div>
         ))}
 
         {sortedTodos.length === 0 && (

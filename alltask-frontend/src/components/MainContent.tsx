@@ -18,6 +18,7 @@ type MainContentProps = {
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
+  onReorderTodos: (fromIndex: number, toIndex: number) => void;
 };
 
 function MainContent({
@@ -36,6 +37,7 @@ function MainContent({
   onToggleStatus,
   onDeleteTodo,
   onOpenTodoDetail,
+  onReorderTodos,
 }: MainContentProps) {
   return viewMode === "TOP" ? (
     <TopView
@@ -58,6 +60,7 @@ function MainContent({
       onToggleStatus={onToggleStatus}
       onDeleteTodo={onDeleteTodo}
       onOpenTodoDetail={onOpenTodoDetail}
+      onReorderTodos={onReorderTodos}
     />
   );
 }

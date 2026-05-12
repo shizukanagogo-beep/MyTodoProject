@@ -32,6 +32,7 @@ function App() {
     updateTodo,
     toggleStatus,
     deleteTodo,
+    reorderTodos,
   } = useTodos({
     viewMode,
     selectedCategoryId,
@@ -129,6 +130,7 @@ function App() {
         onToggleStatus={toggleStatus}
         onDeleteTodo={deleteTodo}
         onOpenTodoDetail={openTodoDetailModal}
+        onReorderTodos={reorderTodos}
       />
     </AppLayout>
   );
