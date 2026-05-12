@@ -45,6 +45,9 @@ function MainContent({
   onDeleteTodo,
   onOpenTodoDetail,
   onReorderTodos,
+  randomTodo,
+  onClearRandomTodo,
+  onPickRandomTodo,
 }: MainContentProps) {
   return viewMode === "TOP" ? (
     <TopView
