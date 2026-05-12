@@ -194,7 +194,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       return false;
     }
     if (viewMode === "DATED" && showTodayOnly) {
-      return todo.dueDate === today;
+      return todo.dueDate?.slice(0, 10) === today;
     }
     return true;
   });
