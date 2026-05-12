@@ -21,9 +21,6 @@ type MainContentProps = {
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
   onReorderTodos: (fromIndex: number, toIndex: number) => void;
-  randomTodo: Todo | null;
-  onPickRandomTodo: () => void;
-  onClearRandomTodo: () => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
 };
@@ -47,9 +44,6 @@ function MainContent({
   onDeleteTodo,
   onOpenTodoDetail,
   onReorderTodos,
-  randomTodo,
-  onClearRandomTodo,
-  onPickRandomTodo,
   isRandomMode,
   onToggleRandomTodo,
 }: MainContentProps) {
@@ -77,9 +71,6 @@ function MainContent({
       onDeleteTodo={onDeleteTodo}
       onOpenTodoDetail={onOpenTodoDetail}
       onReorderTodos={onReorderTodos}
-      randomTodo={randomTodo}
-      onPickRandomTodo={onPickRandomTodo}
-      onClearRandomTodo={onClearRandomTodo}
       isRandomMode={isRandomMode}
       onToggleRandomTodo={onToggleRandomTodo}
     />
