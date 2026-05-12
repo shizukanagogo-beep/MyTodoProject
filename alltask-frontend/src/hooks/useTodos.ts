@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { NewTodo, Todo, TodoSearchParams, ViewMode } from "../types";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
@@ -36,7 +36,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     "manual",
   );
   const [randomTodoId, setRandomTodoId] = useState<number | null>(null);
-  const [randomTodo, setRandomTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -54,6 +53,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       try {
         const todos = await fetchTodosApi(params);
         setTodos(todos);
+        setRandomTodoId(null);
       } catch (error) {
         console.error("タスクの取得に失敗:", error);
       }
@@ -87,6 +87,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       await addTodoApi(payload);
       setRefreshKey((prev) => prev + 1);
       setNewTodo(initialNewTodo);
+      setRandomTodoId(null);
       return true;
     } catch (error) {
       console.error("作成失敗:", error);
@@ -102,6 +103,10 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         todo.id === id ? { ...todo, status: newStatus } : todo,
       ),
     );
+
+    if (randomTodoId === id && newStatus === "DONE") {
+      setRandomTodoId(null);
+    }
 
     try {
       await updateTodoStatus(id, newStatus);
@@ -150,6 +155,15 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
         return prev.map((todo) => (todo.id === id ? updatedTodo : todo));
       });
+
+      if (
+        randomTodoId === id &&
+        (!matchesTodoView(updatedTodo, viewMode, selectedCategoryId) ||
+          updatedTodo.status === "DONE")
+      ) {
+        setRandomTodoId(null);
+      }
+
       return updatedTodo;
     } catch (error) {
       console.error("更新失敗:", error);
@@ -162,44 +176,14 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
 
+    if (randomTodoId === id) {
+      setRandomTodoId(null);
+    }
+
     try {
       await deleteTodoApi(id);
     } catch (error) {
       console.error("削除失敗:", error);
-    }
-  };
-
-  const reorderTodos = async (fromIndex: number, toIndex: number) => {
-    if (fromIndex === toIndex) return;
-    if (viewMode === "DATED" && datedSortMode === "dueDate") return;
-
-    const reorderedTodos = [...sortedTodos];
-    const [movedTodo] = reorderedTodos.splice(fromIndex, 1);
-    reorderedTodos.splice(toIndex, 0, movedTodo);
-
-    const updatedTodos = reorderedTodos.map((todo, index) => ({
-      ...todo,
-      sortOrder: index + 1,
-    }));
-
-    setTodos((prev) => {
-      const updatedTodoMap = new Map(
-        updatedTodos.map((todo) => [todo.id, todo]),
-      );
-
-      return prev.map((todo) => updatedTodoMap.get(todo.id) ?? todo);
-    });
-
-    try {
-      await updateTodoSortOrder(
-        updatedTodos.map((todo) => ({
-          id: todo.id,
-          sortOrder: todo.sortOrder,
-        })),
-      );
-    } catch (error) {
-      console.error("並び順更新失敗:", error);
-      setRefreshKey((prev) => prev + 1);
     }
   };
 
@@ -233,52 +217,62 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (randomTodoId === null) {
       return sortedTodos;
     }
-    const toggleRandomTodo = () => {
-      if (randomTodoId !== null) {
-        setRandomTodoId(null);
-        return;
-      }
-
-      const incompleteTodos = sortedTodos.filter(
-        (todo) => todo.status === "INCOMPLETE",
-      );
-
-      if (incompleteTodos.length === 0) {
-        alert("未完了のタスクがありません。");
-        return;
-      }
-
-      const randomIndex = Math.floor(Math.random() * incompleteTodos.length);
-      setRandomTodoId(incompleteTodos[randomIndex].id);
-    };
 
     return sortedTodos.filter((todo) => todo.id === randomTodoId);
   }, [randomTodoId, sortedTodos]);
-  const displayedTodos = useMemo(() => {
-    if (randomTodoId === null) {
-      return sortedTodos;
+
+  const toggleRandomTodo = () => {
+    if (randomTodoId !== null) {
+      setRandomTodoId(null);
+      return;
     }
 
-    return sortedTodos.filter((todo) => todo.id === randomTodoId);
-  }, [randomTodoId, sortedTodos]);
-
-  const pickRandomTodo = () => {
     const incompleteTodos = sortedTodos.filter(
       (todo) => todo.status === "INCOMPLETE",
     );
 
     if (incompleteTodos.length === 0) {
-      setRandomTodo(null);
       alert("未完了のタスクがありません。");
       return;
     }
 
     const randomIndex = Math.floor(Math.random() * incompleteTodos.length);
-    setRandomTodo(incompleteTodos[randomIndex]);
+    setRandomTodoId(incompleteTodos[randomIndex].id);
   };
 
-  const clearRandomTodo = () => {
-    setRandomTodo(null);
+  const reorderTodos = async (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    if (randomTodoId !== null) return;
+    if (viewMode === "DATED" && datedSortMode === "dueDate") return;
+
+    const reorderedTodos = [...sortedTodos];
+    const [movedTodo] = reorderedTodos.splice(fromIndex, 1);
+    reorderedTodos.splice(toIndex, 0, movedTodo);
+
+    const updatedTodos = reorderedTodos.map((todo, index) => ({
+      ...todo,
+      sortOrder: index + 1,
+    }));
+
+    setTodos((prev) => {
+      const updatedTodoMap = new Map(
+        updatedTodos.map((todo) => [todo.id, todo]),
+      );
+
+      return prev.map((todo) => updatedTodoMap.get(todo.id) ?? todo);
+    });
+
+    try {
+      await updateTodoSortOrder(
+        updatedTodos.map((todo) => ({
+          id: todo.id,
+          sortOrder: todo.sortOrder,
+        })),
+      );
+    } catch (error) {
+      console.error("並び順更新失敗:", error);
+      setRefreshKey((prev) => prev + 1);
+    }
   };
 
   return {
