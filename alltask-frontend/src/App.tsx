@@ -38,6 +38,8 @@ function App() {
     randomTodo,
     pickRandomTodo,
     clearRandomTodo,
+    isRandomMode,
+    toggleRandomTodo,
   } = useTodos({
     viewMode,
     selectedCategoryId,
@@ -151,6 +153,8 @@ function App() {
         randomTodo={randomTodo}
         onPickRandomTodo={pickRandomTodo}
         onClearRandomTodo={clearRandomTodo}
+        isRandomMode={isRandomMode}
+        onToggleRandomTodo={toggleRandomTodo}
       />
     </AppLayout>
   );

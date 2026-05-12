@@ -19,6 +19,8 @@ type TodoListViewProps = {
   randomTodo: Todo | null;
   onPickRandomTodo: () => void;
   onClearRandomTodo: () => void;
+  isRandomMode: boolean;
+  onToggleRandomTodo: () => void;
 };
 
 function TodoListView({
@@ -38,10 +40,12 @@ function TodoListView({
   randomTodo,
   onPickRandomTodo,
   onClearRandomTodo,
+  isRandomMode,
+  onToggleRandomTodo,
 }: TodoListViewProps) {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
-  const canReorder = viewMode !== "DATED" || datedSortMode === "manual";
-
+  const canReorder =
+    !isRandomMode && (viewMode !== "DATED" || datedSortMode === "manual");
   return (
     <div>
       <div className="flex items-center justify-between gap-4 mb-8">
@@ -79,6 +83,17 @@ function TodoListView({
               期限順に並び替える
             </button>
           )}
+
+          <button
+            onClick={onToggleRandomTodo}
+            className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+              isRandomMode
+                ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            ランダム
+          </button>
 
           <button
             onClick={onToggleShowDoneTodos}

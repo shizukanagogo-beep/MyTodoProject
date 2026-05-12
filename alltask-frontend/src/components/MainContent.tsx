@@ -24,6 +24,8 @@ type MainContentProps = {
   randomTodo: Todo | null;
   onPickRandomTodo: () => void;
   onClearRandomTodo: () => void;
+  isRandomMode: boolean;
+  onToggleRandomTodo: () => void;
 };
 
 function MainContent({
@@ -48,6 +50,8 @@ function MainContent({
   randomTodo,
   onClearRandomTodo,
   onPickRandomTodo,
+  isRandomMode,
+  onToggleRandomTodo,
 }: MainContentProps) {
   return viewMode === "TOP" ? (
     <TopView
@@ -76,6 +80,8 @@ function MainContent({
       randomTodo={randomTodo}
       onPickRandomTodo={onPickRandomTodo}
       onClearRandomTodo={onClearRandomTodo}
+      isRandomMode={isRandomMode}
+      onToggleRandomTodo={onToggleRandomTodo}
     />
   );
 }
