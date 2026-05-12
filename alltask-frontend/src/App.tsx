@@ -35,6 +35,9 @@ function App() {
     toggleStatus,
     deleteTodo,
     reorderTodos,
+    randomTodo,
+    pickRandomTodo,
+    clearRandomTodo,
   } = useTodos({
     viewMode,
     selectedCategoryId,
@@ -145,6 +148,9 @@ function App() {
         onDeleteTodo={deleteTodo}
         onOpenTodoDetail={openTodoDetailModal}
         onReorderTodos={reorderTodos}
+        randomTodo={randomTodo}
+        onPickRandomTodo={pickRandomTodo}
+        onClearRandomTodo={clearRandomTodo}
       />
     </AppLayout>
   );
