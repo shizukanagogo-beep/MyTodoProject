@@ -8,4 +8,5 @@ build/
 .gradle/
 .idea/
 .vscode/
+.vscode
 .DS_Store
