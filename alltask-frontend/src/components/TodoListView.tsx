@@ -16,9 +16,6 @@ type TodoListViewProps = {
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
   onReorderTodos: (fromIndex: number, toIndex: number) => void;
-  randomTodo: Todo | null;
-  onPickRandomTodo: () => void;
-  onClearRandomTodo: () => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
 };
@@ -37,9 +34,6 @@ function TodoListView({
   onDeleteTodo,
   onOpenTodoDetail,
   onReorderTodos,
-  randomTodo,
-  onPickRandomTodo,
-  onClearRandomTodo,
   isRandomMode,
   onToggleRandomTodo,
 }: TodoListViewProps) {
@@ -105,46 +99,8 @@ function TodoListView({
           >
             {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
           </button>
-          <button
-            onClick={onPickRandomTodo}
-            className="px-3 py-2 rounded-xl text-sm font-bold border bg-white text-slate-600 border-slate-200 hover:bg-slate-50 transition-colors"
-          >
-            ランダム
-          </button>
         </div>
       </div>
-
-      {randomTodo && (
-        <div className="mb-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-bold text-indigo-500 mb-1">
-                ランダムに選ばれたタスク
-              </p>
-
-              <button
-                className="text-left font-bold text-slate-800 hover:text-indigo-600"
-                onClick={() => onOpenTodoDetail(randomTodo)}
-              >
-                {randomTodo.title}
-              </button>
-
-              {randomTodo.details && (
-                <p className="mt-1 text-sm text-slate-500 line-clamp-1">
-                  {randomTodo.details}
-                </p>
-              )}
-            </div>
-
-            <button
-              className="text-sm font-bold text-slate-400 hover:text-slate-600"
-              onClick={onClearRandomTodo}
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="space-y-3">
         {sortedTodos.map((todo, index) => (
