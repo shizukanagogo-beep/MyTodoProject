@@ -8,7 +8,9 @@ type TodoListViewProps = {
   selectedCategoryId: number | null;
   sortedTodos: Todo[];
   showDoneTodos: boolean;
+  datedSortMode: "manual" | "dueDate";
   onToggleShowDoneTodos: () => void;
+  onChangeDatedSortMode: (mode: "manual" | "dueDate") => void;
   onBackToTop: () => void;
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
@@ -22,7 +24,9 @@ function TodoListView({
   selectedCategoryId,
   sortedTodos,
   showDoneTodos,
+  datedSortMode,
   onToggleShowDoneTodos,
+  onChangeDatedSortMode,
   onBackToTop,
   onToggleStatus,
   onDeleteTodo,
@@ -30,6 +34,8 @@ function TodoListView({
   onReorderTodos,
 }: TodoListViewProps) {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const canReorder = viewMode !== "DATED" || datedSortMode === "manual";
+
   return (
     <div>
       <div className="flex items-center justify-between gap-4 mb-8">
@@ -50,26 +56,57 @@ function TodoListView({
           </h2>
         </div>
 
-        <button
-          onClick={onToggleShowDoneTodos}
-          className={`shrink-0 px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
-            showDoneTodos
-              ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
-              : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-          }`}
-        >
-          {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {viewMode === "DATED" && (
+            <div className="flex rounded-xl border border-slate-200 bg-white p-1">
+              <button
+                onClick={() => onChangeDatedSortMode("manual")}
+                className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
+                  datedSortMode === "manual"
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                手動順
+              </button>
+
+              <button
+                onClick={() => onChangeDatedSortMode("dueDate")}
+                className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
+                  datedSortMode === "dueDate"
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                期限順
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={onToggleShowDoneTodos}
+            className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+              showDoneTodos
+                ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3">
         {sortedTodos.map((todo, index) => (
           <div
             key={todo.id}
-            draggable
+            draggable={canReorder}
             onDragStart={() => setDraggingIndex(index)}
-            onDragOver={(e) => e.preventDefault()}
+            onDragOver={(e) => {
+              if (canReorder) e.preventDefault();
+            }}
             onDrop={() => {
+              if (!canReorder) return;
               if (draggingIndex === null) return;
 
               onReorderTodos(draggingIndex, index);

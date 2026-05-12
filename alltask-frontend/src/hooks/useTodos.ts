@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { NewTodo, Todo, TodoSearchParams, ViewMode } from "../types";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
@@ -32,6 +32,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [newTodo, setNewTodo] = useState<NewTodo>(initialNewTodo);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showDoneTodos, setShowDoneTodos] = useState(true);
+  const [datedSortMode, setDatedSortMode] = useState<"manual" | "dueDate">(
+    "manual",
+  );
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -166,6 +169,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   const reorderTodos = async (fromIndex: number, toIndex: number) => {
     if (fromIndex === toIndex) return;
+    if (viewMode === "DATED" && datedSortMode === "dueDate") return;
 
     const reorderedTodos = [...sortedTodos];
     const [movedTodo] = reorderedTodos.splice(fromIndex, 1);
@@ -197,20 +201,44 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const visibleTodos = showDoneTodos
-    ? todos
-    : todos.filter((todo) => todo.status !== "DONE");
+  const visibleTodos = useMemo(
+    () =>
+      showDoneTodos ? todos : todos.filter((todo) => todo.status !== "DONE"),
+    [showDoneTodos, todos],
+  );
 
-  const sortedTodos = [...visibleTodos].sort((a, b) => {
-    if (a.status === "DONE" && b.status !== "DONE") return 1;
-    if (a.status !== "DONE" && b.status === "DONE") return -1;
-    return 0;
-  });
+  const sortedTodos = useMemo(
+    () =>
+      [...visibleTodos].sort((a, b) => {
+        if (a.status === "DONE" && b.status !== "DONE") return 1;
+        if (a.status !== "DONE" && b.status === "DONE") return -1;
+
+        if (viewMode === "DATED" && datedSortMode === "dueDate") {
+          if (a.dueDate === null && b.dueDate !== null) return 1;
+          if (a.dueDate !== null && b.dueDate === null) return -1;
+          if (a.dueDate !== null && b.dueDate !== null) {
+            const dueDateOrder = a.dueDate.localeCompare(b.dueDate);
+            if (dueDateOrder !== 0) return dueDateOrder;
+          }
+        }
+
+        if (a.sortOrder === null && b.sortOrder !== null) return 1;
+        if (a.sortOrder !== null && b.sortOrder === null) return -1;
+        if (a.sortOrder !== null && b.sortOrder !== null) {
+          return a.sortOrder - b.sortOrder;
+        }
+
+        return b.id - a.id;
+      }),
+    [datedSortMode, viewMode, visibleTodos],
+  );
 
   return {
     sortedTodos,
     showDoneTodos,
     setShowDoneTodos,
+    datedSortMode,
+    setDatedSortMode,
     newTodo,
     setNewTodo,
     addTodo,

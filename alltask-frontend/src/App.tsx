@@ -26,6 +26,8 @@ function App() {
     sortedTodos,
     showDoneTodos,
     setShowDoneTodos,
+    datedSortMode,
+    setDatedSortMode,
     newTodo,
     setNewTodo,
     addTodo,
@@ -120,7 +122,9 @@ function App() {
         selectedCategoryId={selectedCategoryId}
         sortedTodos={sortedTodos}
         showDoneTodos={showDoneTodos}
+        datedSortMode={datedSortMode}
         onToggleShowDoneTodos={() => setShowDoneTodos((prev) => !prev)}
+        onChangeDatedSortMode={setDatedSortMode}
         onOpenCategoryModal={openCategoryModal}
         onOpenCategoryDetail={goCategoryDetail}
         onOpenDated={goDated}

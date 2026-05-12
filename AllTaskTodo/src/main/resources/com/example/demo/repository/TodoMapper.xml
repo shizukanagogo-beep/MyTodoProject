@@ -45,6 +45,10 @@
             WHEN status = 'INCOMPLETE' THEN 1
             ELSE 2
           END ASC,
+          CASE
+            WHEN sort_order IS NULL THEN 1
+            ELSE 0
+          END ASC,
           sort_order ASC,
           id DESC
     </select>
@@ -135,7 +139,7 @@
     <update id="updateStatus">
         UPDATE todos
         SET
-          status = #{Status}
+          status = #{status}
         WHERE
           id = #{id}
     </update>
@@ -143,7 +147,7 @@
     <update id="updateCategory">
         UPDATE todos
         SET
-          category_id = #{CategoryId}
+          category_id = #{categoryId}
         WHERE
           id = #{id}
     </update>
