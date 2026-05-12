@@ -5,21 +5,30 @@
     <select id="findAll" resultType="com.example.demo.entity.Category">
         SELECT
           id,
-          name
+          NAME,
+          sort_order AS sortOrder
         FROM
           categories
+        ORDER BY
+          CASE
+            WHEN sort_order IS NULL THEN 1
+            ELSE 0
+          END ASC,
+          sort_order ASC,
+          id ASC
     </select>
     <!-- =============================================================== -->
     <insert id="addCategory" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO categories (name)
+        INSERT INTO categories (name, sort_order)
         VALUES
-          (#{name})
+          (#{name}, #{sortOrder})
     </insert>
     <!-- =============================================================== -->
     <update id="updateCategory" parameterType="com.example.demo.entity.Category">
         UPDATE categories
         SET
-          name = #{name}
+          name = #{name},
+          sort_order = #{sortOrder}
         WHERE
           id = #{id}
     </update>
@@ -27,7 +36,8 @@
     <select id="findById" parameterType="java.lang.Integer" resultType="com.example.demo.entity.Category">
         SELECT
           id,
-          name
+          name,
+          sort_order AS sortOrder
         FROM
           categories
         WHERE

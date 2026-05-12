@@ -7,8 +7,12 @@ CREATE TABLE
     IF NOT EXISTS categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(50) NOT NULL
+        sort_order INT NULL;
     );
 
+UPDATE categories
+SET sort_order = id
+WHERE sort_order IS NULL;
 ---------------------------------------------------------------------------
 create table
     if not EXISTS todos (

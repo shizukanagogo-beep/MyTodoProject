@@ -6,4 +6,5 @@ import lombok.Data;
 public class Category {
         private Integer id;
         private String name;
+        private Integer sortOrder;
 }
