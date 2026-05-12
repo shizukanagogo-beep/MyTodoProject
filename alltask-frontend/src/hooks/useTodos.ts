@@ -35,6 +35,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [datedSortMode, setDatedSortMode] = useState<"manual" | "dueDate">(
     "manual",
   );
+  const [randomTodo, setRandomTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -232,9 +233,30 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       }),
     [datedSortMode, viewMode, visibleTodos],
   );
+  const pickRandomTodo = () => {
+    const incompleteTodos = sortedTodos.filter(
+      (todo) => todo.status === "INCOMPLETE",
+    );
+
+    if (incompleteTodos.length === 0) {
+      setRandomTodo(null);
+      alert("未完了のタスクがありません。");
+      return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * incompleteTodos.length);
+    setRandomTodo(incompleteTodos[randomIndex]);
+  };
+
+  const clearRandomTodo = () => {
+    setRandomTodo(null);
+  };
 
   return {
     sortedTodos,
+    randomTodo,
+    pickRandomTodo,
+    clearRandomTodo,
     showDoneTodos,
     setShowDoneTodos,
     datedSortMode,
