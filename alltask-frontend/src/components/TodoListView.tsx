@@ -58,29 +58,20 @@ function TodoListView({
 
         <div className="flex shrink-0 items-center gap-2">
           {viewMode === "DATED" && (
-            <div className="flex rounded-xl border border-slate-200 bg-white p-1">
-              <button
-                onClick={() => onChangeDatedSortMode("manual")}
-                className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
-                  datedSortMode === "manual"
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-500 hover:bg-slate-50"
-                }`}
-              >
-                手動順
-              </button>
-
-              <button
-                onClick={() => onChangeDatedSortMode("dueDate")}
-                className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
-                  datedSortMode === "dueDate"
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-500 hover:bg-slate-50"
-                }`}
-              >
-                期限順
-              </button>
-            </div>
+            <button
+              onClick={() =>
+                onChangeDatedSortMode(
+                  datedSortMode === "dueDate" ? "manual" : "dueDate",
+                )
+              }
+              className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                datedSortMode === "dueDate"
+                  ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              期限順に並び替える
+            </button>
           )}
 
           <button
