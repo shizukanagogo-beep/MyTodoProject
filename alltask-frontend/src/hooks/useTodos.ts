@@ -47,12 +47,10 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   );
   const [randomTodoId, setRandomTodoId] = useState<number | null>(null);
   const [showTodayOnly, setShowTodayOnly] = useState(false);
+  const effectiveShowTodayOnly = viewMode === "DATED" && showTodayOnly;
 
   useEffect(() => {
     if (viewMode === "TOP") return;
-    if (viewMode !== "DATED") {
-      setShowTodayOnly(false);
-    }
 
     const loadTodos = async () => {
       const params: TodoSearchParams = {};
@@ -206,7 +204,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (!showDoneTodos && todo.status === "DONE") {
       return false;
     }
-    if (viewMode === "DATED" && showTodayOnly) {
+    if (effectiveShowTodayOnly) {
       return todo.dueDate?.slice(0, 10) === today;
     }
     return true;
@@ -316,7 +314,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     toggleStatus,
     deleteTodo,
     reorderTodos,
-    showTodayOnly,
+    showTodayOnly: effectiveShowTodayOnly,
     toggleShowTodayOnly,
   };
 }
