@@ -23,6 +23,8 @@ type MainContentProps = {
   onReorderTodos: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
+  showTodayOnly: boolean;
+  onToggleShowTodayOnly: () => void;
 };
 
 function MainContent({
@@ -46,6 +48,8 @@ function MainContent({
   onReorderTodos,
   isRandomMode,
   onToggleRandomTodo,
+  showTodayOnly,
+  onToggleShowTodayOnly,
 }: MainContentProps) {
   return viewMode === "TOP" ? (
     <TopView
@@ -73,6 +77,8 @@ function MainContent({
       onReorderTodos={onReorderTodos}
       isRandomMode={isRandomMode}
       onToggleRandomTodo={onToggleRandomTodo}
+      showTodayOnly={showTodayOnly}
+      onToggleShowTodayOnly={onToggleShowTodayOnly}
     />
   );
 }

@@ -18,6 +18,8 @@ type TodoListViewProps = {
   onReorderTodos: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
+  showTodayOnly: boolean;
+  onToggleShowTodayOnly: () => void;
 };
 
 function TodoListView({
@@ -36,6 +38,8 @@ function TodoListView({
   onReorderTodos,
   isRandomMode,
   onToggleRandomTodo,
+  showTodayOnly,
+  onToggleShowTodayOnly,
 }: TodoListViewProps) {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const canReorder =
@@ -75,6 +79,19 @@ function TodoListView({
               }`}
             >
               期限順に並び替える
+            </button>
+          )}
+
+          {viewMode === "DATED" && (
+            <button
+              onClick={onToggleShowTodayOnly}
+              className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                showTodayOnly
+                  ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              今日のタスクのみ
             </button>
           )}
 

@@ -36,9 +36,13 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     "manual",
   );
   const [randomTodoId, setRandomTodoId] = useState<number | null>(null);
+  const [showTodayOnly, setShowTodayOnly] = useState(false);
 
   useEffect(() => {
     if (viewMode === "TOP") return;
+    if (viewMode !== "DATED") {
+      setShowTodayOnly(false);
+    }
 
     const loadTodos = async () => {
       const params: TodoSearchParams = {};
@@ -187,9 +191,16 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const visibleTodos = showDoneTodos
-    ? todos
-    : todos.filter((todo) => todo.status !== "DONE");
+  const today = new Date().toISOString().slice(0, 10);
+  const visibleTodos = todos.filter((todo) => {
+    if (!showDoneTodos && todo.status === "DONE") {
+      return false;
+    }
+    if (viewMode === "DATED" && showTodayOnly) {
+      return todo.dueDate === today;
+    }
+    return true;
+  });
 
   const sortedTodos = [...visibleTodos].sort((a, b) => {
     if (a.status === "DONE" && b.status !== "DONE") return 1;
@@ -220,6 +231,11 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
     return sortedTodos.filter((todo) => todo.id === randomTodoId);
   }, [randomTodoId, sortedTodos]);
+
+  const toggleShowTodayOnly = () => {
+    setShowTodayOnly((prev) => !prev);
+    setRandomTodoId(null);
+  };
 
   const toggleRandomTodo = () => {
     if (randomTodoId !== null) {
@@ -290,5 +306,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     toggleStatus,
     deleteTodo,
     reorderTodos,
+    showTodayOnly,
+    toggleShowTodayOnly,
   };
 }

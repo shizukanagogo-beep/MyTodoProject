@@ -37,6 +37,8 @@ function App() {
     reorderTodos,
     isRandomMode,
     toggleRandomTodo,
+    showTodayOnly,
+    toggleShowTodayOnly,
   } = useTodos({
     viewMode,
     selectedCategoryId,
@@ -149,6 +151,8 @@ function App() {
         onReorderTodos={reorderTodos}
         isRandomMode={isRandomMode}
         onToggleRandomTodo={toggleRandomTodo}
+        showTodayOnly={showTodayOnly}
+        onToggleShowTodayOnly={toggleShowTodayOnly}
       />
     </AppLayout>
   );
