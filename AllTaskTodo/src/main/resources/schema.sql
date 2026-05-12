@@ -10,9 +10,6 @@ CREATE TABLE
         sort_order INT NULL;
     );
 
-UPDATE categories
-SET sort_order = id
-WHERE sort_order IS NULL;
 ---------------------------------------------------------------------------
 create table
     if not EXISTS todos (
