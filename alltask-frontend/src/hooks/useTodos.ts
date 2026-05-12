@@ -10,6 +10,16 @@ import {
   deleteTodo as deleteTodoApi,
 } from "../services/todoService";
 
+const getLocalDateString = () => {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const date = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${date}`;
+};
+
 const initialNewTodo: NewTodo = {
   title: "",
   details: "",
@@ -188,7 +198,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDateString();
   const visibleTodos = todos.filter((todo) => {
     if (!showDoneTodos && todo.status === "DONE") {
       return false;
