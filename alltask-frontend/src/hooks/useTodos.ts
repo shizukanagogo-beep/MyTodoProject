@@ -40,9 +40,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   useEffect(() => {
     if (viewMode === "TOP") return;
-    if (viewMode !== "DATED") {
-      setShowTodayOnly(false);
-    }
 
     const loadTodos = async () => {
       const params: TodoSearchParams = {};
