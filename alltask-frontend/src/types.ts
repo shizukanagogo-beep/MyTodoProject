@@ -20,6 +20,7 @@ export interface Todo {
 
 export interface TodoSearchParams {
   categoryId?: number | null;
+  categoryUnassigned?: boolean;
   existsDueDate?: boolean;
   daily?: boolean;
   hasFlag?: boolean;
@@ -28,7 +29,7 @@ export interface TodoSearchParams {
 export interface NewTodo {
   title: string;
   details: string;
-  categoryId: number | "";
+  categoryId: number | "" | null;
   dueDate: string;
   daily: boolean;
   hasFlag: boolean;
@@ -40,6 +41,7 @@ export interface NewTodo {
 export type ViewMode =
   | "TOP"
   | "CATEGORY_DETAIL"
+  | "UNCATEGORIZED"
   | "DATED"
   | "DAILY"
   | "FLAGGED";

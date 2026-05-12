@@ -17,6 +17,7 @@ function App() {
     selectedCategoryId,
     goTop,
     goCategoryDetail,
+    goUncategorized,
     goDated,
     goDaily,
     goFlagged,
@@ -39,6 +40,8 @@ function App() {
     toggleRandomTodo,
     showTodayOnly,
     toggleShowTodayOnly,
+    showTomorrowOnly,
+    toggleShowTomorrowOnly,
     resetDatedFilters,
   } = useTodos({
     viewMode,
@@ -150,6 +153,10 @@ function App() {
           resetDatedFilters();
           goCategoryDetail(categoryId);
         }}
+        onOpenUncategorized={() => {
+          resetDatedFilters();
+          goUncategorized();
+        }}
         onOpenDated={goDated}
         onOpenDaily={() => {
           resetDatedFilters();
@@ -167,10 +174,13 @@ function App() {
         onDeleteTodo={deleteTodo}
         onOpenTodoDetail={openTodoDetailModal}
         onReorderTodos={reorderTodos}
+        onReorderCategories={reorderCategories}
         isRandomMode={isRandomMode}
         onToggleRandomTodo={toggleRandomTodo}
         showTodayOnly={showTodayOnly}
         onToggleShowTodayOnly={toggleShowTodayOnly}
+        showTomorrowOnly={showTomorrowOnly}
+        onToggleShowTomorrowOnly={toggleShowTomorrowOnly}
       />
     </AppLayout>
   );

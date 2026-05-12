@@ -9,6 +9,10 @@ export function matchesTodoView(
     return todo.categoryId === selectedCategoryId;
   }
 
+  if (viewMode === "UNCATEGORIZED") {
+    return todo.categoryId === null;
+  }
+
   if (viewMode === "DATED") {
     return !!todo.dueDate;
   }

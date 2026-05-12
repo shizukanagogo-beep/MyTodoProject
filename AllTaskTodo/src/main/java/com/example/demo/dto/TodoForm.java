@@ -13,6 +13,7 @@ public class TodoForm {
     private LocalDate dueDate;
     private Boolean existsDueDate; // trueなら「期限があるもの全部」
     private Integer categoryId;
+    private Boolean categoryUnassigned;
     private Boolean hasFlag;
     private Boolean daily;
     private Integer overdueBehavior;

@@ -2,13 +2,13 @@ import { api } from "../api";
 import type { Todo, TodoSearchParams, NewTodo } from "../types";
 
 export type AddTodoPayload = Omit<NewTodo, "categoryId" | "dueDate"> & {
-  categoryId: number;
+  categoryId: number | null;
   dueDate: string | null;
   status: "INCOMPLETE";
 };
 
 export type UpdateTodoPayload = Omit<NewTodo, "categoryId" | "dueDate"> & {
-  categoryId: number;
+  categoryId: number | null;
   dueDate: string | null;
   status: Todo["status"];
 };

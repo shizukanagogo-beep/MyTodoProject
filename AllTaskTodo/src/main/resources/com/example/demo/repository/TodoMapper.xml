@@ -27,6 +27,9 @@
             <if test="categoryId != null">
                 AND category_id = #{categoryId}
             </if>
+            <if test="categoryUnassigned == true">
+                AND category_id IS NULL
+            </if>
             <if test="hasFlag != null">
                 AND has_flag = #{hasFlag}
             </if>

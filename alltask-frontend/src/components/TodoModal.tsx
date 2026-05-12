@@ -50,16 +50,21 @@ function TodoModal({
             {viewMode === "TOP" && (
               <select
                 className="px-4 py-3 border border-slate-200 rounded-lg bg-white"
-                value={newTodo.categoryId}
+                value={newTodo.categoryId === null ? "__none" : newTodo.categoryId}
                 onChange={(e) =>
                   setNewTodo({
                     ...newTodo,
                     categoryId:
-                      e.target.value === "" ? "" : Number(e.target.value),
+                      e.target.value === ""
+                        ? ""
+                        : e.target.value === "__none"
+                          ? null
+                          : Number(e.target.value),
                   })
                 }
               >
                 <option value="">カテゴリを選択</option>
+                <option value="__none">カテゴリを設定しない</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}

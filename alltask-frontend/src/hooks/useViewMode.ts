@@ -17,15 +17,23 @@ export function useViewMode() {
     setViewMode("CATEGORY_DETAIL");
   };
 
+  const goUncategorized = () => {
+    setSelectedCategoryId(null);
+    setViewMode("UNCATEGORIZED");
+  };
+
   const goDated = () => {
+    setSelectedCategoryId(null);
     setViewMode("DATED");
   };
 
   const goDaily = () => {
+    setSelectedCategoryId(null);
     setViewMode("DAILY");
   };
 
   const goFlagged = () => {
+    setSelectedCategoryId(null);
     setViewMode("FLAGGED");
   };
 
@@ -34,6 +42,7 @@ export function useViewMode() {
     selectedCategoryId,
     goTop,
     goCategoryDetail,
+    goUncategorized,
     goDated,
     goDaily,
     goFlagged,

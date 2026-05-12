@@ -5,6 +5,7 @@ type TopViewProps = {
   categories: Category[];
   onOpenCategoryModal: () => void;
   onOpenCategoryDetail: (categoryId: number) => void;
+  onOpenUncategorized: () => void;
   onOpenDated: () => void;
   onOpenDaily: () => void;
   onOpenFlagged: () => void;
@@ -14,13 +15,14 @@ function TopView({
   categories,
   onOpenCategoryModal,
   onOpenCategoryDetail,
+  onOpenUncategorized,
   onOpenDated,
   onOpenDaily,
   onOpenFlagged,
 }: TopViewProps) {
   return (
     <div className="space-y-8">
-      <section className="grid grid-cols-3 gap-4">
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <button
           onClick={onOpenDated}
           className="p-4 bg-blue-500 text-white rounded-xl font-bold shadow-md hover:bg-blue-600"
@@ -40,6 +42,13 @@ function TopView({
           className="p-4 bg-amber-500 text-white rounded-xl font-bold shadow-md hover:bg-amber-600"
         >
           🚩 フラグ
+        </button>
+
+        <button
+          onClick={onOpenUncategorized}
+          className="p-4 bg-slate-500 text-white rounded-xl font-bold shadow-md hover:bg-slate-600"
+        >
+          カテゴリなし
         </button>
       </section>
 

@@ -13,6 +13,7 @@ type MainContentProps = {
   onChangeDatedSortMode: (mode: "manual" | "dueDate") => void;
   onOpenCategoryModal: () => void;
   onOpenCategoryDetail: (categoryId: number) => void;
+  onOpenUncategorized: () => void;
   onOpenDated: () => void;
   onOpenDaily: () => void;
   onOpenFlagged: () => void;
@@ -21,10 +22,13 @@ type MainContentProps = {
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
   onReorderTodos: (fromIndex: number, toIndex: number) => void;
+  onReorderCategories: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
   showTodayOnly: boolean;
   onToggleShowTodayOnly: () => void;
+  showTomorrowOnly: boolean;
+  onToggleShowTomorrowOnly: () => void;
 };
 
 function MainContent({
@@ -38,6 +42,7 @@ function MainContent({
   onChangeDatedSortMode,
   onOpenCategoryModal,
   onOpenCategoryDetail,
+  onOpenUncategorized,
   onOpenDated,
   onOpenDaily,
   onOpenFlagged,
@@ -46,16 +51,20 @@ function MainContent({
   onDeleteTodo,
   onOpenTodoDetail,
   onReorderTodos,
+  onReorderCategories,
   isRandomMode,
   onToggleRandomTodo,
   showTodayOnly,
   onToggleShowTodayOnly,
+  showTomorrowOnly,
+  onToggleShowTomorrowOnly,
 }: MainContentProps) {
   return viewMode === "TOP" ? (
     <TopView
       categories={categories}
       onOpenCategoryModal={onOpenCategoryModal}
       onOpenCategoryDetail={onOpenCategoryDetail}
+      onOpenUncategorized={onOpenUncategorized}
       onOpenDated={onOpenDated}
       onOpenDaily={onOpenDaily}
       onOpenFlagged={onOpenFlagged}
@@ -75,10 +84,13 @@ function MainContent({
       onDeleteTodo={onDeleteTodo}
       onOpenTodoDetail={onOpenTodoDetail}
       onReorderTodos={onReorderTodos}
+      onReorderCategories={onReorderCategories}
       isRandomMode={isRandomMode}
       onToggleRandomTodo={onToggleRandomTodo}
       showTodayOnly={showTodayOnly}
       onToggleShowTodayOnly={onToggleShowTodayOnly}
+      showTomorrowOnly={showTomorrowOnly}
+      onToggleShowTomorrowOnly={onToggleShowTomorrowOnly}
     />
   );
 }

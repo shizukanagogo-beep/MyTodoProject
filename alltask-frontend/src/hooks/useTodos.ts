@@ -13,9 +13,20 @@ import {
 const getLocalDateString = () => {
   const today = new Date();
 
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const date = String(today.getDate()).padStart(2, "0");
+  return formatLocalDate(today);
+};
+
+const getTomorrowLocalDateString = () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  return formatLocalDate(tomorrow);
+};
+
+const formatLocalDate = (dateValue: Date) => {
+  const year = dateValue.getFullYear();
+  const month = String(dateValue.getMonth() + 1).padStart(2, "0");
+  const date = String(dateValue.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${date}`;
 };
@@ -47,7 +58,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   );
   const [randomTodoId, setRandomTodoId] = useState<number | null>(null);
   const [showTodayOnly, setShowTodayOnly] = useState(false);
+  const [showTomorrowOnly, setShowTomorrowOnly] = useState(false);
   const effectiveShowTodayOnly = viewMode === "DATED" && showTodayOnly;
+  const effectiveShowTomorrowOnly = viewMode === "DATED" && showTomorrowOnly;
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -58,6 +71,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       if (viewMode === "CATEGORY_DETAIL") {
         params.categoryId = selectedCategoryId;
       }
+      if (viewMode === "UNCATEGORIZED") params.categoryUnassigned = true;
       if (viewMode === "DATED") params.existsDueDate = true;
       if (viewMode === "DAILY") params.daily = true;
       if (viewMode === "FLAGGED") params.hasFlag = true;
@@ -74,6 +88,14 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     loadTodos();
   }, [viewMode, selectedCategoryId, refreshKey]);
 
+  useEffect(() => {
+    if (viewMode !== "DATED") {
+      setShowTodayOnly(false);
+      setShowTomorrowOnly(false);
+      setRandomTodoId(null);
+    }
+  }, [viewMode]);
+
   const addTodo = async () => {
     if (!newTodo.title.trim()) {
       alert("タイトルを入力してください");
@@ -81,16 +103,16 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
 
     const finalCategoryId =
-      viewMode === "CATEGORY_DETAIL" ? selectedCategoryId : newTodo.categoryId;
-
-    if (!finalCategoryId) {
-      alert("カテゴリを選択してください");
-      return false;
-    }
+      viewMode === "CATEGORY_DETAIL"
+        ? selectedCategoryId
+        : newTodo.categoryId === ""
+          ? null
+          : newTodo.categoryId;
 
     const payload = {
       ...newTodo,
-      categoryId: Number(finalCategoryId),
+      categoryId:
+        typeof finalCategoryId === "number" ? Number(finalCategoryId) : null,
       dueDate: newTodo.dueDate || null,
       status: "INCOMPLETE" as const,
     };
@@ -147,11 +169,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       return null;
     }
 
-    if (!payload.categoryId) {
-      alert("カテゴリが不正です");
-      return null;
-    }
-
     try {
       const updatedTodo = await updateTodoApi(id, {
         ...payload,
@@ -200,12 +217,19 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   };
 
   const today = getLocalDateString();
+  const tomorrow = getTomorrowLocalDateString();
   const visibleTodos = todos.filter((todo) => {
+    if (viewMode === "UNCATEGORIZED" && todo.categoryId !== null) {
+      return false;
+    }
     if (!showDoneTodos && todo.status === "DONE") {
       return false;
     }
     if (effectiveShowTodayOnly) {
       return todo.dueDate?.slice(0, 10) === today;
+    }
+    if (effectiveShowTomorrowOnly) {
+      return todo.dueDate?.slice(0, 10) === tomorrow;
     }
     return true;
   });
@@ -241,12 +265,30 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   }, [randomTodoId, sortedTodos]);
 
   const toggleShowTodayOnly = () => {
-    setShowTodayOnly((prev) => !prev);
+    setShowTodayOnly((prev) => {
+      const next = !prev;
+      if (next) {
+        setShowTomorrowOnly(false);
+      }
+      return next;
+    });
+    setRandomTodoId(null);
+  };
+
+  const toggleShowTomorrowOnly = () => {
+    setShowTomorrowOnly((prev) => {
+      const next = !prev;
+      if (next) {
+        setShowTodayOnly(false);
+      }
+      return next;
+    });
     setRandomTodoId(null);
   };
 
   const resetDatedFilters = () => {
     setShowTodayOnly(false);
+    setShowTomorrowOnly(false);
     setRandomTodoId(null);
   };
 
@@ -321,6 +363,8 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     reorderTodos,
     showTodayOnly: effectiveShowTodayOnly,
     toggleShowTodayOnly,
+    showTomorrowOnly: effectiveShowTomorrowOnly,
+    toggleShowTomorrowOnly,
     resetDatedFilters,
   };
 }
