@@ -35,6 +35,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [datedSortMode, setDatedSortMode] = useState<"manual" | "dueDate">(
     "manual",
   );
+  const [randomTodoId, setRandomTodoId] = useState<number | null>(null);
   const [randomTodo, setRandomTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
@@ -228,6 +229,39 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     return b.id - a.id;
   });
 
+  const displayedTodos = useMemo(() => {
+    if (randomTodoId === null) {
+      return sortedTodos;
+    }
+    const toggleRandomTodo = () => {
+      if (randomTodoId !== null) {
+        setRandomTodoId(null);
+        return;
+      }
+
+      const incompleteTodos = sortedTodos.filter(
+        (todo) => todo.status === "INCOMPLETE",
+      );
+
+      if (incompleteTodos.length === 0) {
+        alert("未完了のタスクがありません。");
+        return;
+      }
+
+      const randomIndex = Math.floor(Math.random() * incompleteTodos.length);
+      setRandomTodoId(incompleteTodos[randomIndex].id);
+    };
+
+    return sortedTodos.filter((todo) => todo.id === randomTodoId);
+  }, [randomTodoId, sortedTodos]);
+  const displayedTodos = useMemo(() => {
+    if (randomTodoId === null) {
+      return sortedTodos;
+    }
+
+    return sortedTodos.filter((todo) => todo.id === randomTodoId);
+  }, [randomTodoId, sortedTodos]);
+
   const pickRandomTodo = () => {
     const incompleteTodos = sortedTodos.filter(
       (todo) => todo.status === "INCOMPLETE",
@@ -248,10 +282,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   };
 
   return {
-    sortedTodos,
-    randomTodo,
-    pickRandomTodo,
-    clearRandomTodo,
+    sortedTodos: displayedTodos,
+    isRandomMode: randomTodoId !== null,
+    toggleRandomTodo,
     showDoneTodos,
     setShowDoneTodos,
     datedSortMode,
