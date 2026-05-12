@@ -76,6 +76,14 @@ function App() {
     updateSelectedTodo,
   } = useSelectedTodoModal();
 
+  const deleteCategoryAndReturnTopIfNeeded = async (id: number) => {
+    const isSuccess = await deleteCategory(id);
+    if (isSuccess && selectedCategoryId === id) {
+      goTop();
+    }
+    return isSuccess;
+  };
+
   if (loadingCategories) return <Loading />;
 
   return (
@@ -114,7 +122,7 @@ function App() {
         onCloseCategoryModal={closeCategoryModal}
         onAddCategory={addCategoryFromModal}
         onUpdateCategory={updateCategory}
-        onDeleteCategory={deleteCategory}
+        onDeleteCategory={deleteCategoryAndReturnTopIfNeeded}
         onReorderCategories={reorderCategories}
       />
 
