@@ -74,6 +74,12 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     loadTodos();
   }, [viewMode, selectedCategoryId, refreshKey]);
 
+  useEffect(() => {
+    if (viewMode !== "DATED") {
+      setShowTodayOnly(false);
+    }
+  }, [viewMode]);
+
   const addTodo = async () => {
     if (!newTodo.title.trim()) {
       alert("タイトルを入力してください");
