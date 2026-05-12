@@ -19,3 +19,14 @@ export async function updateCategory(id: number, name: string) {
 export async function deleteCategory(id: number) {
   await api.delete(`/categories/${id}`);
 }
+
+export type CategorySortOrderPayload = {
+  id: number;
+  sortOrder: number;
+};
+
+export async function updateCategorySortOrder(
+  payload: CategorySortOrderPayload[],
+) {
+  await api.patch("/categories/sort-order", payload);
+}

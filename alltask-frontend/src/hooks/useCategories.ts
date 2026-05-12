@@ -5,6 +5,7 @@ import {
   addCategory as addCategoryApi,
   updateCategory as updateCategoryApi,
   deleteCategory as deleteCategoryApi,
+  updateCategorySortOrder,
 } from "../services/categoryService";
 
 export function useCategories() {
@@ -65,11 +66,41 @@ export function useCategories() {
     }
   };
 
+  const reorderCategories = async (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+
+    const reorderedCategories = [...categories];
+    const [movedCategory] = reorderedCategories.splice(fromIndex, 1);
+    reorderedCategories.splice(toIndex, 0, movedCategory);
+
+    const updatedCategories = reorderedCategories.map((category, index) => ({
+      ...category,
+      sortOrder: index + 1,
+    }));
+
+    setCategories(updatedCategories);
+
+    try {
+      await updateCategorySortOrder(
+        updatedCategories.map((category) => ({
+          id: category.id,
+          sortOrder: category.sortOrder,
+        })),
+      );
+    } catch (error) {
+      console.error("カテゴリ並び順更新失敗:", error);
+      alert("カテゴリ並び順の更新に失敗しました。");
+      const categories = await fetchCategoriesApi();
+      setCategories(categories);
+    }
+  };
+
   return {
     categories,
     loadingCategories,
     addCategory,
     updateCategory,
     deleteCategory,
+    reorderCategories,
   };
 }

@@ -9,6 +9,7 @@ type CategoryModalProps = {
   onAddCategory: () => void;
   onUpdateCategory: (id: number, name: string) => Promise<boolean>;
   onDeleteCategory: (id: number) => Promise<boolean>;
+  onReorderCategories: (fromIndex: number, toIndex: number) => void;
 };
 
 function CategoryModal({
@@ -19,6 +20,7 @@ function CategoryModal({
   onAddCategory,
   onUpdateCategory,
   onDeleteCategory,
+  onReorderCategories,
 }: CategoryModalProps) {
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
     null,
@@ -27,6 +29,7 @@ function CategoryModal({
   const [openMenuCategoryId, setOpenMenuCategoryId] = useState<number | null>(
     null,
   );
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const saveCategoryName = async (categoryId: number) => {
     const isSuccess = await onUpdateCategory(categoryId, editingCategoryName);
 
@@ -60,10 +63,22 @@ function CategoryModal({
         </div>
 
         <div className="space-y-2 mb-6">
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <div
               key={category.id}
-              className="relative flex items-center justify-between px-4 py-3 bg-slate-50 rounded-xl border border-slate-100"
+              draggable={editingCategoryId !== category.id}
+              onDragStart={() => setDraggingIndex(index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => {
+                if (draggingIndex === null) return;
+
+                onReorderCategories(draggingIndex, index);
+                setDraggingIndex(null);
+              }}
+              onDragEnd={() => setDraggingIndex(null)}
+              className={`relative flex items-center justify-between px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 ${
+                draggingIndex === index ? "opacity-50" : ""
+              }`}
             >
               {editingCategoryId === category.id ? (
                 <input

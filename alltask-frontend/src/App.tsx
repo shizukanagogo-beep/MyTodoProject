@@ -55,6 +55,7 @@ function App() {
     updateCategory,
     addCategory: addCategoryToList,
     deleteCategory,
+    reorderCategories,
   } = useCategories();
 
   const {
@@ -114,6 +115,7 @@ function App() {
         onAddCategory={addCategoryFromModal}
         onUpdateCategory={updateCategory}
         onDeleteCategory={deleteCategory}
+        onReorderCategories={reorderCategories}
       />
 
       <MainContent

@@ -1,6 +1,7 @@
 export interface Category {
   id: number;
   name: string;
+  sortOrder: number | null;
 }
 
 export interface Todo {
