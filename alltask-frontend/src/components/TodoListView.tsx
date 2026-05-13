@@ -29,6 +29,17 @@ type TodoListViewProps = {
   onChangeDatedFilter: (filter: "all" | "today" | "tomorrow") => void;
 };
 
+const getLocalDateString = (offsetDays = 0) => {
+  const dateValue = new Date();
+  dateValue.setDate(dateValue.getDate() + offsetDays);
+
+  const year = dateValue.getFullYear();
+  const month = String(dateValue.getMonth() + 1).padStart(2, "0");
+  const date = String(dateValue.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${date}`;
+};
+
 function TodoListView({
   viewMode,
   categories,
@@ -76,6 +87,30 @@ function TodoListView({
   const parentTodos = sortedTodos.filter((todo) => todo.parentId === null);
   const getSubtasks = (parentId: number) =>
     sortedTodos.filter((todo) => todo.parentId === parentId);
+  const matchesDirectListCondition = (todo: Todo) => {
+    if (viewMode === "DATED") {
+      if (datedFilter === "today") {
+        return todo.dueDate?.slice(0, 10) === getLocalDateString();
+      }
+      if (datedFilter === "tomorrow") {
+        return todo.dueDate?.slice(0, 10) === getLocalDateString(1);
+      }
+      return todo.dueDate !== null;
+    }
+
+    if (viewMode === "DAILY") {
+      return todo.daily;
+    }
+
+    if (viewMode === "FLAGGED") {
+      return todo.hasFlag;
+    }
+
+    return true;
+  };
+  const shouldSubdueTodo = (todo: Todo) =>
+    (viewMode === "DATED" || viewMode === "DAILY" || viewMode === "FLAGGED") &&
+    !matchesDirectListCondition(todo);
   const todosByCategory = useMemo(
     () => {
       const categoryGroups = categories
@@ -183,24 +218,26 @@ function TodoListView({
           onDragEnd={() => setDraggingIndex(null)}
           className={draggingIndex === index ? "opacity-50" : ""}
         >
-          <div className="flex items-stretch gap-2">
+          <div className="relative">
             {subtasks.length > 0 && (
               <button
-                className="w-8 shrink-0 rounded-xl bg-white text-xs font-bold text-slate-500 shadow-sm border border-slate-100 hover:bg-slate-50"
-                onClick={() => toggleSubtasksCollapsed(todo.id)}
+                className="absolute -left-5 top-1/2 -translate-y-1/2 text-xs text-slate-300 hover:text-slate-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleSubtasksCollapsed(todo.id);
+                }}
               >
                 {isSubtasksCollapsed ? "▶" : "▼"}
               </button>
             )}
 
-            <div className="flex-1">
-              <TodoItem
-                todo={todo}
-                onToggleStatus={onToggleStatus}
-                onDeleteTodo={onDeleteTodo}
-                onOpenTodoDetail={onOpenTodoDetail}
-              />
-            </div>
+            <TodoItem
+              todo={todo}
+              onToggleStatus={onToggleStatus}
+              onDeleteTodo={onDeleteTodo}
+              onOpenTodoDetail={onOpenTodoDetail}
+              subdued={shouldSubdueTodo(todo)}
+            />
           </div>
         </div>
 
@@ -240,6 +277,7 @@ function TodoListView({
                   onToggleStatus={onToggleStatus}
                   onDeleteTodo={onDeleteTodo}
                   onOpenTodoDetail={onOpenTodoDetail}
+                  subdued={shouldSubdueTodo(subtask)}
                 />
               </div>
             ))}

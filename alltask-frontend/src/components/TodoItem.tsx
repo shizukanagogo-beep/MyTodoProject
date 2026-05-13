@@ -5,6 +5,7 @@ type TodoItemProps = {
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
+  subdued?: boolean;
 };
 
 function TodoItem({
@@ -12,18 +13,25 @@ function TodoItem({
   onToggleStatus,
   onDeleteTodo,
   onOpenTodoDetail,
+  subdued = false,
 }: TodoItemProps) {
   const today = new Date().toISOString().slice(0, 10);
   const isOverdue =
     todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
+  const stateClass =
+    todo.status === "DONE"
+      ? "opacity-60 bg-slate-50"
+      : subdued
+        ? "shadow-none border-2 border-dashed border-slate-300 bg-slate-50/40"
+        : "";
+  const contentClass = todo.status !== "DONE" && subdued ? "opacity-55" : "";
+
   return (
     <div
-      className={`flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-slate-100 group cursor-pointer ${
-        todo.status === "DONE" ? "opacity-60 bg-slate-50" : ""
-      }`}
+      className={`relative flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-slate-100 group cursor-pointer ${stateClass}`}
       onClick={() => onOpenTodoDetail(todo)}
     >
-      <div className="flex items-center gap-4 flex-1">
+      <div className={`flex items-center gap-4 flex-1 ${contentClass}`}>
         <input
           type="checkbox"
           checked={todo.status === "DONE"}
