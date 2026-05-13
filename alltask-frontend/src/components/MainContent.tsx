@@ -11,6 +11,7 @@ type MainContentProps = {
   datedSortMode: "manual" | "dueDate";
   onToggleShowDoneTodos: () => void;
   onChangeDatedSortMode: (mode: "manual" | "dueDate") => void;
+  onOpenTodoModal: () => void;
   onOpenCategoryModal: () => void;
   onOpenCategoryDetail: (categoryId: number) => void;
   onOpenUncategorized: () => void;
@@ -25,10 +26,8 @@ type MainContentProps = {
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
-  showTodayOnly: boolean;
-  onToggleShowTodayOnly: () => void;
-  showTomorrowOnly: boolean;
-  onToggleShowTomorrowOnly: () => void;
+  datedFilter: "all" | "today" | "tomorrow";
+  onChangeDatedFilter: (filter: "all" | "today" | "tomorrow") => void;
 };
 
 function MainContent({
@@ -40,6 +39,7 @@ function MainContent({
   datedSortMode,
   onToggleShowDoneTodos,
   onChangeDatedSortMode,
+  onOpenTodoModal,
   onOpenCategoryModal,
   onOpenCategoryDetail,
   onOpenUncategorized,
@@ -54,14 +54,13 @@ function MainContent({
   onReorderCategories,
   isRandomMode,
   onToggleRandomTodo,
-  showTodayOnly,
-  onToggleShowTodayOnly,
-  showTomorrowOnly,
-  onToggleShowTomorrowOnly,
+  datedFilter,
+  onChangeDatedFilter,
 }: MainContentProps) {
   return viewMode === "TOP" ? (
     <TopView
       categories={categories}
+      onOpenTodoModal={onOpenTodoModal}
       onOpenCategoryModal={onOpenCategoryModal}
       onOpenCategoryDetail={onOpenCategoryDetail}
       onOpenUncategorized={onOpenUncategorized}
@@ -79,6 +78,7 @@ function MainContent({
       datedSortMode={datedSortMode}
       onToggleShowDoneTodos={onToggleShowDoneTodos}
       onChangeDatedSortMode={onChangeDatedSortMode}
+      onOpenTodoModal={onOpenTodoModal}
       onBackToTop={onBackToTop}
       onToggleStatus={onToggleStatus}
       onDeleteTodo={onDeleteTodo}
@@ -87,10 +87,8 @@ function MainContent({
       onReorderCategories={onReorderCategories}
       isRandomMode={isRandomMode}
       onToggleRandomTodo={onToggleRandomTodo}
-      showTodayOnly={showTodayOnly}
-      onToggleShowTodayOnly={onToggleShowTodayOnly}
-      showTomorrowOnly={showTomorrowOnly}
-      onToggleShowTomorrowOnly={onToggleShowTomorrowOnly}
+      datedFilter={datedFilter}
+      onChangeDatedFilter={onChangeDatedFilter}
     />
   );
 }

@@ -48,6 +48,8 @@ type UseTodosArgs = {
   selectedCategoryId: number | null;
 };
 
+type DatedFilter = "all" | "today" | "tomorrow";
+
 export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState<NewTodo>(initialNewTodo);
@@ -57,10 +59,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     "manual",
   );
   const [randomTodoId, setRandomTodoId] = useState<number | null>(null);
-  const [showTodayOnly, setShowTodayOnly] = useState(false);
-  const [showTomorrowOnly, setShowTomorrowOnly] = useState(false);
-  const effectiveShowTodayOnly = viewMode === "DATED" && showTodayOnly;
-  const effectiveShowTomorrowOnly = viewMode === "DATED" && showTomorrowOnly;
+  const [datedFilter, setDatedFilter] = useState<DatedFilter>("all");
+  const effectiveDatedFilter: DatedFilter =
+    viewMode === "DATED" ? datedFilter : "all";
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -90,8 +91,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   useEffect(() => {
     if (viewMode !== "DATED") {
-      setShowTodayOnly(false);
-      setShowTomorrowOnly(false);
+      setDatedFilter("all");
       setRandomTodoId(null);
     }
   }, [viewMode]);
@@ -225,10 +225,10 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (!showDoneTodos && todo.status === "DONE") {
       return false;
     }
-    if (effectiveShowTodayOnly) {
+    if (effectiveDatedFilter === "today") {
       return todo.dueDate?.slice(0, 10) === today;
     }
-    if (effectiveShowTomorrowOnly) {
+    if (effectiveDatedFilter === "tomorrow") {
       return todo.dueDate?.slice(0, 10) === tomorrow;
     }
     return true;
@@ -264,31 +264,13 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     return sortedTodos.filter((todo) => todo.id === randomTodoId);
   }, [randomTodoId, sortedTodos]);
 
-  const toggleShowTodayOnly = () => {
-    setShowTodayOnly((prev) => {
-      const next = !prev;
-      if (next) {
-        setShowTomorrowOnly(false);
-      }
-      return next;
-    });
-    setRandomTodoId(null);
-  };
-
-  const toggleShowTomorrowOnly = () => {
-    setShowTomorrowOnly((prev) => {
-      const next = !prev;
-      if (next) {
-        setShowTodayOnly(false);
-      }
-      return next;
-    });
+  const changeDatedFilter = (filter: DatedFilter) => {
+    setDatedFilter(filter);
     setRandomTodoId(null);
   };
 
   const resetDatedFilters = () => {
-    setShowTodayOnly(false);
-    setShowTomorrowOnly(false);
+    setDatedFilter("all");
     setRandomTodoId(null);
   };
 
@@ -361,10 +343,8 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     toggleStatus,
     deleteTodo,
     reorderTodos,
-    showTodayOnly: effectiveShowTodayOnly,
-    toggleShowTodayOnly,
-    showTomorrowOnly: effectiveShowTomorrowOnly,
-    toggleShowTomorrowOnly,
+    datedFilter: effectiveDatedFilter,
+    setDatedFilter: changeDatedFilter,
     resetDatedFilters,
   };
 }

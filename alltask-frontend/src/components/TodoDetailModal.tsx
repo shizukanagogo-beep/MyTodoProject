@@ -139,18 +139,16 @@ function TodoDetailModal({
               <p className="text-sm font-bold text-slate-500 mb-1">カテゴリ</p>
               <select
                 className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
-                value={editTodo.categoryId ?? "__none"}
+                value={editTodo.categoryId ?? ""}
                 onChange={(e) =>
                   setEditTodo({
                     ...editTodo,
                     categoryId:
-                      e.target.value === "__none"
-                        ? null
-                        : Number(e.target.value),
+                      e.target.value === "" ? null : Number(e.target.value),
                   })
                 }
               >
-                <option value="__none">カテゴリを設定しない</option>
+                <option value="">カテゴリを選択</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}

@@ -11,6 +11,7 @@ type TodoListViewProps = {
   datedSortMode: "manual" | "dueDate";
   onToggleShowDoneTodos: () => void;
   onChangeDatedSortMode: (mode: "manual" | "dueDate") => void;
+  onOpenTodoModal: () => void;
   onBackToTop: () => void;
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
@@ -19,10 +20,8 @@ type TodoListViewProps = {
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
-  showTodayOnly: boolean;
-  onToggleShowTodayOnly: () => void;
-  showTomorrowOnly: boolean;
-  onToggleShowTomorrowOnly: () => void;
+  datedFilter: "all" | "today" | "tomorrow";
+  onChangeDatedFilter: (filter: "all" | "today" | "tomorrow") => void;
 };
 
 function TodoListView({
@@ -34,6 +33,7 @@ function TodoListView({
   datedSortMode,
   onToggleShowDoneTodos,
   onChangeDatedSortMode,
+  onOpenTodoModal,
   onBackToTop,
   onToggleStatus,
   onDeleteTodo,
@@ -42,10 +42,8 @@ function TodoListView({
   onReorderCategories,
   isRandomMode,
   onToggleRandomTodo,
-  showTodayOnly,
-  onToggleShowTodayOnly,
-  showTomorrowOnly,
-  onToggleShowTomorrowOnly,
+  datedFilter,
+  onChangeDatedFilter,
 }: TodoListViewProps) {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [draggingCategoryId, setDraggingCategoryId] = useState<number | null>(
@@ -135,7 +133,7 @@ function TodoListView({
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-4 mb-8">
+      <div className="mb-8 space-y-4">
         <div className="flex items-center gap-4 min-w-0">
           <button
             onClick={onBackToTop}
@@ -154,89 +152,107 @@ function TodoListView({
           </h2>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          {viewMode === "DATED" && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {viewMode === "DATED" && (
+              <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white">
+                {[
+                  { value: "all", label: "すべて" },
+                  { value: "today", label: "今日" },
+                  { value: "tomorrow", label: "明日" },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() =>
+                      onChangeDatedFilter(
+                        item.value as "all" | "today" | "tomorrow",
+                      )
+                    }
+                    className={`px-3 py-2 text-sm font-bold transition-colors ${
+                      datedFilter === item.value
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {viewMode === "DATED" && (
+              <button
+                onClick={() =>
+                  onChangeDatedSortMode(
+                    datedSortMode === "dueDate" ? "manual" : "dueDate",
+                  )
+                }
+                className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                  datedSortMode === "dueDate"
+                    ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                期限順
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() =>
-                onChangeDatedSortMode(
-                  datedSortMode === "dueDate" ? "manual" : "dueDate",
-                )
-              }
+              onClick={onToggleShowDoneTodos}
               className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
-                datedSortMode === "dueDate"
-                  ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                showDoneTodos
+                  ? "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
                   : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              期限順に並び替える
+              {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
             </button>
-          )}
 
-          {viewMode === "DATED" && (
+            {canGroupByCategory && (
+              <button
+                onClick={() => {
+                  setGroupByCategory((prev) => !prev);
+                  setDraggingIndex(null);
+                  setDraggingCategoryId(null);
+                }}
+                className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                  groupByCategory
+                    ? "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                カテゴリ別
+              </button>
+            )}
+
+            <span className="h-6 border-l border-slate-200" />
+
             <button
-              onClick={onToggleShowTodayOnly}
+              onClick={onToggleRandomTodo}
               className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
-                showTodayOnly
-                  ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                isRandomMode
+                  ? "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
                   : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              今日のタスクのみ
+              ランダム
             </button>
-          )}
-
-          {viewMode === "DATED" && (
-            <button
-              onClick={onToggleShowTomorrowOnly}
-              className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
-                showTomorrowOnly
-                  ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              明日のタスクのみ
-            </button>
-          )}
-
-          {canGroupByCategory && (
-            <button
-              onClick={() => {
-                setGroupByCategory((prev) => !prev);
-                setDraggingIndex(null);
-                setDraggingCategoryId(null);
-              }}
-              className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
-                groupByCategory
-                  ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              カテゴリごとに表示
-            </button>
-          )}
-
-          <button
-            onClick={onToggleRandomTodo}
-            className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
-              isRandomMode
-                ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
-                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-            }`}
-          >
-            ランダム
-          </button>
-
-          <button
-            onClick={onToggleShowDoneTodos}
-            className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
-              showDoneTodos
-                ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
-                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-            }`}
-          >
-            {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
-          </button>
+          </div>
         </div>
+
+        {viewMode === "CATEGORY_DETAIL" && (
+          <div className="flex justify-end">
+            <button
+              onClick={onOpenTodoModal}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
+            >
+              +新規タスク
+            </button>
+          </div>
+        )}
+
       </div>
 
       <div className="space-y-3">

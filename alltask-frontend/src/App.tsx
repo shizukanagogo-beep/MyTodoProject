@@ -3,7 +3,6 @@ import { useTodos } from "./hooks/useTodos";
 import { useTodoModal } from "./hooks/useTodoModal";
 import { useCategoryModal } from "./hooks/useCategoryModal";
 import { useViewMode } from "./hooks/useViewMode";
-import AddTodoButton from "./components/AddTodoButton";
 import Loading from "./components/Loading";
 import AppLayout from "./components/AppLayout";
 import MainContent from "./components/MainContent";
@@ -38,10 +37,8 @@ function App() {
     reorderTodos,
     isRandomMode,
     toggleRandomTodo,
-    showTodayOnly,
-    toggleShowTodayOnly,
-    showTomorrowOnly,
-    toggleShowTomorrowOnly,
+    datedFilter,
+    setDatedFilter,
     resetDatedFilters,
   } = useTodos({
     viewMode,
@@ -101,9 +98,6 @@ function App() {
         goTop();
       }}
     >
-      {(viewMode === "TOP" || viewMode === "CATEGORY_DETAIL") && (
-        <AddTodoButton onClick={openTodoModal} />
-      )}
       {selectedTodo && (
         <TodoDetailModal
           todo={selectedTodo}
@@ -148,6 +142,7 @@ function App() {
         datedSortMode={datedSortMode}
         onToggleShowDoneTodos={() => setShowDoneTodos((prev) => !prev)}
         onChangeDatedSortMode={setDatedSortMode}
+        onOpenTodoModal={openTodoModal}
         onOpenCategoryModal={openCategoryModal}
         onOpenCategoryDetail={(categoryId) => {
           resetDatedFilters();
@@ -177,10 +172,8 @@ function App() {
         onReorderCategories={reorderCategories}
         isRandomMode={isRandomMode}
         onToggleRandomTodo={toggleRandomTodo}
-        showTodayOnly={showTodayOnly}
-        onToggleShowTodayOnly={toggleShowTodayOnly}
-        showTomorrowOnly={showTomorrowOnly}
-        onToggleShowTomorrowOnly={toggleShowTomorrowOnly}
+        datedFilter={datedFilter}
+        onChangeDatedFilter={setDatedFilter}
       />
     </AppLayout>
   );
