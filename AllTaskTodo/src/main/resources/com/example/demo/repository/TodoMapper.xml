@@ -13,6 +13,7 @@
           is_daily AS daily,
           has_flag AS hasFlag,
           category_id AS categoryId,
+          parent_id AS parentId,
           overdue_behavior AS overdueBehavior,
           sort_order AS sortOrder
         FROM
@@ -29,6 +30,9 @@
             </if>
             <if test="categoryUnassigned == true">
                 AND category_id IS NULL
+            </if>
+            <if test="parentId != null">
+                AND parent_id = #{parentId}
             </if>
             <if test="hasFlag != null">
                 AND has_flag = #{hasFlag}
@@ -67,6 +71,7 @@
           is_daily AS daily,
           has_flag AS hasFlag,
           category_id AS categoryId,
+          parent_id AS parentId,
           overdue_behavior AS overdueBehavior,
           sort_order AS sortOrder
         FROM
@@ -96,6 +101,7 @@
             is_daily,
             has_flag,
             category_id,
+            parent_id,
             overdue_behavior,
             sort_order
           )
@@ -109,6 +115,7 @@
             #{daily},
             #{hasFlag},
             #{categoryId},
+            #{parentId},
             #{overdueBehavior},
             #{sortOrder}
           )
@@ -125,6 +132,7 @@
           is_daily = #{daily},
           has_flag = #{hasFlag},
           category_id = #{categoryId},
+          parent_id = #{parentId},
           overdue_behavior = #{overdueBehavior},
           sort_order = #{sortOrder}
         WHERE
@@ -159,6 +167,11 @@
         DELETE FROM todos
         WHERE
           id = #{id}
+    </delete>
+    <delete id="deleteByParentId" parameterType="java.lang.Integer">
+        DELETE FROM todos
+        WHERE
+          parent_id = #{parentId}
     </delete>
     <!-- 9. 日課のリセット (Serviceから呼ばれる) -->
     <update id="resetDailyTasks">

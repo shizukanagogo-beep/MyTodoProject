@@ -20,6 +20,8 @@ public interface TodoMapper {
 
 	boolean delete(Integer id);
 
+	void deleteByParentId(Integer parentId);
+
 	boolean update(Todo todo);
 
 	void updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);

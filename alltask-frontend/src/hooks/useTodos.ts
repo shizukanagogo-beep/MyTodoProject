@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { NewTodo, Todo, TodoSearchParams, ViewMode } from "../types";
+import type { NewTodo, Todo, ViewMode } from "../types";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
   fetchTodos as fetchTodosApi,
@@ -35,6 +35,7 @@ const initialNewTodo: NewTodo = {
   title: "",
   details: "",
   categoryId: "",
+  parentId: null,
   dueDate: "",
   daily: false,
   hasFlag: false,
@@ -67,18 +68,8 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (viewMode === "TOP") return;
 
     const loadTodos = async () => {
-      const params: TodoSearchParams = {};
-
-      if (viewMode === "CATEGORY_DETAIL") {
-        params.categoryId = selectedCategoryId;
-      }
-      if (viewMode === "UNCATEGORIZED") params.categoryUnassigned = true;
-      if (viewMode === "DATED") params.existsDueDate = true;
-      if (viewMode === "DAILY") params.daily = true;
-      if (viewMode === "FLAGGED") params.hasFlag = true;
-
       try {
-        const todos = await fetchTodosApi(params);
+        const todos = await fetchTodosApi({});
         setTodos(todos);
         setRandomTodoId(null);
       } catch (error) {
@@ -113,6 +104,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       ...newTodo,
       categoryId:
         typeof finalCategoryId === "number" ? Number(finalCategoryId) : null,
+      parentId: null,
       dueDate: newTodo.dueDate || null,
       status: "INCOMPLETE" as const,
     };
@@ -155,6 +147,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       title: string;
       details: string;
       categoryId: number | null;
+      parentId?: number | null;
       dueDate: string | null;
       status: Todo["status"];
       daily: boolean;
@@ -173,6 +166,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       const updatedTodo = await updateTodoApi(id, {
         ...payload,
         categoryId: payload.categoryId,
+        parentId: payload.parentId ?? null,
         dueDate: payload.dueDate || null,
         sortOrder: payload.sortOrder,
       });
@@ -200,10 +194,47 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
+  const addSubtask = async (
+    parentId: number,
+    payload: {
+      title: string;
+      details: string;
+      dueDate: string | null;
+      daily: boolean;
+      hasFlag: boolean;
+      autoCarryOver: boolean;
+      overdueBehavior: number;
+      sortOrder: number | null;
+    },
+  ) => {
+    if (!payload.title.trim()) {
+      alert("タイトルを入力してください");
+      return false;
+    }
+
+    try {
+      await addTodoApi({
+        ...payload,
+        categoryId: null,
+        parentId,
+        dueDate: payload.dueDate || null,
+        status: "INCOMPLETE",
+      });
+      setRefreshKey((prev) => prev + 1);
+      setRandomTodoId(null);
+      return true;
+    } catch (error) {
+      console.error("サブタスク作成失敗:", error);
+      return false;
+    }
+  };
+
   const deleteTodo = async (id: number) => {
     if (!window.confirm("削除しますか？")) return;
 
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    setTodos((prev) =>
+      prev.filter((todo) => todo.id !== id && todo.parentId !== id),
+    );
 
     if (randomTodoId === id) {
       setRandomTodoId(null);
@@ -218,20 +249,71 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   const today = getLocalDateString();
   const tomorrow = getTomorrowLocalDateString();
-  const visibleTodos = todos.filter((todo) => {
-    if (viewMode === "UNCATEGORIZED" && todo.categoryId !== null) {
-      return false;
+  const todoMap = new Map(todos.map((todo) => [todo.id, todo]));
+  const childrenByParentId = todos.reduce((map, todo) => {
+    if (todo.parentId === null) return map;
+
+    const current = map.get(todo.parentId) ?? [];
+    current.push(todo);
+    map.set(todo.parentId, current);
+    return map;
+  }, new Map<number, Todo[]>());
+  const matchesCurrentView = (todo: Todo) => {
+    if (viewMode === "CATEGORY_DETAIL") {
+      const parentTodo =
+        todo.parentId === null ? todo : todoMap.get(todo.parentId);
+      return parentTodo?.categoryId === selectedCategoryId;
     }
-    if (!showDoneTodos && todo.status === "DONE") {
-      return false;
+
+    if (viewMode === "UNCATEGORIZED") {
+      const parentTodo =
+        todo.parentId === null ? todo : todoMap.get(todo.parentId);
+      return parentTodo?.categoryId === null;
     }
-    if (effectiveDatedFilter === "today") {
-      return todo.dueDate?.slice(0, 10) === today;
+
+    if (viewMode === "DATED") {
+      if (effectiveDatedFilter === "today") {
+        return todo.dueDate?.slice(0, 10) === today;
+      }
+      if (effectiveDatedFilter === "tomorrow") {
+        return todo.dueDate?.slice(0, 10) === tomorrow;
+      }
+      return todo.dueDate !== null;
     }
-    if (effectiveDatedFilter === "tomorrow") {
-      return todo.dueDate?.slice(0, 10) === tomorrow;
+
+    if (viewMode === "DAILY") {
+      return todo.daily;
     }
+
+    if (viewMode === "FLAGGED") {
+      return todo.hasFlag;
+    }
+
     return true;
+  };
+
+  const passesDoneFilter = (todo: Todo) =>
+    showDoneTodos || todo.status !== "DONE";
+
+  const visibleTodos = todos.filter((todo) => {
+    if (viewMode === "TOP") {
+      return false;
+    }
+
+    if (todo.parentId !== null) {
+      const parentTodo = todoMap.get(todo.parentId);
+      return (
+        parentTodo !== undefined &&
+        passesDoneFilter(todo) &&
+        (matchesCurrentView(todo) || matchesCurrentView(parentTodo))
+      );
+    }
+
+    const hasVisibleChild = (childrenByParentId.get(todo.id) ?? []).some(
+      (child) => passesDoneFilter(child) && matchesCurrentView(child),
+    );
+
+    return (passesDoneFilter(todo) && matchesCurrentView(todo)) || hasVisibleChild;
   });
 
   const sortedTodos = [...visibleTodos].sort((a, b) => {
@@ -261,7 +343,20 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       return sortedTodos;
     }
 
-    return sortedTodos.filter((todo) => todo.id === randomTodoId);
+    const randomTodo = sortedTodos.find((todo) => todo.id === randomTodoId);
+    if (randomTodo === undefined) {
+      return sortedTodos;
+    }
+
+    if (randomTodo.parentId !== null) {
+      return sortedTodos.filter(
+        (todo) => todo.id === randomTodo.parentId || todo.id === randomTodoId,
+      );
+    }
+
+    return sortedTodos.filter(
+      (todo) => todo.id === randomTodoId || todo.parentId === randomTodoId,
+    );
   }, [randomTodoId, sortedTodos]);
 
   const changeDatedFilter = (filter: DatedFilter) => {
@@ -281,7 +376,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
 
     const incompleteTodos = sortedTodos.filter(
-      (todo) => todo.status === "INCOMPLETE",
+      (todo) => todo.status === "INCOMPLETE" && matchesCurrentView(todo),
     );
 
     if (incompleteTodos.length === 0) {
@@ -298,7 +393,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (randomTodoId !== null) return;
     if (viewMode === "DATED" && datedSortMode === "dueDate") return;
 
-    const reorderedTodos = [...sortedTodos];
+    const reorderedTodos = sortedTodos.filter((todo) => todo.parentId === null);
     const [movedTodo] = reorderedTodos.splice(fromIndex, 1);
     reorderedTodos.splice(toIndex, 0, movedTodo);
 
@@ -328,8 +423,47 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
+  const reorderSubtasks = async (
+    parentId: number,
+    fromIndex: number,
+    toIndex: number,
+  ) => {
+    if (fromIndex === toIndex) return;
+
+    const subtasks = sortedTodos.filter((todo) => todo.parentId === parentId);
+    const reorderedSubtasks = [...subtasks];
+    const [movedTodo] = reorderedSubtasks.splice(fromIndex, 1);
+    reorderedSubtasks.splice(toIndex, 0, movedTodo);
+
+    const updatedSubtasks = reorderedSubtasks.map((todo, index) => ({
+      ...todo,
+      sortOrder: index + 1,
+    }));
+
+    setTodos((prev) => {
+      const updatedTodoMap = new Map(
+        updatedSubtasks.map((todo) => [todo.id, todo]),
+      );
+
+      return prev.map((todo) => updatedTodoMap.get(todo.id) ?? todo);
+    });
+
+    try {
+      await updateTodoSortOrder(
+        updatedSubtasks.map((todo) => ({
+          id: todo.id,
+          sortOrder: todo.sortOrder,
+        })),
+      );
+    } catch (error) {
+      console.error("サブタスク並び順更新失敗:", error);
+      setRefreshKey((prev) => prev + 1);
+    }
+  };
+
   return {
     sortedTodos: displayedTodos,
+    allTodos: todos,
     isRandomMode: randomTodoId !== null,
     toggleRandomTodo,
     showDoneTodos,
@@ -339,10 +473,12 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     newTodo,
     setNewTodo,
     addTodo,
+    addSubtask,
     updateTodo,
     toggleStatus,
     deleteTodo,
     reorderTodos,
+    reorderSubtasks,
     datedFilter: effectiveDatedFilter,
     setDatedFilter: changeDatedFilter,
     resetDatedFilters,

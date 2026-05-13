@@ -44,6 +44,14 @@
           id = #{id}
     </select>
     <!-- =============================================================== -->
+    <delete id="deleteSubTodosByCategoryId" parameterType="java.lang.Integer">
+        DELETE child
+        FROM
+          todos child
+          INNER JOIN todos parent ON child.parent_id = parent.id
+        WHERE
+          parent.category_id = #{categoryId}
+    </delete>
     <delete id="deleteTodosByCategoryId" parameterType="java.lang.Integer">
         DELETE FROM todos
         WHERE

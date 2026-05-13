@@ -23,6 +23,7 @@ function App() {
   } = useViewMode();
 
   const {
+    allTodos,
     sortedTodos,
     showDoneTodos,
     setShowDoneTodos,
@@ -31,10 +32,12 @@ function App() {
     newTodo,
     setNewTodo,
     addTodo,
+    addSubtask,
     updateTodo,
     toggleStatus,
     deleteTodo,
     reorderTodos,
+    reorderSubtasks,
     isRandomMode,
     toggleRandomTodo,
     datedFilter,
@@ -104,6 +107,17 @@ function App() {
           categories={categories}
           onClose={closeTodoDetailModal}
           onDeleteTodo={deleteTodo}
+          subtasks={allTodos
+            .filter((todo) => todo.parentId === selectedTodo.id)
+            .sort((a, b) => {
+              if (a.sortOrder === null && b.sortOrder !== null) return 1;
+              if (a.sortOrder !== null && b.sortOrder === null) return -1;
+              if (a.sortOrder !== null && b.sortOrder !== null) {
+                return a.sortOrder - b.sortOrder;
+              }
+              return b.id - a.id;
+            })}
+          onAddSubtask={addSubtask}
           onUpdateTodo={async (id, payload) => {
             const updatedTodo = await updateTodo(id, payload);
             if (updatedTodo) {
@@ -169,6 +183,7 @@ function App() {
         onDeleteTodo={deleteTodo}
         onOpenTodoDetail={openTodoDetailModal}
         onReorderTodos={reorderTodos}
+        onReorderSubtasks={reorderSubtasks}
         onReorderCategories={reorderCategories}
         isRandomMode={isRandomMode}
         onToggleRandomTodo={toggleRandomTodo}

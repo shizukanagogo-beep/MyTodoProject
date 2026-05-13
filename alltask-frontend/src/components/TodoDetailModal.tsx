@@ -15,19 +15,36 @@ type EditableTodo = {
 
 type TodoDetailModalProps = {
   todo: Todo;
+  subtasks: Todo[];
   categories: Category[];
   onClose: () => void;
   onDeleteTodo: (id: number) => void;
+  onAddSubtask: (
+    parentId: number,
+    payload: {
+      title: string;
+      details: string;
+      dueDate: string | null;
+      daily: boolean;
+      hasFlag: boolean;
+      autoCarryOver: boolean;
+      overdueBehavior: number;
+      sortOrder: number | null;
+    },
+  ) => Promise<boolean>;
   onUpdateTodo: (id: number, payload: UpdateTodoPayload) => Promise<boolean>;
 };
 
 function TodoDetailModal({
   todo,
+  subtasks,
   categories,
   onClose,
   onDeleteTodo,
+  onAddSubtask,
   onUpdateTodo,
 }: TodoDetailModalProps) {
+  const isSubtask = todo.parentId !== null;
   const initialTodoState: EditableTodo = {
     title: todo.title,
     details: todo.details || "",
@@ -40,6 +57,7 @@ function TodoDetailModal({
   };
 
   const [editTodo, setEditTodo] = useState<EditableTodo>(initialTodoState);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
 
   const hasChanges = useMemo(() => {
     return (
@@ -68,7 +86,8 @@ function TodoDetailModal({
     const isSuccess = await onUpdateTodo(todo.id, {
       title: editTodo.title,
       details: editTodo.details,
-      categoryId: editTodo.categoryId,
+      categoryId: isSubtask ? null : editTodo.categoryId,
+      parentId: todo.parentId,
       dueDate: editTodo.dueDate,
       status: editTodo.status,
       daily: editTodo.daily,
@@ -80,6 +99,23 @@ function TodoDetailModal({
 
     if (isSuccess) {
       onClose();
+    }
+  };
+
+  const handleAddSubtask = async () => {
+    const isSuccess = await onAddSubtask(todo.id, {
+      title: newSubtaskTitle,
+      details: "",
+      dueDate: null,
+      daily: false,
+      hasFlag: false,
+      autoCarryOver: false,
+      overdueBehavior: 0,
+      sortOrder: subtasks.length + 1,
+    });
+
+    if (isSuccess) {
+      setNewSubtaskTitle("");
     }
   };
 
@@ -135,6 +171,7 @@ function TodoDetailModal({
               🚩重要
             </label>
 
+            {!isSubtask && (
             <div>
               <p className="text-sm font-bold text-slate-500 mb-1">カテゴリ</p>
               <select
@@ -156,6 +193,7 @@ function TodoDetailModal({
                 ))}
               </select>
             </div>
+            )}
 
             <div className="relative group">
               <label
@@ -261,6 +299,55 @@ function TodoDetailModal({
               placeholder="詳細はありません"
             />
           </div>
+
+          {!isSubtask && (
+            <div>
+              <p className="text-sm font-bold text-slate-500 mb-2">
+                サブタスク
+              </p>
+
+              <div className="space-y-2 mb-3">
+                {subtasks.map((subtask) => (
+                  <div
+                    key={subtask.id}
+                    className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                  >
+                    <span
+                      className={
+                        subtask.status === "DONE"
+                          ? "line-through text-slate-400"
+                          : ""
+                      }
+                    >
+                      {subtask.title}
+                    </span>
+                  </div>
+                ))}
+
+                {subtasks.length === 0 && (
+                  <p className="text-sm text-slate-400">
+                    サブタスクはありません
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  className="min-w-0 flex-1 bg-white px-3 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500"
+                  value={newSubtaskTitle}
+                  onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                  placeholder="サブタスクを追加"
+                />
+                <button
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700"
+                  onClick={handleAddSubtask}
+                >
+                  追加
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-2 pt-2">
             {hasChanges ? (

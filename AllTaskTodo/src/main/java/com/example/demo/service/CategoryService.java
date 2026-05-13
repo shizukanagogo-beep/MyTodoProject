@@ -35,6 +35,7 @@ public class CategoryService {
 
     // -------------------------------------------------------------
     public void deleteCategory(Integer id) {
+        categoryMapper.deleteSubTodosByCategoryId(id);
         categoryMapper.deleteTodosByCategoryId(id);
         categoryMapper.deleteCategory(id);
     }

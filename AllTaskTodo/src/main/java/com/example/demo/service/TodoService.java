@@ -54,6 +54,7 @@ public class TodoService {
 
     // 削除------------------------------------------------------------------------------
     public boolean delete(Integer id) {
+        todoMapper.deleteByParentId(id);
         return todoMapper.delete(id);
     }
 
@@ -148,7 +149,8 @@ public class TodoService {
         todo.setHasFlag(form.getHasFlag());
 
         // カテゴリー・日付超過挙動
-        todo.setCategoryId(form.getCategoryId());
+        todo.setParentId(form.getParentId());
+        todo.setCategoryId(form.getParentId() == null ? form.getCategoryId() : null);
         todo.setOverdueBehavior(form.getOverdueBehavior());
         todo.setSortOrder(form.getSortOrder());
 

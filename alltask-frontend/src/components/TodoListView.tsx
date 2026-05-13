@@ -17,6 +17,11 @@ type TodoListViewProps = {
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
   onReorderTodos: (fromIndex: number, toIndex: number) => void;
+  onReorderSubtasks: (
+    parentId: number,
+    fromIndex: number,
+    toIndex: number,
+  ) => void;
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
@@ -39,6 +44,7 @@ function TodoListView({
   onDeleteTodo,
   onOpenTodoDetail,
   onReorderTodos,
+  onReorderSubtasks,
   onReorderCategories,
   isRandomMode,
   onToggleRandomTodo,
@@ -53,6 +59,13 @@ function TodoListView({
   const [collapsedCategoryIds, setCollapsedCategoryIds] = useState<
     Set<number | "uncategorized">
   >(new Set());
+  const [collapsedSubtaskParentIds, setCollapsedSubtaskParentIds] = useState<
+    Set<number>
+  >(new Set());
+  const [draggingSubtask, setDraggingSubtask] = useState<{
+    parentId: number;
+    index: number;
+  } | null>(null);
   const canGroupByCategory =
     viewMode === "DATED" || viewMode === "DAILY" || viewMode === "FLAGGED";
   const effectiveGroupByCategory = canGroupByCategory && groupByCategory;
@@ -60,6 +73,9 @@ function TodoListView({
     !effectiveGroupByCategory &&
     !isRandomMode &&
     (viewMode !== "DATED" || datedSortMode === "manual");
+  const parentTodos = sortedTodos.filter((todo) => todo.parentId === null);
+  const getSubtasks = (parentId: number) =>
+    sortedTodos.filter((todo) => todo.parentId === parentId);
   const todosByCategory = useMemo(
     () => {
       const categoryGroups = categories
@@ -67,11 +83,11 @@ function TodoListView({
           id: category.id,
           name: category.name,
           canReorder: true,
-          todos: sortedTodos.filter((todo) => todo.categoryId === category.id),
+          todos: parentTodos.filter((todo) => todo.categoryId === category.id),
         }))
         .filter((group) => group.todos.length > 0);
 
-      const uncategorizedTodos = sortedTodos.filter(
+      const uncategorizedTodos = parentTodos.filter(
         (todo) => todo.categoryId === null,
       );
 
@@ -89,7 +105,7 @@ function TodoListView({
         },
       ];
     },
-    [categories, sortedTodos],
+    [categories, parentTodos],
   );
 
   const handleDropCategory = (targetCategoryId: number | null) => {
@@ -129,6 +145,108 @@ function TodoListView({
 
       return next;
     });
+  };
+
+  const toggleSubtasksCollapsed = (parentId: number) => {
+    setCollapsedSubtaskParentIds((prev) => {
+      const next = new Set(prev);
+
+      if (next.has(parentId)) {
+        next.delete(parentId);
+      } else {
+        next.add(parentId);
+      }
+
+      return next;
+    });
+  };
+
+  const renderTodoWithSubtasks = (todo: Todo, index: number) => {
+    const subtasks = getSubtasks(todo.id);
+    const isSubtasksCollapsed = collapsedSubtaskParentIds.has(todo.id);
+
+    return (
+      <div key={todo.id} className="space-y-2">
+        <div
+          draggable={canReorder}
+          onDragStart={() => setDraggingIndex(index)}
+          onDragOver={(e) => {
+            if (canReorder) e.preventDefault();
+          }}
+          onDrop={() => {
+            if (!canReorder) return;
+            if (draggingIndex === null) return;
+
+            onReorderTodos(draggingIndex, index);
+            setDraggingIndex(null);
+          }}
+          onDragEnd={() => setDraggingIndex(null)}
+          className={draggingIndex === index ? "opacity-50" : ""}
+        >
+          <div className="flex items-stretch gap-2">
+            {subtasks.length > 0 && (
+              <button
+                className="w-8 shrink-0 rounded-xl bg-white text-xs font-bold text-slate-500 shadow-sm border border-slate-100 hover:bg-slate-50"
+                onClick={() => toggleSubtasksCollapsed(todo.id)}
+              >
+                {isSubtasksCollapsed ? "▶" : "▼"}
+              </button>
+            )}
+
+            <div className="flex-1">
+              <TodoItem
+                todo={todo}
+                onToggleStatus={onToggleStatus}
+                onDeleteTodo={onDeleteTodo}
+                onOpenTodoDetail={onOpenTodoDetail}
+              />
+            </div>
+          </div>
+        </div>
+
+        {subtasks.length > 0 && !isSubtasksCollapsed && (
+          <div className="ml-10 space-y-2">
+            {subtasks.map((subtask, subtaskIndex) => (
+              <div
+                key={subtask.id}
+                draggable
+                onDragStart={() =>
+                  setDraggingSubtask({
+                    parentId: todo.id,
+                    index: subtaskIndex,
+                  })
+                }
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => {
+                  if (draggingSubtask?.parentId !== todo.id) return;
+
+                  onReorderSubtasks(
+                    todo.id,
+                    draggingSubtask.index,
+                    subtaskIndex,
+                  );
+                  setDraggingSubtask(null);
+                }}
+                onDragEnd={() => setDraggingSubtask(null)}
+                className={
+                  draggingSubtask?.parentId === todo.id &&
+                  draggingSubtask.index === subtaskIndex
+                    ? "opacity-50"
+                    : ""
+                }
+              >
+                <TodoItem
+                  todo={subtask}
+                  onToggleStatus={onToggleStatus}
+                  onDeleteTodo={onDeleteTodo}
+                  onOpenTodoDetail={onOpenTodoDetail}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -304,48 +422,22 @@ function TodoListView({
 
                   {!isCollapsed && (
                     <div className="space-y-3">
-                      {todos.map((todo) => (
-                        <TodoItem
-                          key={todo.id}
-                          todo={todo}
-                          onToggleStatus={onToggleStatus}
-                          onDeleteTodo={onDeleteTodo}
-                          onOpenTodoDetail={onOpenTodoDetail}
-                        />
-                      ))}
+                      {todos.map((todo) =>
+                        renderTodoWithSubtasks(
+                          todo,
+                          parentTodos.findIndex(
+                            (parentTodo) => parentTodo.id === todo.id,
+                          ),
+                        ),
+                      )}
                     </div>
                   )}
                 </section>
               );
             })
-          : sortedTodos.map((todo, index) => (
-              <div
-                key={todo.id}
-                draggable={canReorder}
-                onDragStart={() => setDraggingIndex(index)}
-                onDragOver={(e) => {
-                  if (canReorder) e.preventDefault();
-                }}
-                onDrop={() => {
-                  if (!canReorder) return;
-                  if (draggingIndex === null) return;
+          : parentTodos.map((todo, index) => renderTodoWithSubtasks(todo, index))}
 
-                  onReorderTodos(draggingIndex, index);
-                  setDraggingIndex(null);
-                }}
-                onDragEnd={() => setDraggingIndex(null)}
-                className={draggingIndex === index ? "opacity-50" : ""}
-              >
-                <TodoItem
-                  todo={todo}
-                  onToggleStatus={onToggleStatus}
-                  onDeleteTodo={onDeleteTodo}
-                  onOpenTodoDetail={onOpenTodoDetail}
-                />
-              </div>
-            ))}
-
-        {sortedTodos.length === 0 && (
+        {parentTodos.length === 0 && (
           <div className="text-center py-20 text-slate-400">
             タスクがありません
           </div>
