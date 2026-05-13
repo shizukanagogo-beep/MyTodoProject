@@ -74,6 +74,11 @@ function TodoItem({
                   {todo.dueDate}
                 </span>
               )}
+              {todo.dueDateUndecided && (
+                <span className="text-xs bg-slate-50 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                  未定
+                </span>
+              )}
             </div>
           </div>
 

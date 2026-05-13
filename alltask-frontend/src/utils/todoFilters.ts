@@ -14,7 +14,7 @@ export function matchesTodoView(
   }
 
   if (viewMode === "DATED") {
-    return !!todo.dueDate;
+    return !!todo.dueDate || todo.dueDateUndecided;
   }
 
   if (viewMode === "DAILY") {

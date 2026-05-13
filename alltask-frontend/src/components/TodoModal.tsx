@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { Category, NewTodo } from "../types";
+import DueDateSetting from "./DueDateSetting";
 
 type TodoModalProps = {
   newTodo: NewTodo;
@@ -25,7 +26,7 @@ function TodoModal({
         className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h3 className="text-xl font-bold text-slate-800">新規タスク作成</h3>
           <button
             onClick={onClose}
@@ -39,14 +40,15 @@ function TodoModal({
           <input
             type="text"
             placeholder="タイトル"
-            className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full border-b border-transparent bg-white px-1 py-1 text-xl font-bold text-slate-800 outline-none hover:border-slate-200 focus:border-indigo-500"
             value={newTodo.title}
             onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="mb-1 text-sm font-bold text-slate-500">カテゴリ</p>
             <select
-              className="px-4 py-3 border border-slate-200 rounded-lg bg-white"
+              className="w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
               value={newTodo.categoryId ?? ""}
               onChange={(e) => {
                 const value = e.target.value;
@@ -64,92 +66,106 @@ function TodoModal({
                 </option>
               ))}
             </select>
-
-            <input
-              type="date"
-              className="px-4 py-3 border border-slate-200 rounded-lg"
-              value={newTodo.dueDate}
-              onChange={(e) =>
-                setNewTodo({
-                  ...newTodo,
-                  dueDate: e.target.value,
-                  daily: e.target.value ? false : newTodo.daily,
-                  overdueBehavior: e.target.value ? newTodo.overdueBehavior : 0,
-                })
-              }
-            />
-            {newTodo.dueDate && !newTodo.daily && (
-              <div className="col-span-2">
-                <p className="text-sm font-bold text-slate-500 mb-1">
-                  期限超過時の動き
-                </p>
-                <select
-                  className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
-                  value={newTodo.overdueBehavior}
-                  onChange={(e) =>
-                    setNewTodo({
-                      ...newTodo,
-                      overdueBehavior: Number(e.target.value),
-                    })
-                  }
-                >
-                  <option value={0}>日付を赤文字でそのまま</option>
-                  <option value={1}>日付を今日に繰り越す</option>
-                  <option value={2}>自動的に完了済みにする</option>
-                  <option value={3}>日付を削除する</option>
-                </select>
-              </div>
-            )}
           </div>
 
-          <textarea
-            placeholder="詳細メモ"
-            className="w-full px-4 py-3 border border-slate-200 rounded-lg h-24 resize-none focus:ring-2 focus:ring-indigo-500 outline-none"
-            value={newTodo.details}
-            onChange={(e) =>
-              setNewTodo({ ...newTodo, details: e.target.value })
+          <DueDateSetting
+            dueDate={newTodo.dueDate}
+            dueDateUndecided={newTodo.dueDateUndecided}
+            daily={newTodo.daily}
+            overdueBehavior={newTodo.overdueBehavior}
+            onChange={(draft) =>
+              setNewTodo({
+                ...newTodo,
+                ...draft,
+                daily:
+                  draft.dueDate || draft.dueDateUndecided
+                    ? false
+                    : newTodo.daily,
+              })
             }
           />
 
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <label className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-4 h-4"
-                checked={newTodo.hasFlag}
-                onChange={(e) =>
-                  setNewTodo({ ...newTodo, hasFlag: e.target.checked })
-                }
-              />
-              🚩重要
-            </label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <p className="mb-1 text-sm font-bold text-slate-500">フラグ</p>
+              <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
+                <input
+                  type="checkbox"
+                  checked={newTodo.hasFlag}
+                  onChange={(e) =>
+                    setNewTodo({ ...newTodo, hasFlag: e.target.checked })
+                  }
+                />
+                重要
+              </label>
+            </div>
 
-            <label className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-4 h-4"
-                checked={newTodo.daily}
-                onChange={(e) =>
-                  setNewTodo({
-                    ...newTodo,
-                    daily: e.target.checked,
-                    dueDate: e.target.checked ? "" : newTodo.dueDate,
-                    overdueBehavior: e.target.checked
-                      ? 0
-                      : newTodo.overdueBehavior,
-                  })
-                }
-              />
-              🔄日課
-            </label>
+            <div className="relative group">
+              <p className="mb-1 text-sm font-bold text-slate-500">日課</p>
+              <label
+                className={`flex items-center gap-2 border-b border-transparent bg-white px-1 py-2 ${
+                  newTodo.dueDate || newTodo.dueDateUndecided
+                    ? "cursor-not-allowed text-slate-300"
+                    : "cursor-pointer text-slate-700 hover:border-slate-200"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  disabled={!!newTodo.dueDate || newTodo.dueDateUndecided}
+                  checked={newTodo.daily}
+                  onChange={(e) =>
+                    setNewTodo({
+                      ...newTodo,
+                      daily: e.target.checked,
+                      dueDate: e.target.checked ? "" : newTodo.dueDate,
+                      dueDateUndecided: e.target.checked
+                        ? false
+                        : newTodo.dueDateUndecided,
+                      overdueBehavior: e.target.checked
+                        ? 0
+                        : newTodo.overdueBehavior,
+                    })
+                  }
+                />
+                日課として設定
+              </label>
+
+              {(newTodo.dueDate || newTodo.dueDateUndecided) && (
+                <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                  <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                    日付または未定が設定されている場合は日課として設定できません
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          <button
-            className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-md"
-            onClick={onAddTodo}
-          >
-            タスクを登録
-          </button>
+          <div>
+            <p className="mb-1 text-sm font-bold text-slate-500">詳細</p>
+            <textarea
+              placeholder="詳細メモ"
+              className="min-h-28 w-full resize-none rounded-lg border border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
+              value={newTodo.details}
+              onChange={(e) =>
+                setNewTodo({ ...newTodo, details: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button
+              className="flex-1 rounded-xl bg-slate-100 py-3 font-bold text-slate-600 transition-colors hover:bg-slate-200"
+              onClick={onClose}
+            >
+              キャンセル
+            </button>
+            <button
+              className="flex-1 rounded-xl bg-indigo-600 py-3 font-bold text-white transition-colors hover:bg-indigo-700"
+              onClick={onAddTodo}
+            >
+              作成
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ export interface Todo {
   status: "INCOMPLETE" | "DONE";
   details: string | null;
   dueDate: string | null;
+  dueDateUndecided: boolean;
   parentId: number | null;
   daily: boolean;
   hasFlag: boolean;
@@ -34,6 +35,7 @@ export interface NewTodo {
   categoryId: number | "" | null;
   parentId: number | null;
   dueDate: string;
+  dueDateUndecided: boolean;
   daily: boolean;
   hasFlag: boolean;
   autoCarryOver: boolean;

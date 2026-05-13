@@ -32,6 +32,7 @@ const createInitialTodoForView = (
       : "",
   parentId: null,
   dueDate: viewMode === "DATED" ? getLocalDateString() : "",
+  dueDateUndecided: false,
   daily: viewMode === "DAILY",
   hasFlag: viewMode === "FLAGGED",
   autoCarryOver: false,

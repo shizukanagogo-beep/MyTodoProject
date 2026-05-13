@@ -18,6 +18,7 @@ create table
         status varchar(20),
         details varchar(500),
         due_date DATE,
+        due_date_undecided BOOLEAN DEFAULT FALSE,
         auto_carry_over BOOLEAN DEFAULT FALSE,
         is_daily BOOLEAN DEFAULT FALSE,
         has_flag BOOLEAN DEFAULT FALSE,

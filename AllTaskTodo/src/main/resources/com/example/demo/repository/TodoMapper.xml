@@ -9,6 +9,7 @@
           status,
           details,
           due_date AS dueDate,
+          due_date_undecided AS dueDateUndecided,
           auto_carry_over AS autoCarryOver,
           is_daily AS daily,
           has_flag AS hasFlag,
@@ -44,7 +45,7 @@
                 AND due_date = #{dueDate}
             </if>
             <if test="existsDueDate == true">
-                AND due_date IS NOT NULL
+                AND (due_date IS NOT NULL OR due_date_undecided = TRUE)
             </if>
         </where>
         ORDER BY
@@ -67,6 +68,7 @@
           status,
           details,
           due_date AS dueDate,
+          due_date_undecided AS dueDateUndecided,
           auto_carry_over AS autoCarryOver,
           is_daily AS daily,
           has_flag AS hasFlag,
@@ -82,7 +84,19 @@
     <!-- 3. ランダムピック=========================== -->
     <select id="getRandom" resultType="com.example.demo.entity.Todo">
         SELECT
-          *
+          id,
+          title,
+          status,
+          details,
+          due_date AS dueDate,
+          due_date_undecided AS dueDateUndecided,
+          auto_carry_over AS autoCarryOver,
+          is_daily AS daily,
+          has_flag AS hasFlag,
+          category_id AS categoryId,
+          parent_id AS parentId,
+          overdue_behavior AS overdueBehavior,
+          sort_order AS sortOrder
         FROM
           todos
         ORDER BY
@@ -97,6 +111,7 @@
             status,
             details,
             due_date,
+            due_date_undecided,
             auto_carry_over,
             is_daily,
             has_flag,
@@ -111,6 +126,7 @@
             #{status},
             #{details},
             #{dueDate},
+            #{dueDateUndecided},
             #{autoCarryOver},
             #{daily},
             #{hasFlag},
@@ -128,6 +144,7 @@
           status = #{status},
           details = #{details},
           due_date = #{dueDate},
+          due_date_undecided = #{dueDateUndecided},
           auto_carry_over = #{autoCarryOver},
           is_daily = #{daily},
           has_flag = #{hasFlag},

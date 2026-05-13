@@ -25,8 +25,10 @@ type TodoListViewProps = {
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
-  datedFilter: "all" | "today" | "tomorrow";
-  onChangeDatedFilter: (filter: "all" | "today" | "tomorrow") => void;
+  datedFilter: "all" | "today" | "tomorrow" | "undecided";
+  onChangeDatedFilter: (
+    filter: "all" | "today" | "tomorrow" | "undecided",
+  ) => void;
 };
 
 const getLocalDateString = (offsetDays = 0) => {
@@ -95,7 +97,10 @@ function TodoListView({
       if (datedFilter === "tomorrow") {
         return todo.dueDate?.slice(0, 10) === getLocalDateString(1);
       }
-      return todo.dueDate !== null;
+      if (datedFilter === "undecided") {
+        return todo.dueDateUndecided;
+      }
+      return todo.dueDate !== null || todo.dueDateUndecided;
     }
 
     if (viewMode === "DAILY") {
@@ -316,12 +321,17 @@ function TodoListView({
                   { value: "all", label: "すべて" },
                   { value: "today", label: "今日" },
                   { value: "tomorrow", label: "明日" },
+                  { value: "undecided", label: "未定" },
                 ].map((item) => (
                   <button
                     key={item.value}
                     onClick={() =>
                       onChangeDatedFilter(
-                        item.value as "all" | "today" | "tomorrow",
+                        item.value as
+                          | "all"
+                          | "today"
+                          | "tomorrow"
+                          | "undecided",
                       )
                     }
                     className={`px-3 py-2 text-sm font-bold transition-colors ${

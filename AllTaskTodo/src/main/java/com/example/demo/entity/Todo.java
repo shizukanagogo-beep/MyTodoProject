@@ -12,6 +12,7 @@ public class Todo {
     private Status status;
     private String details;
     private LocalDate dueDate;
+    private Boolean dueDateUndecided;
     private Integer parentId;
     private Boolean autoCarryOver;
     private Boolean daily;

@@ -11,6 +11,7 @@ public class TodoForm {
     private String title;
     private Status status;
     private LocalDate dueDate;
+    private Boolean dueDateUndecided;
     private Boolean existsDueDate; // trueなら「期限があるもの全部」
     private Integer categoryId;
     private Boolean categoryUnassigned;

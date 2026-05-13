@@ -31,8 +31,10 @@ type MainContentProps = {
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
-  datedFilter: "all" | "today" | "tomorrow";
-  onChangeDatedFilter: (filter: "all" | "today" | "tomorrow") => void;
+  datedFilter: "all" | "today" | "tomorrow" | "undecided";
+  onChangeDatedFilter: (
+    filter: "all" | "today" | "tomorrow" | "undecided",
+  ) => void;
 };
 
 function MainContent({

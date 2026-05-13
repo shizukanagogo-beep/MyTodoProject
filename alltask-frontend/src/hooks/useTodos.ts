@@ -37,6 +37,7 @@ const initialNewTodo: NewTodo = {
   categoryId: "",
   parentId: null,
   dueDate: "",
+  dueDateUndecided: false,
   daily: false,
   hasFlag: false,
   autoCarryOver: false,
@@ -49,7 +50,7 @@ type UseTodosArgs = {
   selectedCategoryId: number | null;
 };
 
-type DatedFilter = "all" | "today" | "tomorrow";
+type DatedFilter = "all" | "today" | "tomorrow" | "undecided";
 
 export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -102,6 +103,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         typeof finalCategoryId === "number" ? Number(finalCategoryId) : null,
       parentId: null,
       dueDate: newTodo.dueDate || null,
+      dueDateUndecided: newTodo.dueDateUndecided,
       status: "INCOMPLETE" as const,
     };
 
@@ -145,6 +147,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       categoryId: number | null;
       parentId?: number | null;
       dueDate: string | null;
+      dueDateUndecided: boolean;
       status: Todo["status"];
       daily: boolean;
       hasFlag: boolean;
@@ -196,6 +199,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       title: string;
       details: string;
       dueDate: string | null;
+      dueDateUndecided: boolean;
       daily: boolean;
       hasFlag: boolean;
       autoCarryOver: boolean;
@@ -214,6 +218,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         categoryId: null,
         parentId,
         dueDate: payload.dueDate || null,
+        dueDateUndecided: payload.dueDateUndecided,
         status: "INCOMPLETE",
       });
       setRefreshKey((prev) => prev + 1);
@@ -274,7 +279,10 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       if (effectiveDatedFilter === "tomorrow") {
         return todo.dueDate?.slice(0, 10) === tomorrow;
       }
-      return todo.dueDate !== null;
+      if (effectiveDatedFilter === "undecided") {
+        return todo.dueDateUndecided;
+      }
+      return todo.dueDate !== null || todo.dueDateUndecided;
     }
 
     if (viewMode === "DAILY") {
@@ -317,6 +325,8 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (a.status !== "DONE" && b.status === "DONE") return -1;
 
     if (viewMode === "DATED" && datedSortMode === "dueDate") {
+      if (a.dueDateUndecided && !b.dueDateUndecided) return 1;
+      if (!a.dueDateUndecided && b.dueDateUndecided) return -1;
       if (a.dueDate === null && b.dueDate !== null) return 1;
       if (a.dueDate !== null && b.dueDate === null) return -1;
       if (a.dueDate !== null && b.dueDate !== null) {

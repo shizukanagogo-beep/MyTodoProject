@@ -108,6 +108,7 @@ public class TodoService {
                     updated = true;
                 } else if (Integer.valueOf(3).equals(behavior)) {
                     todo.setDueDate(null);
+                    todo.setDueDateUndecided(true);
                     updated = true;
                 }
 
@@ -121,14 +122,28 @@ public class TodoService {
 
     // 共通メソッド｜日付あり／日課／プレーンの選択（排他制御ロジック）----------------------------------
     private void adjustTaskOptions(TodoForm form) {
+        if (form.getDueDateUndecided() == null) {
+            form.setDueDateUndecided(false);
+        }
+
         if (Boolean.TRUE.equals(form.getDaily())) {
             form.setDueDate(null);
+            form.setDueDateUndecided(false);
+            form.setAutoCarryOver(false);
+            return;
+        }
+
+        if (Boolean.TRUE.equals(form.getDueDateUndecided())) {
+            form.setDueDate(null);
+            form.setDaily(false);
+            form.setOverdueBehavior(0);
             form.setAutoCarryOver(false);
             return;
         }
 
         if (form.getDueDate() != null) {
             form.setDaily(false);
+            form.setDueDateUndecided(false);
             return;
         }
 
@@ -144,6 +159,7 @@ public class TodoService {
         todo.setTitle(form.getTitle());
         todo.setDetails(form.getDetails());
         todo.setDueDate(form.getDueDate());
+        todo.setDueDateUndecided(form.getDueDateUndecided());
         todo.setAutoCarryOver(form.getAutoCarryOver());
         todo.setDaily(form.getDaily());
         todo.setHasFlag(form.getHasFlag());

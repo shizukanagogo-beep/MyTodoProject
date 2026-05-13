@@ -210,8 +210,8 @@ public class TodoServiceTest {
     }
 
     @Test
-    @DisplayName("期限超過時の挙動が3の場合、期限日を削除すること")
-    void testApplyOverdueBehaviors_Behavior3_ShouldClearDueDate() {
+    @DisplayName("期限超過時の挙動が3の場合、期限を未定に変更すること")
+    void testApplyOverdueBehaviors_Behavior3_ShouldMarkDueDateUndecided() {
         LocalDate today = LocalDate.of(2026, 5, 12);
         Todo todo = createOverdueTodo(3, today.minusDays(1));
 
@@ -221,6 +221,7 @@ public class TodoServiceTest {
 
         verify(todoMapper).update(todo);
         assertNull(todo.getDueDate(), "期限日が削除されること");
+        assertEquals(true, todo.getDueDateUndecided(), "期限未定になること");
         assertEquals(Status.INCOMPLETE, todo.getStatus(), "ステータスは未完了のまま");
     }
 
