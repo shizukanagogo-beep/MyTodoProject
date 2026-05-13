@@ -250,6 +250,8 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   const today = getLocalDateString();
   const tomorrow = getTomorrowLocalDateString();
+  const isOverdueTodo = (todo: Todo) =>
+    todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
   const todoMap = new Map(todos.map((todo) => [todo.id, todo]));
   const childrenByParentId = todos.reduce((map, todo) => {
     if (todo.parentId === null) return map;
@@ -280,7 +282,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         return todo.dueDate?.slice(0, 10) === tomorrow;
       }
       if (effectiveDatedFilter === "undecided") {
-        return todo.dueDateUndecided;
+        return todo.dueDateUndecided && !isOverdueTodo(todo);
       }
       return todo.dueDate !== null || todo.dueDateUndecided;
     }
@@ -301,6 +303,14 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   const visibleTodos = todos.filter((todo) => {
     if (viewMode === "TOP") {
+      return false;
+    }
+
+    if (
+      viewMode === "DATED" &&
+      effectiveDatedFilter === "undecided" &&
+      isOverdueTodo(todo)
+    ) {
       return false;
     }
 

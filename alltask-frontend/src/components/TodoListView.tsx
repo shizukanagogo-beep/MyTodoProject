@@ -89,6 +89,10 @@ function TodoListView({
   const parentTodos = sortedTodos.filter((todo) => todo.parentId === null);
   const getSubtasks = (parentId: number) =>
     sortedTodos.filter((todo) => todo.parentId === parentId);
+  const isOverdueTodo = (todo: Todo) =>
+    todo.dueDate !== null &&
+    todo.dueDate < getLocalDateString() &&
+    todo.status !== "DONE";
   const matchesDirectListCondition = (todo: Todo) => {
     if (viewMode === "DATED") {
       if (datedFilter === "today") {
@@ -98,7 +102,7 @@ function TodoListView({
         return todo.dueDate?.slice(0, 10) === getLocalDateString(1);
       }
       if (datedFilter === "undecided") {
-        return todo.dueDateUndecided;
+        return todo.dueDateUndecided && !isOverdueTodo(todo);
       }
       return todo.dueDate !== null || todo.dueDateUndecided;
     }
