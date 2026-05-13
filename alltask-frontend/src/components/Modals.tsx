@@ -1,6 +1,6 @@
 import CategoryModal from "./CategoryModal";
 import TodoModal from "./TodoModal";
-import type { Category, NewTodo, ViewMode } from "../types";
+import type { Category, NewTodo } from "../types";
 import type { Dispatch, SetStateAction } from "react";
 
 type ModalsProps = {
@@ -10,7 +10,6 @@ type ModalsProps = {
   newTodo: NewTodo;
   setNewTodo: Dispatch<SetStateAction<NewTodo>>;
   categories: Category[];
-  viewMode: ViewMode;
   onCloseTodoModal: () => void;
   onAddTodo: () => void;
 
@@ -29,7 +28,6 @@ function Modals({
   newTodo,
   setNewTodo,
   categories,
-  viewMode,
   onCloseTodoModal,
   onAddTodo,
   newCategoryName,
@@ -47,7 +45,6 @@ function Modals({
           newTodo={newTodo}
           setNewTodo={setNewTodo}
           categories={categories}
-          viewMode={viewMode}
           onClose={onCloseTodoModal}
           onAddTodo={onAddTodo}
         />

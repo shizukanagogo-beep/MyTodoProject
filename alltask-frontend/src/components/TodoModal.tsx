@@ -1,11 +1,10 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { Category, NewTodo, ViewMode } from "../types";
+import type { Category, NewTodo } from "../types";
 
 type TodoModalProps = {
   newTodo: NewTodo;
   setNewTodo: Dispatch<SetStateAction<NewTodo>>;
   categories: Category[];
-  viewMode: ViewMode;
   onClose: () => void;
   onAddTodo: () => void;
 };
@@ -14,7 +13,6 @@ function TodoModal({
   newTodo,
   setNewTodo,
   categories,
-  viewMode,
   onClose,
   onAddTodo,
 }: TodoModalProps) {
@@ -47,26 +45,25 @@ function TodoModal({
           />
 
           <div className="grid grid-cols-2 gap-4">
-            {viewMode === "TOP" && (
-              <select
-                className="px-4 py-3 border border-slate-200 rounded-lg bg-white"
-                value={newTodo.categoryId ?? ""}
-                onChange={(e) =>
-                  setNewTodo({
-                    ...newTodo,
-                    categoryId:
-                      e.target.value === "" ? "" : Number(e.target.value),
-                  })
-                }
-              >
-                <option value="">カテゴリを選択</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            )}
+            <select
+              className="px-4 py-3 border border-slate-200 rounded-lg bg-white"
+              value={newTodo.categoryId ?? ""}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                setNewTodo({
+                  ...newTodo,
+                  categoryId: value === "" ? "" : Number(value),
+                });
+              }}
+            >
+              <option value="">カテゴリを選択</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
 
             <input
               type="date"

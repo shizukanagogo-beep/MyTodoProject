@@ -398,16 +398,14 @@ function TodoListView({
           </div>
         </div>
 
-        {viewMode === "CATEGORY_DETAIL" && (
-          <div className="flex justify-end">
-            <button
-              onClick={onOpenTodoModal}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
-            >
-              +新規タスク
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end">
+          <button
+            onClick={onOpenTodoModal}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
+          >
+            +新規タスク
+          </button>
+        </div>
 
       </div>
 

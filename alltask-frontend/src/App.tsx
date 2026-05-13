@@ -9,6 +9,35 @@ import MainContent from "./components/MainContent";
 import Modals from "./components/Modals";
 import TodoDetailModal from "./components/TodoDetailModal";
 import { useSelectedTodoModal } from "./hooks/useSelectedTodoModal";
+import type { NewTodo, ViewMode } from "./types";
+
+const getLocalDateString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const date = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${date}`;
+};
+
+const createInitialTodoForView = (
+  viewMode: ViewMode,
+  selectedCategoryId: number | null,
+): NewTodo => ({
+  title: "",
+  details: "",
+  categoryId:
+    viewMode === "CATEGORY_DETAIL" && selectedCategoryId !== null
+      ? selectedCategoryId
+      : "",
+  parentId: null,
+  dueDate: viewMode === "DATED" ? getLocalDateString() : "",
+  daily: viewMode === "DAILY",
+  hasFlag: viewMode === "FLAGGED",
+  autoCarryOver: false,
+  overdueBehavior: 0,
+  sortOrder: null,
+});
 
 function App() {
   const {
@@ -56,6 +85,11 @@ function App() {
   } = useTodoModal({
     addTodo,
   });
+
+  const openTodoModalWithDefaults = () => {
+    setNewTodo(createInitialTodoForView(viewMode, selectedCategoryId));
+    openTodoModal();
+  };
 
   const {
     categories,
@@ -135,7 +169,6 @@ function App() {
         newTodo={newTodo}
         setNewTodo={setNewTodo}
         categories={categories}
-        viewMode={viewMode}
         onCloseTodoModal={closeTodoModal}
         onAddTodo={addTodoAndCloseModal}
         newCategoryName={newCategoryName}
@@ -156,7 +189,7 @@ function App() {
         datedSortMode={datedSortMode}
         onToggleShowDoneTodos={() => setShowDoneTodos((prev) => !prev)}
         onChangeDatedSortMode={setDatedSortMode}
-        onOpenTodoModal={openTodoModal}
+        onOpenTodoModal={openTodoModalWithDefaults}
         onOpenCategoryModal={openCategoryModal}
         onOpenCategoryDetail={(categoryId) => {
           resetDatedFilters();

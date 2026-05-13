@@ -94,11 +94,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
 
     const finalCategoryId =
-      viewMode === "CATEGORY_DETAIL"
-        ? selectedCategoryId
-        : newTodo.categoryId === ""
-          ? null
-          : newTodo.categoryId;
+      newTodo.categoryId === "" ? null : newTodo.categoryId;
 
     const payload = {
       ...newTodo,
