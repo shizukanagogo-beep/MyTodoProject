@@ -12,7 +12,7 @@ public class TodoForm {
     private Status status;
     private LocalDate dueDate;
     private Boolean dueDateUndecided;
-    private Boolean existsDueDate; // trueなら「期限があるもの全部」
+    private Boolean existsDueDate; // trueなら日付あり／未定
     private Integer categoryId;
     private Boolean categoryUnassigned;
     private Integer parentId;

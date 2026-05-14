@@ -81,13 +81,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     loadTodos();
   }, [viewMode, selectedCategoryId, refreshKey]);
 
-  useEffect(() => {
-    if (viewMode !== "DATED") {
-      setDatedFilter("all");
-      setRandomTodoId(null);
-    }
-  }, [viewMode]);
-
   const addTodo = async () => {
     if (!newTodo.title.trim()) {
       alert("タイトルを入力してください");
@@ -327,7 +320,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       (child) => passesDoneFilter(child) && matchesCurrentView(child),
     );
 
-    return (passesDoneFilter(todo) && matchesCurrentView(todo)) || hasVisibleChild;
+    return (
+      (passesDoneFilter(todo) && matchesCurrentView(todo)) || hasVisibleChild
+    );
   });
 
   const sortedTodos = [...visibleTodos].sort((a, b) => {
