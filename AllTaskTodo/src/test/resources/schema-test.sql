@@ -2,15 +2,13 @@ DROP TABLE IF EXISTS todos;
 
 DROP TABLE IF EXISTS categories;
 
-CREATE TABLE
-    categories (
+CREATE TABLE categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(50) NOT NULL,
         sort_order INT NULL
     );
 
-CREATE TABLE
-    todos (
+CREATE TABLE todos (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(100),
         status VARCHAR(20),
