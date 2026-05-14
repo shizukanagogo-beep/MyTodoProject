@@ -242,9 +242,192 @@ function TodoListView({
     });
   };
 
+  const renderHeader = () => (
+    <div className="mb-8 space-y-4">
+      <div className="flex items-center gap-4 min-w-0">
+        <button
+          onClick={onBackToTop}
+          className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600"
+        >
+          ←
+        </button>
+
+        <h2 className="text-2xl font-bold text-slate-800 truncate">
+          {viewTitle}
+        </h2>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {viewMode === "DATED" && (
+            <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white">
+              {datedFilterItems.map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => onChangeDatedFilter(item.value)}
+                  className={`${datedFilterButtonBaseClass} ${
+                    datedFilter === item.value
+                      ? activeDatedFilterButtonClass
+                      : inactiveDatedFilterButtonClass
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {viewMode === "DATED" && (
+            <button
+              onClick={() =>
+                onChangeDatedSortMode(
+                  datedSortMode === "dueDate" ? "manual" : "dueDate",
+                )
+              }
+              className={`${filterButtonBaseClass} ${
+                datedSortMode === "dueDate"
+                  ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
+                  : inactiveFilterButtonClass
+              }`}
+            >
+              期限順
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={onToggleShowDoneTodos}
+            className={`${filterButtonBaseClass} ${
+              showDoneTodos
+                ? activeFilterButtonClass
+                : inactiveFilterButtonClass
+            }`}
+          >
+            {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
+          </button>
+
+          {canGroupByCategory && (
+            <button
+              onClick={() => {
+                setGroupByCategory((prev) => !prev);
+                setDraggingIndex(null);
+                setDraggingCategoryId(null);
+              }}
+              className={`${filterButtonBaseClass} ${
+                groupByCategory
+                  ? activeFilterButtonClass
+                  : inactiveFilterButtonClass
+              }`}
+            >
+              カテゴリ別
+            </button>
+          )}
+
+          <span className="h-6 border-l border-slate-200" />
+
+          <button
+            onClick={onToggleRandomTodo}
+            className={`${filterButtonBaseClass} ${
+              isRandomMode ? activeFilterButtonClass : inactiveFilterButtonClass
+            }`}
+          >
+            ランダム
+          </button>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          onClick={onOpenTodoModal}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
+        >
+          +新規タスク
+        </button>
+      </div>
+    </div>
+  );
+
   const renderTodoWithSubtasks = (todo: Todo, index: number) => {
     const subtasks = getSubtasks(todo.id);
     const isSubtasksCollapsed = collapsedSubtaskParentIds.has(todo.id);
+
+    const renderEmptyMessage = () => (
+      <div className="text-center py-20 text-slate-400">タスクがありません</div>
+    );
+
+    const renderTodoList = () => {
+      if (parentTodos.length === 0) {
+        return renderEmptyMessage();
+      }
+
+      if (effectiveGroupByCategory) {
+        return todosByCategory.map(({ id, name, canReorder, todos }) => {
+          const collapseId = id ?? "uncategorized";
+          const isCollapsed = collapsedCategoryIds.has(collapseId);
+
+          return (
+            <section
+              key={id ?? "uncategorized"}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => handleDropCategory(id)}
+              onDragEnd={() => setDraggingCategoryId(null)}
+              className={`space-y-2 ${
+                id !== null && draggingCategoryId === id ? "opacity-50" : ""
+              }`}
+            >
+              <div
+                draggable={canReorder}
+                onDragStart={(e) => {
+                  if (id === null) {
+                    e.preventDefault();
+                    return;
+                  }
+                  setDraggingCategoryId(id);
+                }}
+                className={`flex items-center gap-2 px-1 pt-2 ${
+                  canReorder ? "cursor-move" : ""
+                }`}
+              >
+                <button
+                  className="h-6 w-6 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-200"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleCategoryCollapsed(collapseId);
+                  }}
+                  onDragStart={(e) => e.preventDefault()}
+                >
+                  {isCollapsed ? "▶" : "▼"}
+                </button>
+
+                <span className="text-sm font-bold text-slate-600">{name}</span>
+
+                <span className="text-xs font-bold text-slate-400">
+                  {todos.length}
+                </span>
+              </div>
+
+              {!isCollapsed && (
+                <div className="space-y-3">
+                  {todos.map((todo) =>
+                    renderTodoWithSubtasks(
+                      todo,
+                      parentTodos.findIndex(
+                        (parentTodo) => parentTodo.id === todo.id,
+                      ),
+                    ),
+                  )}
+                </div>
+              )}
+            </section>
+          );
+        });
+      }
+
+      return parentTodos.map((todo, index) =>
+        renderTodoWithSubtasks(todo, index),
+      );
+    };
 
     return (
       <div key={todo.id} className="space-y-2">
@@ -335,184 +518,9 @@ function TodoListView({
 
   return (
     <div>
-      <div className="mb-8 space-y-4">
-        <div className="flex items-center gap-4 min-w-0">
-          <button
-            onClick={onBackToTop}
-            className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600"
-          >
-            ←
-          </button>
+      {renderHeader()}
 
-          <h2 className="text-2xl font-bold text-slate-800 truncate">
-            {viewTitle}
-          </h2>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            {viewMode === "DATED" && (
-              <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white">
-                {datedFilterItems.map((item) => (
-                  <button
-                    key={item.value}
-                    onClick={() => onChangeDatedFilter(item.value)}
-                    className={`${datedFilterButtonBaseClass} ${
-                      datedFilter === item.value
-                        ? activeDatedFilterButtonClass
-                        : inactiveDatedFilterButtonClass
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {viewMode === "DATED" && (
-              <button
-                onClick={() =>
-                  onChangeDatedSortMode(
-                    datedSortMode === "dueDate" ? "manual" : "dueDate",
-                  )
-                }
-                className={`${filterButtonBaseClass} ${
-                  datedSortMode === "dueDate"
-                    ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
-                    : inactiveFilterButtonClass
-                }`}
-              >
-                期限順
-              </button>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={onToggleShowDoneTodos}
-              className={`${filterButtonBaseClass} ${
-                showDoneTodos
-                  ? activeFilterButtonClass
-                  : inactiveFilterButtonClass
-              }`}
-            >
-              {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
-            </button>
-
-            {canGroupByCategory && (
-              <button
-                onClick={() => {
-                  setGroupByCategory((prev) => !prev);
-                  setDraggingIndex(null);
-                  setDraggingCategoryId(null);
-                }}
-                className={`${filterButtonBaseClass} ${
-                  groupByCategory
-                    ? activeFilterButtonClass
-                    : inactiveFilterButtonClass
-                }`}
-              >
-                カテゴリ別
-              </button>
-            )}
-
-            <span className="h-6 border-l border-slate-200" />
-
-            <button
-              onClick={onToggleRandomTodo}
-              className={`${filterButtonBaseClass} ${
-                isRandomMode
-                  ? activeFilterButtonClass
-                  : inactiveFilterButtonClass
-              }`}
-            >
-              ランダム
-            </button>
-          </div>
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            onClick={onOpenTodoModal}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
-          >
-            +新規タスク
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {effectiveGroupByCategory
-          ? todosByCategory.map(({ id, name, canReorder, todos }) => {
-              const collapseId = id ?? "uncategorized";
-              const isCollapsed = collapsedCategoryIds.has(collapseId);
-
-              return (
-                <section
-                  key={id ?? "uncategorized"}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => handleDropCategory(id)}
-                  onDragEnd={() => setDraggingCategoryId(null)}
-                  className={`space-y-2 ${
-                    id !== null && draggingCategoryId === id ? "opacity-50" : ""
-                  }`}
-                >
-                  <div
-                    draggable={canReorder}
-                    onDragStart={(e) => {
-                      if (id === null) {
-                        e.preventDefault();
-                        return;
-                      }
-                      setDraggingCategoryId(id);
-                    }}
-                    className={`flex items-center gap-2 px-1 pt-2 ${
-                      canReorder ? "cursor-move" : ""
-                    }`}
-                  >
-                    <button
-                      className="h-6 w-6 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-200"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleCategoryCollapsed(collapseId);
-                      }}
-                      onDragStart={(e) => e.preventDefault()}
-                    >
-                      {isCollapsed ? "▶" : "▼"}
-                    </button>
-                    <span className="text-sm font-bold text-slate-600">
-                      {name}
-                    </span>
-                    <span className="text-xs font-bold text-slate-400">
-                      {todos.length}
-                    </span>
-                  </div>
-
-                  {!isCollapsed && (
-                    <div className="space-y-3">
-                      {todos.map((todo) =>
-                        renderTodoWithSubtasks(
-                          todo,
-                          parentTodos.findIndex(
-                            (parentTodo) => parentTodo.id === todo.id,
-                          ),
-                        ),
-                      )}
-                    </div>
-                  )}
-                </section>
-              );
-            })
-          : parentTodos.map((todo, index) =>
-              renderTodoWithSubtasks(todo, index),
-            )}
-
-        {parentTodos.length === 0 && (
-          <div className="text-center py-20 text-slate-400">
-            タスクがありません
-          </div>
-        )}
-      </div>
+      <div className="space-y-3">{renderTodoList()}</div>
     </div>
   );
 }
