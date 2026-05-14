@@ -109,6 +109,20 @@ function TodoListView({
     !effectiveGroupByCategory &&
     !isRandomMode &&
     (viewMode !== "DATED" || datedSortMode === "manual");
+
+  const viewTitle =
+    viewMode === "CATEGORY_DETAIL"
+      ? categories.find((category) => category.id === selectedCategoryId)?.name
+      : viewMode === "UNCATEGORIZED"
+        ? "カテゴリなし"
+        : viewMode === "DATED"
+          ? "日付ありタスク"
+          : viewMode === "DAILY"
+            ? "日課タスク"
+            : viewMode === "FLAGGED"
+              ? "フラグ付き"
+              : "";
+
   const parentTodos = sortedTodos.filter((todo) => todo.parentId === null);
   const getSubtasks = (parentId: number) =>
     sortedTodos.filter((todo) => todo.parentId === parentId);
@@ -331,12 +345,7 @@ function TodoListView({
           </button>
 
           <h2 className="text-2xl font-bold text-slate-800 truncate">
-            {viewMode === "CATEGORY_DETAIL" &&
-              `${categories.find((category) => category.id === selectedCategoryId)?.name}`}
-            {viewMode === "UNCATEGORIZED" && "カテゴリなし"}
-            {viewMode === "DATED" && "日付ありタスク"}
-            {viewMode === "DAILY" && "日課タスク"}
-            {viewMode === "FLAGGED" && "フラグ付き"}
+            {viewTitle}
           </h2>
         </div>
 
