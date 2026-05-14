@@ -2,6 +2,8 @@ package com.example.demo.repository;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import com.example.demo.entity.Category;
 
 @Mapper
@@ -20,6 +22,6 @@ public interface CategoryMapper {
 
     void deleteCategory(Integer id);
 
-    void updateSortOrder(Integer id, Integer sortOrder);
+    void updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
 
 }
