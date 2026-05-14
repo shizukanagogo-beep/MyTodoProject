@@ -102,9 +102,12 @@ function TodoListView({
     parentId: number;
     index: number;
   } | null>(null);
+
   const canGroupByCategory =
     viewMode === "DATED" || viewMode === "DAILY" || viewMode === "FLAGGED";
+
   const effectiveGroupByCategory = canGroupByCategory && groupByCategory;
+
   const canReorder =
     !effectiveGroupByCategory &&
     !isRandomMode &&
@@ -124,23 +127,29 @@ function TodoListView({
               : "";
 
   const parentTodos = sortedTodos.filter((todo) => todo.parentId === null);
+
   const getSubtasks = (parentId: number) =>
     sortedTodos.filter((todo) => todo.parentId === parentId);
+
   const isOverdueTodo = (todo: Todo) =>
     todo.dueDate !== null &&
     todo.dueDate < getLocalDateString() &&
     todo.status !== "DONE";
+
   const matchesDirectListCondition = (todo: Todo) => {
     if (viewMode === "DATED") {
       if (datedFilter === "today") {
         return todo.dueDate?.slice(0, 10) === getLocalDateString();
       }
+
       if (datedFilter === "tomorrow") {
         return todo.dueDate?.slice(0, 10) === getLocalDateString(1);
       }
+
       if (datedFilter === "undecided") {
         return todo.dueDateUndecided && !isOverdueTodo(todo);
       }
+
       return todo.dueDate !== null || todo.dueDateUndecided;
     }
 
@@ -154,9 +163,11 @@ function TodoListView({
 
     return true;
   };
+
   const shouldSubdueTodo = (todo: Todo) =>
     (viewMode === "DATED" || viewMode === "DAILY" || viewMode === "FLAGGED") &&
     !matchesDirectListCondition(todo);
+
   const todosByCategory = useMemo(() => {
     const categoryGroups = categories
       .map((category) => ({
@@ -352,83 +363,6 @@ function TodoListView({
     const subtasks = getSubtasks(todo.id);
     const isSubtasksCollapsed = collapsedSubtaskParentIds.has(todo.id);
 
-    const renderEmptyMessage = () => (
-      <div className="text-center py-20 text-slate-400">タスクがありません</div>
-    );
-
-    const renderTodoList = () => {
-      if (parentTodos.length === 0) {
-        return renderEmptyMessage();
-      }
-
-      if (effectiveGroupByCategory) {
-        return todosByCategory.map(({ id, name, canReorder, todos }) => {
-          const collapseId = id ?? "uncategorized";
-          const isCollapsed = collapsedCategoryIds.has(collapseId);
-
-          return (
-            <section
-              key={id ?? "uncategorized"}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => handleDropCategory(id)}
-              onDragEnd={() => setDraggingCategoryId(null)}
-              className={`space-y-2 ${
-                id !== null && draggingCategoryId === id ? "opacity-50" : ""
-              }`}
-            >
-              <div
-                draggable={canReorder}
-                onDragStart={(e) => {
-                  if (id === null) {
-                    e.preventDefault();
-                    return;
-                  }
-                  setDraggingCategoryId(id);
-                }}
-                className={`flex items-center gap-2 px-1 pt-2 ${
-                  canReorder ? "cursor-move" : ""
-                }`}
-              >
-                <button
-                  className="h-6 w-6 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-200"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleCategoryCollapsed(collapseId);
-                  }}
-                  onDragStart={(e) => e.preventDefault()}
-                >
-                  {isCollapsed ? "▶" : "▼"}
-                </button>
-
-                <span className="text-sm font-bold text-slate-600">{name}</span>
-
-                <span className="text-xs font-bold text-slate-400">
-                  {todos.length}
-                </span>
-              </div>
-
-              {!isCollapsed && (
-                <div className="space-y-3">
-                  {todos.map((todo) =>
-                    renderTodoWithSubtasks(
-                      todo,
-                      parentTodos.findIndex(
-                        (parentTodo) => parentTodo.id === todo.id,
-                      ),
-                    ),
-                  )}
-                </div>
-              )}
-            </section>
-          );
-        });
-      }
-
-      return parentTodos.map((todo, index) =>
-        renderTodoWithSubtasks(todo, index),
-      );
-    };
-
     return (
       <div key={todo.id} className="space-y-2">
         <div
@@ -513,6 +447,84 @@ function TodoListView({
           </div>
         )}
       </div>
+    );
+  };
+
+  const renderEmptyMessage = () => (
+    <div className="text-center py-20 text-slate-400">タスクがありません</div>
+  );
+
+  const renderTodoList = () => {
+    if (parentTodos.length === 0) {
+      return renderEmptyMessage();
+    }
+
+    if (effectiveGroupByCategory) {
+      return todosByCategory.map(({ id, name, canReorder, todos }) => {
+        const collapseId = id ?? "uncategorized";
+        const isCollapsed = collapsedCategoryIds.has(collapseId);
+
+        return (
+          <section
+            key={id ?? "uncategorized"}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => handleDropCategory(id)}
+            onDragEnd={() => setDraggingCategoryId(null)}
+            className={`space-y-2 ${
+              id !== null && draggingCategoryId === id ? "opacity-50" : ""
+            }`}
+          >
+            <div
+              draggable={canReorder}
+              onDragStart={(e) => {
+                if (id === null) {
+                  e.preventDefault();
+                  return;
+                }
+
+                setDraggingCategoryId(id);
+              }}
+              className={`flex items-center gap-2 px-1 pt-2 ${
+                canReorder ? "cursor-move" : ""
+              }`}
+            >
+              <button
+                className="h-6 w-6 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleCategoryCollapsed(collapseId);
+                }}
+                onDragStart={(e) => e.preventDefault()}
+              >
+                {isCollapsed ? "▶" : "▼"}
+              </button>
+
+              <span className="text-sm font-bold text-slate-600">{name}</span>
+
+              <span className="text-xs font-bold text-slate-400">
+                {todos.length}
+              </span>
+            </div>
+
+            {!isCollapsed && (
+              <div className="space-y-3">
+                {todos.map((todo) =>
+                  renderTodoWithSubtasks(
+                    todo,
+                    parentTodos.findIndex(
+                      (parentTodo) => parentTodo.id === todo.id,
+                    ),
+                  ),
+                )}
+              </div>
+            )}
+          </section>
+        );
+      });
+    }
+
+    return parentTodos.map((todo, index) =>
+      renderTodoWithSubtasks(todo, index),
     );
   };
 
