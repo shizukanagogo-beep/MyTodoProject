@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.repository.TodoMapper">
-    <!-- 1. 検索・一覧取得 (TodoFormを使用) ============================-->
+    <!-- 1. 条件別一覧取得(TodoFormを使用) ============================-->
     <select id="getList" parameterType="com.example.demo.dto.TodoForm" resultType="com.example.demo.entity.Todo">
         SELECT
           id,
@@ -23,9 +23,6 @@
             <if test="status != null">
                 AND status = #{status}
             </if>
-            <if test="title != null and title != ''">
-                AND title LIKE CONCAT ('%', #{title}, '%')
-            </if>
             <if test="categoryId != null">
                 AND category_id = #{categoryId}
             </if>
@@ -45,7 +42,10 @@
                 AND due_date = #{dueDate}
             </if>
             <if test="existsDueDate == true">
-                AND (due_date IS NOT NULL OR due_date_undecided = TRUE)
+                AND (
+                  due_date IS NOT NULL
+                  OR due_date_undecided = TRUE
+                )
             </if>
         </where>
         ORDER BY

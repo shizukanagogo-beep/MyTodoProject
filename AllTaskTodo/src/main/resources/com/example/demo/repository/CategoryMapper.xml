@@ -5,7 +5,7 @@
     <select id="findAll" resultType="com.example.demo.entity.Category">
         SELECT
           id,
-          NAME,
+          name,
           sort_order AS sortOrder
         FROM
           categories
