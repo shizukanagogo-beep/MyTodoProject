@@ -2,6 +2,8 @@ import TodoItem from "./TodoItem";
 import { useMemo, useState } from "react";
 import type { Category, Todo, ViewMode } from "../types";
 
+type DatedFilter = "all" | "today" | "tomorrow" | "undecided";
+
 type TodoListViewProps = {
   viewMode: ViewMode;
   categories: Category[];
@@ -25,10 +27,8 @@ type TodoListViewProps = {
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
   isRandomMode: boolean;
   onToggleRandomTodo: () => void;
-  datedFilter: "all" | "today" | "tomorrow" | "undecided";
-  onChangeDatedFilter: (
-    filter: "all" | "today" | "tomorrow" | "undecided",
-  ) => void;
+  datedFilter: DatedFilter;
+  onChangeDatedFilter: (filter: DatedFilter) => void;
 };
 
 const getLocalDateString = (offsetDays = 0) => {
@@ -57,6 +57,13 @@ const datedFilterButtonBaseClass =
 const activeDatedFilterButtonClass = "bg-indigo-50 text-indigo-600";
 
 const inactiveDatedFilterButtonClass = "text-slate-600 hover:bg-slate-50";
+
+const datedFilterItems: { value: DatedFilter; label: string }[] = [
+  { value: "all", label: "すべて" },
+  { value: "today", label: "今日" },
+  { value: "tomorrow", label: "明日" },
+  { value: "undecided", label: "未定" },
+];
 
 function TodoListView({
   viewMode,
@@ -337,23 +344,10 @@ function TodoListView({
           <div className="flex flex-wrap items-center gap-2">
             {viewMode === "DATED" && (
               <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white">
-                {[
-                  { value: "all", label: "すべて" },
-                  { value: "today", label: "今日" },
-                  { value: "tomorrow", label: "明日" },
-                  { value: "undecided", label: "未定" },
-                ].map((item) => (
+                {datedFilterItems.map((item) => (
                   <button
                     key={item.value}
-                    onClick={() =>
-                      onChangeDatedFilter(
-                        item.value as
-                          | "all"
-                          | "today"
-                          | "tomorrow"
-                          | "undecided",
-                      )
-                    }
+                    onClick={() => onChangeDatedFilter(item.value)}
                     className={`${datedFilterButtonBaseClass} ${
                       datedFilter === item.value
                         ? activeDatedFilterButtonClass
