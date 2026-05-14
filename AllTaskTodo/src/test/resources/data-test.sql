@@ -3,7 +3,8 @@ INSERT INTO
 VALUES
     (1, '仕事', 1),
     (2, 'プライベート', 2),
-    (3, '買い物', 3);
+    (3, '買い物', 3),
+    (4, '並び順テスト', 4);
 
 INSERT INTO
     todos (
@@ -32,7 +33,7 @@ VALUES
         FALSE,
         FALSE,
         FALSE,
-        1,
+        4,
         NULL,
         0,
         2
@@ -47,7 +48,7 @@ VALUES
         FALSE,
         FALSE,
         FALSE,
-        1,
+        4,
         NULL,
         0,
         1

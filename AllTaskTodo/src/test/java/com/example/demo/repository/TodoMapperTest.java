@@ -24,7 +24,7 @@ class TodoMapperTest {
     @DisplayName("getList: sortOrder順で取得されること")
     void testGetList_ShouldOrderBySortOrder() {
         TodoForm form = new TodoForm();
-        form.setCategoryId(1);
+        form.setCategoryId(4);
 
         List<Todo> result = todoMapper.getList(form);
 
@@ -55,16 +55,26 @@ class TodoMapperTest {
     }
 
     @Test
-    @DisplayName("getList: categoryUnassigned=trueでカテゴリなしタスクが取得されること")
-    void testGetList_CategoryUnassigned_ShouldReturnUncategorizedTodos() {
+    @DisplayName("getList: categoryUnassigned=trueでcategoryIdがnullのTodoが取得されること")
+    void testGetList_CategoryUnassigned_ShouldReturnTodosWithoutCategory() {
         TodoForm form = new TodoForm();
         form.setCategoryUnassigned(true);
 
         List<Todo> result = todoMapper.getList(form);
 
-        assertEquals(1, result.size());
-        assertEquals(5, result.get(0).getId());
-        assertNull(result.get(0).getCategoryId());
+        assertFalse(result.isEmpty());
+
+        assertTrue(
+                result.stream().allMatch(todo -> todo.getCategoryId() == null),
+                "取得されたTodoはすべてcategoryIdがnullであること");
+
+        assertTrue(
+                result.stream().anyMatch(todo -> Integer.valueOf(5).equals(todo.getId())),
+                "カテゴリなし親タスクが含まれること");
+
+        assertTrue(
+                result.stream().anyMatch(todo -> todo.getParentId() != null),
+                "サブタスクも含まれること");
     }
 
     @Test
