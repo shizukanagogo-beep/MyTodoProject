@@ -58,7 +58,7 @@ VALUES
         '日付ありタスク',
         'INCOMPLETE',
         'existsDueDate確認用',
-        '2026-05-20'
+        '2026-05-20',
         FALSE,
         FALSE,
         FALSE,
