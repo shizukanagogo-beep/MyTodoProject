@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CategoryCard from "./CategoryCard";
 import type { Category } from "../types";
 
@@ -24,6 +24,24 @@ function TopView({
   onOpenFlagged,
 }: TopViewProps) {
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const categoryMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoryMenuRef.current &&
+        !categoryMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsCategoryMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -57,12 +75,14 @@ function TopView({
             カテゴリなし
           </button>
         </div>
-
       </section>
 
       <section>
         <div className="mb-4 flex items-center justify-between gap-4 px-1">
-          <div className="relative flex items-center gap-2">
+          <div
+            ref={categoryMenuRef}
+            className="relative flex items-center gap-2"
+          >
             <h2 className="text-lg font-bold text-slate-700">カテゴリ一覧</h2>
 
             <button
