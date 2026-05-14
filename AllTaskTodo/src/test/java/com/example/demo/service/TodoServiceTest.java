@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +38,7 @@ public class TodoServiceTest {
         form.setDaily(true);
         form.setDueDate(LocalDate.of(2025, 12, 31));
         form.setAutoCarryOver(true);
+        form.setDueDateUndecided(true);
 
         doNothing().when(todoMapper).add(any(Todo.class));
 
@@ -46,6 +48,7 @@ public class TodoServiceTest {
         assertEquals(Status.INCOMPLETE, result.getStatus(), "ステータスがnullの場合はINCOMPLETE");
         assertTrue(result.getDaily(), "日課フラグはそのままON");
         assertNull(result.getDueDate(), "日課では強制的に日付はnull");
+        assertFalse(result.getDueDateUndecided(), "日課では期限未定もfalseになること");
         assertFalse(result.getAutoCarryOver(), "日課なので自動繰越は強制機にfalse");
 
         verify(todoMapper, times(1)).add(any(Todo.class));
@@ -70,6 +73,50 @@ public class TodoServiceTest {
         assertFalse(result.getDaily(), "日付があるので日課フラグはfalseにされること");
         assertEquals(LocalDate.of(2025, 12, 31), result.getDueDate(), "日付はそのままセットされること");
         assertTrue(result.getAutoCarryOver(), "自動繰越の設定はそのまま活かされること");
+    }
+
+    @Test
+    @DisplayName("期限未定タスクを追加する際、期限と日課と自動繰越が無効化されること")
+    void testAdd_DueDateUndecidedTask_ShouldClearDueDateDailyAndCarryOver() {
+        TodoForm form = new TodoForm();
+        form.setTitle("期限未定タスク");
+        form.setDueDateUndecided(true);
+        form.setDueDate(LocalDate.of(2026, 5, 12));
+        form.setDaily(false);
+        form.setAutoCarryOver(true);
+
+        doNothing().when(todoMapper).add(any(Todo.class));
+
+        Todo result = todoService.add(form);
+
+        assertTrue(result.getDueDateUndecided(), "期限未定フラグはtrueになること");
+        assertNull(result.getDueDate(), "期限未定では日付はnullになること");
+        assertFalse(result.getDaily(), "期限未定では日課はfalseになること");
+        assertFalse(result.getAutoCarryOver(), "期限未定では自動繰越はfalseになること");
+
+        verify(todoMapper, times(1)).add(any(Todo.class));
+    }
+
+    @Test
+    @DisplayName("日付と期限未定が同時に指定された場合、期限未定を優先すること")
+    void testAdd_DueDateAndUndecidedTask_ShouldPreferDueDateUndecided() {
+        TodoForm form = new TodoForm();
+        form.setTitle("日付ありタスク");
+        form.setDueDate(LocalDate.of(2026, 5, 12));
+        form.setDueDateUndecided(true);
+        form.setDaily(false);
+        form.setAutoCarryOver(true);
+
+        doNothing().when(todoMapper).add(any(Todo.class));
+
+        Todo result = todoService.add(form);
+
+        assertNull(result.getDueDate(), "期限未定が優先されるため日付はnullになること");
+        assertTrue(result.getDueDateUndecided(), "期限未定フラグはtrueのままになること");
+        assertFalse(result.getDaily(), "期限未定では日課はfalseになること");
+        assertFalse(result.getAutoCarryOver(), "期限未定では自動繰越はfalseになること");
+
+        verify(todoMapper, times(1)).add(any(Todo.class));
     }
 
     @Test
@@ -143,8 +190,7 @@ public class TodoServiceTest {
         boolean result = todoService.update(1, form);
 
         assertTrue(result, "更新成功を返すこと");
-        verify(todoMapper).update(argThat(todo ->
-                todo.getId().equals(1) && todo.getSortOrder().equals(8)));
+        verify(todoMapper).update(argThat(todo -> todo.getId().equals(1) && todo.getSortOrder().equals(8)));
     }
 
     @Test
@@ -162,6 +208,22 @@ public class TodoServiceTest {
 
         verify(todoMapper).updateSortOrder(3, 1);
         verify(todoMapper).updateSortOrder(1, 2);
+    }
+
+    @Test
+    @DisplayName("タスク削除時、子タスクを先に削除してから対象タスクを削除すること")
+    void testDelete_ShouldDeleteChildrenBeforeParent() {
+        Integer id = 1;
+
+        when(todoMapper.delete(id)).thenReturn(true);
+
+        boolean result = todoService.delete(id);
+
+        assertTrue(result, "親タスク削除の結果を返すこと");
+
+        InOrder inOrder = inOrder(todoMapper);
+        inOrder.verify(todoMapper).deleteByParentId(id);
+        inOrder.verify(todoMapper).delete(id);
     }
 
     @Test
