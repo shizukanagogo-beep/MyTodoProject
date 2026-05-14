@@ -63,7 +63,7 @@ function TopView({
 
           <button
             onClick={onOpenFlagged}
-            className="p-4 bg-amber-500 text-white rounded-xl font-bold shadow-md hover:bg-amber-600"
+            className="p-4 bg-teal-500 text-white rounded-xl font-bold shadow-md hover:bg-teal-600"
           >
             フラグ
           </button>

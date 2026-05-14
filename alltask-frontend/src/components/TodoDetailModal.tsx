@@ -155,10 +155,10 @@ function TodoDetailModal({
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6"
+        className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-5"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-start gap-4 mb-6">
+        <div className="flex justify-between items-start gap-4 mb-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
               type="checkbox"
@@ -188,7 +188,7 @@ function TodoDetailModal({
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {!isSubtask && (
             <div>
               <p className="text-sm font-bold text-slate-500 mb-1">
@@ -238,22 +238,27 @@ function TodoDetailModal({
           />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <p className="text-sm font-bold text-slate-500 mb-1">フラグ</p>
+            <div className="relative group">
               <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
                 <input
                   type="checkbox"
+                  aria-label="フラグ"
                   checked={editTodo.hasFlag}
                   onChange={(e) =>
                     setEditTodo({ ...editTodo, hasFlag: e.target.checked })
                   }
                 />
-                重要
+                フラグ
               </label>
+
+              <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                  タスクにフラグを設定します
+                </div>
+              </div>
             </div>
 
             <div className="relative group">
-              <p className="text-sm font-bold text-slate-500 mb-1">日課</p>
               <label
                 className={`flex items-center gap-2 border-b border-transparent bg-white px-1 py-2 ${
                   editTodo.dueDate || editTodo.dueDateUndecided
@@ -263,6 +268,7 @@ function TodoDetailModal({
               >
                 <input
                   type="checkbox"
+                  aria-label="日課"
                   disabled={!!editTodo.dueDate || editTodo.dueDateUndecided}
                   checked={editTodo.daily}
                   onChange={(e) =>
@@ -279,7 +285,7 @@ function TodoDetailModal({
                     })
                   }
                 />
-                日課として設定
+                日課
               </label>
 
               {(editTodo.dueDate || editTodo.dueDateUndecided) && (
@@ -289,13 +295,21 @@ function TodoDetailModal({
                   </div>
                 </div>
               )}
+
+              {!editTodo.dueDate && !editTodo.dueDateUndecided && (
+                <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                  <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                    日課タスクは毎日自動的に未完了となります
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <div>
             <p className="text-sm font-bold text-slate-500 mb-1">詳細</p>
             <textarea
-              className="w-full min-h-28 bg-white px-1 py-2 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded-lg outline-none text-slate-700 resize-none"
+              className="w-full min-h-20 bg-white px-1 py-2 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded-lg outline-none text-slate-700 resize-none"
               value={editTodo.details}
               onChange={(e) =>
                 setEditTodo({ ...editTodo, details: e.target.value })
@@ -364,10 +378,10 @@ function TodoDetailModal({
           }}
         >
           <div
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-slate-800">
                 サブタスク作成
               </h3>
@@ -379,7 +393,7 @@ function TodoDetailModal({
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <input
                 type="text"
                 placeholder="タイトル"
@@ -408,13 +422,11 @@ function TodoDetailModal({
               />
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="mb-1 text-sm font-bold text-slate-500">
-                    フラグ
-                  </p>
+                <div className="relative group">
                   <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
                     <input
                       type="checkbox"
+                      aria-label="フラグ"
                       checked={newSubtask.hasFlag}
                       onChange={(e) =>
                         setNewSubtask({
@@ -423,12 +435,17 @@ function TodoDetailModal({
                         })
                       }
                     />
-                    重要
+                    フラグ
                   </label>
+
+                  <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                    <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                      タスクにフラグを設定します
+                    </div>
+                  </div>
                 </div>
 
                 <div className="relative group">
-                  <p className="mb-1 text-sm font-bold text-slate-500">日課</p>
                   <label
                     className={`flex items-center gap-2 border-b border-transparent bg-white px-1 py-2 ${
                       newSubtask.dueDate || newSubtask.dueDateUndecided
@@ -438,6 +455,7 @@ function TodoDetailModal({
                   >
                     <input
                       type="checkbox"
+                      aria-label="日課"
                       disabled={
                         !!newSubtask.dueDate || newSubtask.dueDateUndecided
                       }
@@ -456,7 +474,7 @@ function TodoDetailModal({
                         })
                       }
                     />
-                    日課として設定
+                    日課
                   </label>
 
                   {(newSubtask.dueDate || newSubtask.dueDateUndecided) && (
@@ -466,13 +484,21 @@ function TodoDetailModal({
                       </div>
                     </div>
                   )}
+
+                  {!newSubtask.dueDate && !newSubtask.dueDateUndecided && (
+                    <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                      <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                        日課タスクは毎日自動的に未完了となります
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div>
                 <p className="mb-1 text-sm font-bold text-slate-500">詳細</p>
                 <textarea
-                  className="min-h-28 w-full resize-none rounded-lg border border-slate-200 px-4 py-3 text-slate-700 outline-none focus:border-indigo-500"
+                  className="min-h-20 w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-slate-700 outline-none focus:border-indigo-500"
                   value={newSubtask.details}
                   onChange={(e) =>
                     setNewSubtask({

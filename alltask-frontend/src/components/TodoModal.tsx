@@ -23,10 +23,10 @@ function TodoModal({
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6"
+        className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-5"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <h3 className="text-xl font-bold text-slate-800">新規タスク作成</h3>
           <button
             onClick={onClose}
@@ -36,7 +36,7 @@ function TodoModal({
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <input
             type="text"
             placeholder="タイトル"
@@ -86,22 +86,27 @@ function TodoModal({
           />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <p className="mb-1 text-sm font-bold text-slate-500">フラグ</p>
+            <div className="relative group">
               <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
                 <input
                   type="checkbox"
+                  aria-label="フラグ"
                   checked={newTodo.hasFlag}
                   onChange={(e) =>
                     setNewTodo({ ...newTodo, hasFlag: e.target.checked })
                   }
                 />
-                重要
+                フラグ
               </label>
+
+              <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                  タスクにフラグを設定します
+                </div>
+              </div>
             </div>
 
             <div className="relative group">
-              <p className="mb-1 text-sm font-bold text-slate-500">日課</p>
               <label
                 className={`flex items-center gap-2 border-b border-transparent bg-white px-1 py-2 ${
                   newTodo.dueDate || newTodo.dueDateUndecided
@@ -111,6 +116,7 @@ function TodoModal({
               >
                 <input
                   type="checkbox"
+                  aria-label="日課"
                   disabled={!!newTodo.dueDate || newTodo.dueDateUndecided}
                   checked={newTodo.daily}
                   onChange={(e) =>
@@ -127,13 +133,21 @@ function TodoModal({
                     })
                   }
                 />
-                日課として設定
+                日課
               </label>
 
               {(newTodo.dueDate || newTodo.dueDateUndecided) && (
                 <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
                   <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
                     日付または未定が設定されている場合は日課として設定できません
+                  </div>
+                </div>
+              )}
+
+              {!newTodo.dueDate && !newTodo.dueDateUndecided && (
+                <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                  <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                    日課タスクは毎日自動的に未完了となります
                   </div>
                 </div>
               )}
@@ -144,7 +158,7 @@ function TodoModal({
             <p className="mb-1 text-sm font-bold text-slate-500">詳細</p>
             <textarea
               placeholder="詳細メモ"
-              className="min-h-28 w-full resize-none rounded-lg border border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
+              className="min-h-20 w-full resize-none rounded-lg border border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
               value={newTodo.details}
               onChange={(e) =>
                 setNewTodo({ ...newTodo, details: e.target.value })

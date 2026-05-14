@@ -61,8 +61,8 @@ function TodoItem({
 
             <div className="flex gap-1">
               {todo.hasFlag && (
-                <span className="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full border border-amber-100">
-                  🚩
+                <span className="text-xs bg-slate-50 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                  ⚑
                 </span>
               )}
 

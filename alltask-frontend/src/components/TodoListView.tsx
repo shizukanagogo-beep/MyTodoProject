@@ -51,13 +51,6 @@ const activeFilterButtonClass =
 const inactiveFilterButtonClass =
   "bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
 
-const datedFilterButtonBaseClass =
-  "px-3 py-2 text-sm font-bold transition-colors";
-
-const activeDatedFilterButtonClass = "bg-indigo-50 text-indigo-600";
-
-const inactiveDatedFilterButtonClass = "text-slate-600 hover:bg-slate-50";
-
 const datedFilterItems: { value: DatedFilter; label: string }[] = [
   { value: "all", label: "すべて" },
   { value: "today", label: "今日" },
@@ -255,37 +248,72 @@ function TodoListView({
 
   const renderHeader = () => (
     <div className="mb-8 space-y-4">
-      <div className="flex items-center gap-4 min-w-0">
-        <button
-          onClick={onBackToTop}
-          className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600"
-        >
-          ←
-        </button>
+      <div className="flex items-center justify-between gap-4 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <button
+            onClick={onBackToTop}
+            className="p-1.5 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
+          >
+            ←
+          </button>
 
-        <h2 className="text-2xl font-bold text-slate-800 truncate">
-          {viewTitle}
-        </h2>
+          <h2 className="text-base font-bold text-slate-600 truncate">
+            {viewTitle}
+          </h2>
+        </div>
+
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+          <button
+            onClick={onToggleShowDoneTodos}
+            className={`${filterButtonBaseClass} ${
+              showDoneTodos
+                ? activeFilterButtonClass
+                : inactiveFilterButtonClass
+            }`}
+          >
+            {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
+          </button>
+
+          <span className="h-6 border-l border-slate-200" />
+
+          <div className="relative group">
+            <button
+              onClick={onToggleRandomTodo}
+              className={`${filterButtonBaseClass} ${
+                isRandomMode
+                  ? activeFilterButtonClass
+                  : inactiveFilterButtonClass
+              }`}
+            >
+              ランダム
+            </button>
+
+            <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
+              <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                リスト内のランダムな未完了タスクを１件表示します
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {viewMode === "DATED" && (
-            <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <select
+              aria-label="日付フィルター"
+              value={datedFilter}
+              onChange={(e) =>
+                onChangeDatedFilter(e.target.value as DatedFilter)
+              }
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 outline-none transition-colors hover:bg-slate-50 focus:border-indigo-500"
+            >
               {datedFilterItems.map((item) => (
-                <button
-                  key={item.value}
-                  onClick={() => onChangeDatedFilter(item.value)}
-                  className={`${datedFilterButtonBaseClass} ${
-                    datedFilter === item.value
-                      ? activeDatedFilterButtonClass
-                      : inactiveDatedFilterButtonClass
-                  }`}
-                >
+                <option key={item.value} value={item.value}>
                   {item.label}
-                </button>
+                </option>
               ))}
-            </div>
+            </select>
           )}
 
           {viewMode === "DATED" && (
@@ -304,19 +332,6 @@ function TodoListView({
               期限順
             </button>
           )}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={onToggleShowDoneTodos}
-            className={`${filterButtonBaseClass} ${
-              showDoneTodos
-                ? activeFilterButtonClass
-                : inactiveFilterButtonClass
-            }`}
-          >
-            {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
-          </button>
 
           {canGroupByCategory && (
             <button
@@ -331,31 +346,21 @@ function TodoListView({
                   : inactiveFilterButtonClass
               }`}
             >
-              カテゴリ別
+              カテゴリ別表示
             </button>
           )}
+        </div>
 
-          <span className="h-6 border-l border-slate-200" />
-
+        <div className="flex justify-end">
           <button
-            onClick={onToggleRandomTodo}
-            className={`${filterButtonBaseClass} ${
-              isRandomMode ? activeFilterButtonClass : inactiveFilterButtonClass
-            }`}
+            onClick={onOpenTodoModal}
+            className="shrink-0 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
           >
-            ランダム
+            +新規タスク
           </button>
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button
-          onClick={onOpenTodoModal}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
-        >
-          +新規タスク
-        </button>
-      </div>
     </div>
   );
 

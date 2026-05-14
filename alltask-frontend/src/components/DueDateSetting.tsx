@@ -51,31 +51,35 @@ function DueDateSetting({
 
   const displayText = dueDateUndecided
     ? "未定"
-    : dueDate || "期限を設定";
+    : dueDate || "日付を設定";
 
   return (
     <div>
-      <p className="mb-1 text-sm font-bold text-slate-500">期限</p>
-      <button
-        type="button"
-        disabled={daily}
-        className={`w-full border-b border-transparent bg-white px-1 py-2 text-left outline-none ${
-          daily
-            ? "cursor-not-allowed text-slate-300"
-            : dueDate || dueDateUndecided
-              ? "text-slate-700 hover:border-slate-200 focus:border-indigo-500"
-              : "text-slate-400 hover:border-slate-200 focus:border-indigo-500"
-        }`}
-        onClick={openModal}
-      >
-        {displayText}
-      </button>
+      <p className="mb-1 text-sm font-bold text-slate-500">日付</p>
+      <div className="relative group">
+        <button
+          type="button"
+          disabled={daily}
+          className={`w-full border-b border-transparent bg-white px-1 py-2 text-left outline-none ${
+            daily
+              ? "cursor-not-allowed text-slate-300"
+              : dueDate || dueDateUndecided
+                ? "text-slate-700 hover:border-slate-200 focus:border-indigo-500"
+                : "text-slate-400 hover:border-slate-200 focus:border-indigo-500"
+          }`}
+          onClick={openModal}
+        >
+          {displayText}
+        </button>
 
-      {daily && (
-        <p className="mt-1 text-xs text-slate-400">
-          日課設定されている場合は期限設定はできません
-        </p>
-      )}
+        {daily && (
+          <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+            <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+              日課設定されている場合は日付設定はできません
+            </div>
+          </div>
+        )}
+      </div>
 
       {isOpen && (
         <div
@@ -90,7 +94,7 @@ function DueDateSetting({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-800">期限設定</h3>
+              <h3 className="text-lg font-bold text-slate-800">日付設定</h3>
               <button
                 className="text-2xl text-slate-400 hover:text-slate-600"
                 onClick={() => setIsOpen(false)}
@@ -126,11 +130,11 @@ function DueDateSetting({
                 />
               </div>
 
-              <div>
-                <p className="mb-1 text-sm font-bold text-slate-500">未定</p>
+              <div className="relative group">
                 <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
                   <input
                     type="checkbox"
+                    aria-label="未定"
                     checked={draft.dueDateUndecided}
                     onChange={(e) =>
                       setDraft({
@@ -143,14 +147,20 @@ function DueDateSetting({
                       })
                     }
                   />
-                  期限を未定にする
+                  未定
                 </label>
+
+                <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                  <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                    予定は未定
+                  </div>
+                </div>
               </div>
 
               {draft.dueDate && !draft.dueDateUndecided && (
                 <div>
                   <p className="mb-1 text-sm font-bold text-slate-500">
-                    期限超過時の動き
+                    未完了のまま期限超過した場合の処理
                   </p>
                   <select
                     className="w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
@@ -162,10 +172,10 @@ function DueDateSetting({
                       })
                     }
                   >
-                    <option value={0}>日付を赤文字でそのまま</option>
-                    <option value={1}>日付を今日に繰り越す</option>
-                    <option value={2}>自動的に完了済みにする</option>
-                    <option value={3}>未定に変更する</option>
+                    <option value={0}>何もしない</option>
+                    <option value={1}>日付を「今日」に繰り越す</option>
+                    <option value={3}>日付を「未定」に変更する</option>
+                    <option value={2}>完了済みに変更する</option>
                   </select>
                 </div>
               )}
@@ -181,7 +191,7 @@ function DueDateSetting({
                     });
                   }}
                 >
-                  解除
+                  日付解除
                 </button>
                 <button
                   className="flex-1 rounded-xl bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700"
