@@ -42,6 +42,22 @@ const getLocalDateString = (offsetDays = 0) => {
   return `${year}-${month}-${date}`;
 };
 
+const filterButtonBaseClass =
+  "px-3 py-2 rounded-xl text-sm font-bold border transition-colors";
+
+const activeFilterButtonClass =
+  "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
+
+const inactiveFilterButtonClass =
+  "bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
+
+const datedFilterButtonBaseClass =
+  "px-3 py-2 text-sm font-bold transition-colors";
+
+const activeDatedFilterButtonClass = "bg-indigo-50 text-indigo-600";
+
+const inactiveDatedFilterButtonClass = "text-slate-600 hover:bg-slate-50";
+
 function TodoListView({
   viewMode,
   categories,
@@ -120,37 +136,34 @@ function TodoListView({
   const shouldSubdueTodo = (todo: Todo) =>
     (viewMode === "DATED" || viewMode === "DAILY" || viewMode === "FLAGGED") &&
     !matchesDirectListCondition(todo);
-  const todosByCategory = useMemo(
-    () => {
-      const categoryGroups = categories
-        .map((category) => ({
-          id: category.id,
-          name: category.name,
-          canReorder: true,
-          todos: parentTodos.filter((todo) => todo.categoryId === category.id),
-        }))
-        .filter((group) => group.todos.length > 0);
+  const todosByCategory = useMemo(() => {
+    const categoryGroups = categories
+      .map((category) => ({
+        id: category.id,
+        name: category.name,
+        canReorder: true,
+        todos: parentTodos.filter((todo) => todo.categoryId === category.id),
+      }))
+      .filter((group) => group.todos.length > 0);
 
-      const uncategorizedTodos = parentTodos.filter(
-        (todo) => todo.categoryId === null,
-      );
+    const uncategorizedTodos = parentTodos.filter(
+      (todo) => todo.categoryId === null,
+    );
 
-      if (uncategorizedTodos.length === 0) {
-        return categoryGroups;
-      }
+    if (uncategorizedTodos.length === 0) {
+      return categoryGroups;
+    }
 
-      return [
-        ...categoryGroups,
-        {
-          id: null,
-          name: "カテゴリなし",
-          canReorder: false,
-          todos: uncategorizedTodos,
-        },
-      ];
-    },
-    [categories, parentTodos],
-  );
+    return [
+      ...categoryGroups,
+      {
+        id: null,
+        name: "カテゴリなし",
+        canReorder: false,
+        todos: uncategorizedTodos,
+      },
+    ];
+  }, [categories, parentTodos]);
 
   const handleDropCategory = (targetCategoryId: number | null) => {
     if (targetCategoryId === null) {
@@ -158,7 +171,10 @@ function TodoListView({
       return;
     }
 
-    if (draggingCategoryId === null || draggingCategoryId === targetCategoryId) {
+    if (
+      draggingCategoryId === null ||
+      draggingCategoryId === targetCategoryId
+    ) {
       setDraggingCategoryId(null);
       return;
     }
@@ -338,10 +354,10 @@ function TodoListView({
                           | "undecided",
                       )
                     }
-                    className={`px-3 py-2 text-sm font-bold transition-colors ${
+                    className={`${datedFilterButtonBaseClass} ${
                       datedFilter === item.value
-                        ? "bg-indigo-50 text-indigo-600"
-                        : "text-slate-600 hover:bg-slate-50"
+                        ? activeDatedFilterButtonClass
+                        : inactiveDatedFilterButtonClass
                     }`}
                   >
                     {item.label}
@@ -357,10 +373,10 @@ function TodoListView({
                     datedSortMode === "dueDate" ? "manual" : "dueDate",
                   )
                 }
-                className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                className={`${filterButtonBaseClass} ${
                   datedSortMode === "dueDate"
                     ? "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    : inactiveFilterButtonClass
                 }`}
               >
                 期限順
@@ -371,10 +387,10 @@ function TodoListView({
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={onToggleShowDoneTodos}
-              className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+              className={`${filterButtonBaseClass} ${
                 showDoneTodos
-                  ? "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  ? activeFilterButtonClass
+                  : inactiveFilterButtonClass
               }`}
             >
               {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
@@ -387,10 +403,10 @@ function TodoListView({
                   setDraggingIndex(null);
                   setDraggingCategoryId(null);
                 }}
-                className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                className={`${filterButtonBaseClass} ${
                   groupByCategory
-                    ? "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    ? activeFilterButtonClass
+                    : inactiveFilterButtonClass
                 }`}
               >
                 カテゴリ別
@@ -401,10 +417,10 @@ function TodoListView({
 
             <button
               onClick={onToggleRandomTodo}
-              className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors ${
+              className={`${filterButtonBaseClass} ${
                 isRandomMode
-                  ? "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  ? activeFilterButtonClass
+                  : inactiveFilterButtonClass
               }`}
             >
               ランダム
@@ -420,7 +436,6 @@ function TodoListView({
             +新規タスク
           </button>
         </div>
-
       </div>
 
       <div className="space-y-3">
@@ -485,7 +500,9 @@ function TodoListView({
                 </section>
               );
             })
-          : parentTodos.map((todo, index) => renderTodoWithSubtasks(todo, index))}
+          : parentTodos.map((todo, index) =>
+              renderTodoWithSubtasks(todo, index),
+            )}
 
         {parentTodos.length === 0 && (
           <div className="text-center py-20 text-slate-400">
