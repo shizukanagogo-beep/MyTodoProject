@@ -21,7 +21,7 @@ CREATE TABLE
         due_date_undecided BOOLEAN DEFAULT FALSE,
         auto_carry_over BOOLEAN DEFAULT FALSE,
         is_daily BOOLEAN DEFAULT FALSE,
-        has_flag BOOLEAN DE FAULT FALSE,
+        has_flag BOOLEAN DEFAULT FALSE,
         category_id int,
         parent_id int,
         overdue_behavior int DEFAULT 0,
