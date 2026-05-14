@@ -1,6 +1,6 @@
-DROP TABLE if EXISTS todos;
+DROP TABLE IF EXISTS todos;
 
-DROP TABLE if EXISTS categories;
+DROP TABLE IF EXISTS categories;
 
 ---------------------------------------------------------------------------
 CREATE TABLE
@@ -11,17 +11,17 @@ CREATE TABLE
     );
 
 ---------------------------------------------------------------------------
-create table
-    if not EXISTS todos (
+CREATE TABLE
+    IF NOT EXISTS todos (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title varchar(100),
         status varchar(20),
-        details varchar(500),
+        details varchar(500), 
         due_date DATE,
         due_date_undecided BOOLEAN DEFAULT FALSE,
         auto_carry_over BOOLEAN DEFAULT FALSE,
         is_daily BOOLEAN DEFAULT FALSE,
-        has_flag BOOLEAN DEFAULT FALSE,
+        has_flag BOOLEAN DE FAULT FALSE,
         category_id int,
         parent_id int,
         overdue_behavior int DEFAULT 0,

@@ -15,7 +15,15 @@ function TodoItem({
   onOpenTodoDetail,
   subdued = false,
 }: TodoItemProps) {
-  const today = new Date().toISOString().slice(0, 10);
+  const getLocalDateString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const date = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${date}`;
+  };
+  const today = getLocalDateString();
   const isOverdue =
     todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
   const stateClass =
