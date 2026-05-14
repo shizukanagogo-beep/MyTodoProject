@@ -81,29 +81,6 @@
         WHERE
           id = #{id}
     </select>
-    <!-- 3. ランダムピック=========================== -->
-    <select id="getRandom" resultType="com.example.demo.entity.Todo">
-        SELECT
-          id,
-          title,
-          status,
-          details,
-          due_date AS dueDate,
-          due_date_undecided AS dueDateUndecided,
-          auto_carry_over AS autoCarryOver,
-          is_daily AS daily,
-          has_flag AS hasFlag,
-          category_id AS categoryId,
-          parent_id AS parentId,
-          overdue_behavior AS overdueBehavior,
-          sort_order AS sortOrder
-        FROM
-          todos
-        ORDER BY
-          RAND ()
-        LIMIT
-          1
-    </select>
     <!-- 4. 新規登録 (TodoForm/Todo両方に対応可能) -->
     <insert id="add" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO todos (

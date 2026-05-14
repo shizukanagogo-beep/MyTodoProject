@@ -35,7 +35,4 @@ public interface TodoMapper {
 	// 2. 日課タスクを未完了(INCOMPLETE)に戻す
 	void resetDailyTasks();
 
-	// 3. ランダムに1件取得する
-	Todo getRandom();
-
 }

@@ -41,16 +41,6 @@ public class TodoController {
         return ResponseEntity.ok(result);
     }
 
-    // ランダム---------------------------------------------------------------------
-    @GetMapping("/random")
-    public ResponseEntity<?> getRandom() {
-        Todo todo = todoService.getRandom();
-        if (todo == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(todo);
-    }
-
     // １件get---------------------------------------------------------------------
     @GetMapping("/{id}")
     public ResponseEntity<?> getOne(@PathVariable("id") Integer id) {

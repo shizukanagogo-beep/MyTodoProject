@@ -31,11 +31,6 @@ public class TodoService {
         return todoMapper.getList(condition);
     }
 
-    // ランダムピック-------------------------------------------------------------------------------
-    public Todo getRandom() {
-        return todoMapper.getRandom();
-    }
-
     // 新規追加-------------------------------------------------------------------------------
     public Todo add(TodoForm form) {
         // オプション（日課か日付ありかなど）の整合性を調整
