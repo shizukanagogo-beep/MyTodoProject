@@ -1,24 +1,11 @@
 import { useState } from "react";
 import type { Category } from "../types";
+import TrashIcon from "./icons/TrashIcon";
 
-const TrashIcon = () => (
-  <svg
-    aria-hidden="true"
-    viewBox="0 0 24 24"
-    className="h-4 w-4"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M3 6h18" />
-    <path d="M8 6V4h8v2" />
-    <path d="M19 6l-1 14H6L5 6" />
-    <path d="M10 11v5" />
-    <path d="M14 11v5" />
-  </svg>
-);
+const categoryNameInputClassName =
+  "flex-1 border-b border-transparent bg-white px-1 py-2 font-bold text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500";
+const newCategoryInputClassName =
+  "mb-3 w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500";
 
 type CategoryModalProps = {
   categories: Category[];
@@ -119,7 +106,7 @@ function CategoryModal({
                 {editingCategoryId === category.id ? (
                   <input
                     draggable={false}
-                    className="flex-1 bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 font-bold"
+                    className={categoryNameInputClassName}
                     value={editingCategoryName}
                     autoFocus
                     onChange={(e) => setEditingCategoryName(e.target.value)}
@@ -218,7 +205,7 @@ function CategoryModal({
 
           <input
             type="text"
-            className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700 mb-3"
+            className={newCategoryInputClassName}
             placeholder="カテゴリ名 (例: 仕事、買い物)"
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}

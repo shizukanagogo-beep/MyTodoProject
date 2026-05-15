@@ -20,8 +20,18 @@ function DueDateSetting({
   overdueBehavior,
   onChange,
 }: DueDateSettingProps) {
-  const handleChangeDueDate = (value: string) => {
+  const commitChange = (draft: Partial<DueDateDraft>) => {
     onChange({
+      dueDate,
+      dueDateUndecided,
+      daily,
+      overdueBehavior,
+      ...draft,
+    });
+  };
+
+  const selectDueDate = (value: string) => {
+    commitChange({
       dueDate: value,
       dueDateUndecided: false,
       daily: false,
@@ -29,8 +39,8 @@ function DueDateSetting({
     });
   };
 
-  const handleChangeUndecided = (checked: boolean) => {
-    onChange({
+  const selectUndecided = (checked: boolean) => {
+    commitChange({
       dueDate: checked ? "" : dueDate,
       dueDateUndecided: checked,
       daily: checked ? false : daily,
@@ -38,8 +48,8 @@ function DueDateSetting({
     });
   };
 
-  const handleChangeDaily = (checked: boolean) => {
-    onChange({
+  const selectDaily = (checked: boolean) => {
+    commitChange({
       dueDate: checked ? "" : dueDate,
       dueDateUndecided: checked ? false : dueDateUndecided,
       daily: checked,
@@ -48,10 +58,7 @@ function DueDateSetting({
   };
 
   const handleChangeOverdueBehavior = (value: number) => {
-    onChange({
-      dueDate,
-      dueDateUndecided,
-      daily,
+    commitChange({
       overdueBehavior: value,
     });
   };
@@ -68,7 +75,7 @@ function DueDateSetting({
                 type="checkbox"
                 aria-label="未定"
                 checked={dueDateUndecided}
-                onChange={(e) => handleChangeUndecided(e.target.checked)}
+                onChange={(e) => selectUndecided(e.target.checked)}
               />
               未定
             </label>
@@ -86,7 +93,7 @@ function DueDateSetting({
                 type="checkbox"
                 aria-label="日課"
                 checked={daily}
-                onChange={(e) => handleChangeDaily(e.target.checked)}
+                onChange={(e) => selectDaily(e.target.checked)}
               />
               日課
             </label>
@@ -111,7 +118,7 @@ function DueDateSetting({
                 : "text-slate-400 hover:border-slate-200 focus:border-indigo-500"
           }`}
           value={dueDateUndecided || daily ? "" : dueDate}
-          onChange={(e) => handleChangeDueDate(e.target.value)}
+          onChange={(e) => selectDueDate(e.target.value)}
         />
 
         {dueDateUndecided && (

@@ -1,7 +1,13 @@
 import { useMemo, useState } from "react";
+import {
+  modalFieldInputClassName,
+  modalTextareaClassName,
+  modalTitleInputClassName,
+} from "../constants/ui";
 import type { UpdateTodoPayload } from "../services/todoService";
 import type { Category, Todo } from "../types";
 import DueDateSetting from "./DueDateSetting";
+import FlagCheckbox from "./FlagCheckbox";
 
 type EditableTodo = {
   title: string;
@@ -174,7 +180,7 @@ function TodoDetailModal({
 
             <input
               type="text"
-              className={`min-w-0 flex-1 text-xl font-bold bg-white border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none px-1 py-1 ${
+              className={`${modalTitleInputClassName} ${
                 editTodo.status === "DONE"
                   ? "line-through text-slate-400"
                   : "text-slate-800"
@@ -186,19 +192,12 @@ function TodoDetailModal({
               placeholder="タイトル"
             />
 
-            <label className="flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2 text-slate-600 hover:bg-slate-50">
-              <input
-                type="checkbox"
-                aria-label="フラグ"
-                checked={editTodo.hasFlag}
-                onChange={(e) =>
-                  setEditTodo({ ...editTodo, hasFlag: e.target.checked })
-                }
-              />
-              <span aria-hidden="true" className="text-sm">
-                ⚑
-              </span>
-            </label>
+            <FlagCheckbox
+              checked={editTodo.hasFlag}
+              onChange={(checked) =>
+                setEditTodo({ ...editTodo, hasFlag: checked })
+              }
+            />
           </div>
         </div>
 
@@ -209,7 +208,7 @@ function TodoDetailModal({
                 カテゴリ
               </p>
               <select
-                className="w-full bg-white px-1 py-2 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none text-slate-700"
+                className={modalFieldInputClassName}
                 value={editTodo.categoryId ?? ""}
                 onChange={(e) =>
                   setEditTodo({
@@ -240,12 +239,12 @@ function TodoDetailModal({
             daily={editTodo.daily}
             overdueBehavior={editTodo.overdueBehavior}
             onChange={(draft) =>
-                setEditTodo({
-                  ...editTodo,
-                  ...draft,
-                })
-              }
-            />
+              setEditTodo({
+                ...editTodo,
+                ...draft,
+              })
+            }
+          />
 
           <div>
             <div className="mb-1 flex items-center justify-between gap-3">
@@ -253,7 +252,7 @@ function TodoDetailModal({
             </div>
 
             <textarea
-              className="w-full min-h-20 bg-white px-1 py-2 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded-lg outline-none text-slate-700 resize-none"
+              className={modalTextareaClassName}
               value={editTodo.details}
               onChange={(e) =>
                 setEditTodo({ ...editTodo, details: e.target.value })
@@ -340,29 +339,22 @@ function TodoDetailModal({
                 <input
                   type="text"
                   placeholder="タイトル"
-                  className="min-w-0 flex-1 border-b border-transparent bg-white px-1 py-1 text-xl font-bold text-slate-800 outline-none hover:border-slate-200 focus:border-indigo-500"
+                  className={modalTitleInputClassName}
                   value={newSubtask.title}
                   onChange={(e) =>
                     setNewSubtask({ ...newSubtask, title: e.target.value })
                   }
                 />
 
-                <label className="flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2 text-slate-600 hover:bg-slate-50">
-                  <input
-                    type="checkbox"
-                    aria-label="フラグ"
-                    checked={newSubtask.hasFlag}
-                    onChange={(e) =>
-                      setNewSubtask({
-                        ...newSubtask,
-                        hasFlag: e.target.checked,
-                      })
-                    }
-                  />
-                  <span aria-hidden="true" className="text-sm">
-                    ⚑
-                  </span>
-                </label>
+                <FlagCheckbox
+                  checked={newSubtask.hasFlag}
+                  onChange={(checked) =>
+                    setNewSubtask({
+                      ...newSubtask,
+                      hasFlag: checked,
+                    })
+                  }
+                />
               </div>
 
               <DueDateSetting
@@ -371,12 +363,12 @@ function TodoDetailModal({
                 daily={newSubtask.daily}
                 overdueBehavior={newSubtask.overdueBehavior}
                 onChange={(draft) =>
-                    setNewSubtask({
-                      ...newSubtask,
-                      ...draft,
-                    })
-                  }
-                />
+                  setNewSubtask({
+                    ...newSubtask,
+                    ...draft,
+                  })
+                }
+              />
 
               <div>
                 <div className="mb-1 flex items-center justify-between gap-3">
@@ -384,7 +376,7 @@ function TodoDetailModal({
                 </div>
 
                 <textarea
-                  className="min-h-20 w-full resize-none rounded-lg border border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
+                  className={modalTextareaClassName}
                   value={newSubtask.details}
                   onChange={(e) =>
                     setNewSubtask({

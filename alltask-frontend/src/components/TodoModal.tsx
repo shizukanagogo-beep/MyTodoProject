@@ -1,6 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
+import {
+  modalFieldInputClassName,
+  modalTextareaClassName,
+  modalTitleInputClassName,
+} from "../constants/ui";
 import type { Category, NewTodo } from "../types";
 import DueDateSetting from "./DueDateSetting";
+import FlagCheckbox from "./FlagCheckbox";
 
 type TodoModalProps = {
   newTodo: NewTodo;
@@ -41,26 +47,19 @@ function TodoModal({
             <input
               type="text"
               placeholder="タイトル"
-              className="min-w-0 flex-1 border-b border-transparent bg-white px-1 py-1 text-xl font-bold text-slate-800 outline-none hover:border-slate-200 focus:border-indigo-500"
+              className={modalTitleInputClassName}
               value={newTodo.title}
               onChange={(e) =>
                 setNewTodo({ ...newTodo, title: e.target.value })
               }
             />
 
-            <label className="flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2 text-slate-600 hover:bg-slate-50">
-              <input
-                type="checkbox"
-                aria-label="フラグ"
-                checked={newTodo.hasFlag}
-                onChange={(e) =>
-                  setNewTodo({ ...newTodo, hasFlag: e.target.checked })
-                }
-              />
-              <span aria-hidden="true" className="text-sm">
-                ⚑
-              </span>
-            </label>
+            <FlagCheckbox
+              checked={newTodo.hasFlag}
+              onChange={(checked) =>
+                setNewTodo({ ...newTodo, hasFlag: checked })
+              }
+            />
           </div>
 
           <div>
@@ -68,7 +67,7 @@ function TodoModal({
               カテゴリ
             </p>
             <select
-              className="w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
+              className={modalFieldInputClassName}
               value={newTodo.categoryId ?? ""}
               onChange={(e) => {
                 const value = e.target.value;
@@ -108,7 +107,7 @@ function TodoModal({
 
             <textarea
               placeholder="詳細メモ"
-              className="min-h-20 w-full resize-none rounded-lg border border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
+              className={modalTextareaClassName}
               value={newTodo.details}
               onChange={(e) =>
                 setNewTodo({ ...newTodo, details: e.target.value })
