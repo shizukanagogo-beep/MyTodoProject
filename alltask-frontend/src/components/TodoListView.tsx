@@ -45,11 +45,17 @@ const getLocalDateString = (offsetDays = 0) => {
 const filterButtonBaseClass =
   "px-3 py-2 rounded-xl text-sm font-bold border transition-colors";
 
-const activeFilterButtonClass =
-  "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
-
 const inactiveFilterButtonClass =
   "bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
+
+const iconButtonBaseClass =
+  "flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-bold transition-colors";
+
+const activeIconButtonClass =
+  "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200";
+
+const inactiveIconButtonClass =
+  "border-slate-200 bg-white text-slate-600 hover:bg-slate-50";
 
 const datedFilterItems: { value: DatedFilter; label: string }[] = [
   { value: "all", label: "すべて" },
@@ -57,6 +63,42 @@ const datedFilterItems: { value: DatedFilter; label: string }[] = [
   { value: "tomorrow", label: "明日" },
   { value: "undecided", label: "未定" },
 ];
+
+const CategoryListIcon = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    className="h-5 w-5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M8 6h13" />
+    <path d="M8 12h13" />
+    <path d="M8 18h13" />
+    <path d="M3 6h.01" />
+    <path d="M3 12h.01" />
+    <path d="M3 18h.01" />
+  </svg>
+);
+
+const DoneFilterIcon = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    className="h-5 w-5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4 12.5 8.5 17 20 5" />
+    <path d="M4 19h16" />
+  </svg>
+);
 
 function TodoListView({
   viewMode,
@@ -247,8 +289,8 @@ function TodoListView({
   };
 
   const renderHeader = () => (
-    <div className="mb-8 space-y-4">
-      <div className="flex items-center justify-between gap-4 min-w-0">
+    <div className={`mb-8 ${viewMode === "DATED" ? "space-y-2" : "space-y-4"}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3 min-w-0">
         <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={onBackToTop}
@@ -262,44 +304,8 @@ function TodoListView({
           </h2>
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-          <button
-            onClick={onToggleShowDoneTodos}
-            className={`${filterButtonBaseClass} ${
-              showDoneTodos
-                ? activeFilterButtonClass
-                : inactiveFilterButtonClass
-            }`}
-          >
-            {showDoneTodos ? "未完了のみ表示" : "完了済みも表示"}
-          </button>
-
-          <span className="h-6 border-l border-slate-200" />
-
-          <div className="relative group">
-            <button
-              onClick={onToggleRandomTodo}
-              className={`${filterButtonBaseClass} ${
-                isRandomMode
-                  ? activeFilterButtonClass
-                  : inactiveFilterButtonClass
-              }`}
-            >
-              ランダム
-            </button>
-
-            <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
-              <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                リスト内のランダムな未完了タスクを１件表示します
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {viewMode === "DATED" && (
+        {viewMode === "DATED" && (
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <select
               aria-label="日付フィルター"
               value={datedFilter}
@@ -314,9 +320,7 @@ function TodoListView({
                 </option>
               ))}
             </select>
-          )}
 
-          {viewMode === "DATED" && (
             <button
               onClick={() =>
                 onChangeDatedSortMode(
@@ -331,33 +335,95 @@ function TodoListView({
             >
               期限順
             </button>
-          )}
+          </div>
+        )}
+      </div>
 
-          {canGroupByCategory && (
-            <button
-              onClick={() => {
-                setGroupByCategory((prev) => !prev);
-                setDraggingIndex(null);
-                setDraggingCategoryId(null);
-              }}
-              className={`${filterButtonBaseClass} ${
-                groupByCategory
-                  ? activeFilterButtonClass
-                  : inactiveFilterButtonClass
-              }`}
-            >
-              カテゴリ別表示
-            </button>
-          )}
-        </div>
-
-        <div className="flex justify-end">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
           <button
+            type="button"
+            aria-label="新規タスク作成"
             onClick={onOpenTodoModal}
-            className="shrink-0 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-100 hover:bg-indigo-700 transition-colors"
+            className="shrink-0 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-sm shadow-indigo-100 transition-colors hover:bg-indigo-700"
           >
             +新規タスク
           </button>
+        </div>
+
+        <div className="flex shrink-0 items-end">
+          <div className="flex items-center justify-end gap-2">
+            <div className="relative group">
+              <button
+                type="button"
+                aria-label={
+                  showDoneTodos ? "未完了のみ表示" : "完了済みも表示"
+                }
+                onClick={onToggleShowDoneTodos}
+                className={`${iconButtonBaseClass} ${
+                  showDoneTodos
+                    ? activeIconButtonClass
+                    : inactiveIconButtonClass
+                }`}
+              >
+                <DoneFilterIcon />
+              </button>
+
+              <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
+                <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                  完了／未完了表示
+                </div>
+              </div>
+            </div>
+
+            {canGroupByCategory && (
+              <div className="relative group">
+                <button
+                  type="button"
+                  aria-label="カテゴリ別表示"
+                  onClick={() => {
+                    setGroupByCategory((prev) => !prev);
+                    setDraggingIndex(null);
+                    setDraggingCategoryId(null);
+                  }}
+                  className={`${iconButtonBaseClass} ${
+                    groupByCategory
+                      ? activeIconButtonClass
+                      : inactiveIconButtonClass
+                  }`}
+                >
+                  <CategoryListIcon />
+                </button>
+
+                <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
+                  <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                    カテゴリ別表示
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="relative group">
+              <button
+                type="button"
+                aria-label="ランダム表示"
+                onClick={onToggleRandomTodo}
+                className={`${iconButtonBaseClass} ${
+                  isRandomMode ? activeIconButtonClass : inactiveIconButtonClass
+                }`}
+              >
+                <span aria-hidden="true" className="text-lg leading-none">
+                  ?
+                </span>
+              </button>
+
+              <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
+                <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                  リスト内のランダムな未完了タスクを１件表示
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

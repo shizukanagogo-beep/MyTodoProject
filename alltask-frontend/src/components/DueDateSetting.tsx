@@ -1,8 +1,7 @@
-import { useState } from "react";
-
 type DueDateDraft = {
   dueDate: string;
   dueDateUndecided: boolean;
+  daily: boolean;
   overdueBehavior: number;
 };
 
@@ -21,187 +20,128 @@ function DueDateSetting({
   overdueBehavior,
   onChange,
 }: DueDateSettingProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [draft, setDraft] = useState<DueDateDraft>({
-    dueDate,
-    dueDateUndecided,
-    overdueBehavior,
-  });
+  const handleChangeDueDate = (value: string) => {
+    onChange({
+      dueDate: value,
+      dueDateUndecided: false,
+      daily: false,
+      overdueBehavior: value ? overdueBehavior : 0,
+    });
+  };
 
-  const openModal = () => {
-    if (daily) return;
+  const handleChangeUndecided = (checked: boolean) => {
+    onChange({
+      dueDate: checked ? "" : dueDate,
+      dueDateUndecided: checked,
+      daily: checked ? false : daily,
+      overdueBehavior: checked ? 0 : overdueBehavior,
+    });
+  };
 
-    setDraft({
+  const handleChangeDaily = (checked: boolean) => {
+    onChange({
+      dueDate: checked ? "" : dueDate,
+      dueDateUndecided: checked ? false : dueDateUndecided,
+      daily: checked,
+      overdueBehavior: checked ? 0 : overdueBehavior,
+    });
+  };
+
+  const handleChangeOverdueBehavior = (value: number) => {
+    onChange({
       dueDate,
       dueDateUndecided,
-      overdueBehavior,
+      daily,
+      overdueBehavior: value,
     });
-    setIsOpen(true);
   };
-
-  const applyDraft = () => {
-    onChange({
-      dueDate: draft.dueDateUndecided ? "" : draft.dueDate,
-      dueDateUndecided: draft.dueDateUndecided,
-      overdueBehavior:
-        draft.dueDate && !draft.dueDateUndecided ? draft.overdueBehavior : 0,
-    });
-    setIsOpen(false);
-  };
-
-  const displayText = dueDateUndecided
-    ? "未定"
-    : dueDate || "日付を設定";
 
   return (
     <div>
-      <p className="mb-1 text-sm font-bold text-slate-500">日付</p>
-      <div className="relative group">
-        <button
-          type="button"
-          disabled={daily}
-          className={`w-full border-b border-transparent bg-white px-1 py-2 text-left outline-none ${
-            daily
-              ? "cursor-not-allowed text-slate-300"
-              : dueDate || dueDateUndecided
+      <div className="mb-1 flex items-center justify-between gap-4">
+        <p className="text-sm font-bold text-slate-500">日付</p>
+
+        <div className="flex items-center gap-3">
+          <div className="relative group">
+            <label className="flex cursor-pointer items-center gap-2 px-1 py-1 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                aria-label="未定"
+                checked={dueDateUndecided}
+                onChange={(e) => handleChangeUndecided(e.target.checked)}
+              />
+              未定
+            </label>
+
+            <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
+              <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                予定は未定
+              </div>
+            </div>
+          </div>
+
+          <div className="relative group">
+            <label className="flex cursor-pointer items-center gap-2 px-1 py-1 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                aria-label="日課"
+                checked={daily}
+                onChange={(e) => handleChangeDaily(e.target.checked)}
+              />
+              日課
+            </label>
+
+            <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
+              <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                日課タスクは毎日自動的に未完了となります
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative">
+        <input
+          type="date"
+          className={`w-full border-b border-transparent bg-white px-1 py-2 outline-none ${
+            dueDateUndecided || daily
+              ? "text-transparent hover:border-slate-200 focus:border-indigo-500"
+              : dueDate
                 ? "text-slate-700 hover:border-slate-200 focus:border-indigo-500"
                 : "text-slate-400 hover:border-slate-200 focus:border-indigo-500"
           }`}
-          onClick={openModal}
-        >
-          {displayText}
-        </button>
+          value={dueDateUndecided || daily ? "" : dueDate}
+          onChange={(e) => handleChangeDueDate(e.target.value)}
+        />
+
+        {dueDateUndecided && (
+          <div className="pointer-events-none absolute left-1 top-1/2 -translate-y-1/2 text-slate-400">
+            未定
+          </div>
+        )}
 
         {daily && (
-          <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
-            <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-              日課設定されている場合は日付設定はできません
-            </div>
+          <div className="pointer-events-none absolute left-1 top-1/2 -translate-y-1/2 text-slate-400">
+            日課
           </div>
         )}
       </div>
 
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/40 p-4"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(false);
-          }}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      {dueDate && !dueDateUndecided && (
+        <div className="mt-3">
+          <p className="mb-1 text-sm font-bold text-slate-500">
+            未完了のまま期限超過した場合の処理
+          </p>
+          <select
+            className="w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
+            value={overdueBehavior}
+            onChange={(e) => handleChangeOverdueBehavior(Number(e.target.value))}
           >
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-800">日付設定</h3>
-              <button
-                className="text-2xl text-slate-400 hover:text-slate-600"
-                onClick={() => setIsOpen(false)}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <p className="mb-1 text-sm font-bold text-slate-500">日付</p>
-                <input
-                  type="date"
-                  disabled={draft.dueDateUndecided}
-                  className={`w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500 ${
-                    draft.dueDateUndecided
-                      ? "cursor-not-allowed opacity-40"
-                      : ""
-                  }`}
-                  value={draft.dueDate}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      dueDate: e.target.value,
-                      dueDateUndecided: e.target.value
-                        ? false
-                        : draft.dueDateUndecided,
-                      overdueBehavior: e.target.value
-                        ? draft.overdueBehavior
-                        : 0,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="relative group">
-                <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
-                  <input
-                    type="checkbox"
-                    aria-label="未定"
-                    checked={draft.dueDateUndecided}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        dueDateUndecided: e.target.checked,
-                        dueDate: e.target.checked ? "" : draft.dueDate,
-                        overdueBehavior: e.target.checked
-                          ? 0
-                          : draft.overdueBehavior,
-                      })
-                    }
-                  />
-                  未定
-                </label>
-
-                <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
-                  <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                    予定は未定
-                  </div>
-                </div>
-              </div>
-
-              {draft.dueDate && !draft.dueDateUndecided && (
-                <div>
-                  <p className="mb-1 text-sm font-bold text-slate-500">
-                    未完了のまま期限超過した場合の処理
-                  </p>
-                  <select
-                    className="w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
-                    value={draft.overdueBehavior}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        overdueBehavior: Number(e.target.value),
-                      })
-                    }
-                  >
-                    <option value={0}>何もしない</option>
-                    <option value={1}>日付を「今日」に繰り越す</option>
-                    <option value={3}>日付を「未定」に変更する</option>
-                    <option value={2}>完了済みに変更する</option>
-                  </select>
-                </div>
-              )}
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  className="flex-1 rounded-xl bg-slate-100 py-3 font-bold text-slate-600 hover:bg-slate-200"
-                  onClick={() => {
-                    setDraft({
-                      dueDate: "",
-                      dueDateUndecided: false,
-                      overdueBehavior: 0,
-                    });
-                  }}
-                >
-                  日付解除
-                </button>
-                <button
-                  className="flex-1 rounded-xl bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700"
-                  onClick={applyDraft}
-                >
-                  決定
-                </button>
-              </div>
-            </div>
-          </div>
+            <option value={0}>何もしない</option>
+            <option value={1}>日付を「今日」に繰り越す</option>
+            <option value={3}>日付を「未定」に変更する</option>
+            <option value={2}>完了済みに変更する</option>
+          </select>
         </div>
       )}
     </div>

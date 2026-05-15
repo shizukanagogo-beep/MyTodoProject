@@ -1,5 +1,24 @@
 import type { Todo } from "../types";
 
+const TrashIcon = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    className="h-4 w-4"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 6h18" />
+    <path d="M8 6V4h8v2" />
+    <path d="M19 6l-1 14H6L5 6" />
+    <path d="M10 11v5" />
+    <path d="M14 11v5" />
+  </svg>
+);
+
 type TodoItemProps = {
   todo: Todo;
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
@@ -61,14 +80,14 @@ function TodoItem({
 
             <div className="flex gap-1">
               {todo.hasFlag && (
-                <span className="text-xs bg-slate-50 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                <span className="px-1 text-xs text-slate-500">
                   ⚑
                 </span>
               )}
 
               {todo.daily && (
-                <span className="text-xs bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-100">
-                  🔄
+                <span className="px-1 text-sm leading-none text-slate-400">
+                  ↻
                 </span>
               )}
               {todo.dueDate && (
@@ -98,13 +117,14 @@ function TodoItem({
         </div>
       </div>
       <button
+        aria-label="タスクを削除"
         className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
         onClick={(e) => {
           e.stopPropagation();
           onDeleteTodo(todo.id);
         }}
       >
-        🗑️
+        <TrashIcon />
       </button>
     </div>
   );

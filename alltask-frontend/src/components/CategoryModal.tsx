@@ -1,6 +1,25 @@
 import { useState } from "react";
 import type { Category } from "../types";
 
+const TrashIcon = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    className="h-4 w-4"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 6h18" />
+    <path d="M8 6V4h8v2" />
+    <path d="M19 6l-1 14H6L5 6" />
+    <path d="M10 11v5" />
+    <path d="M14 11v5" />
+  </svg>
+);
+
 type CategoryModalProps = {
   categories: Category[];
   newCategoryName: string;
@@ -26,10 +45,13 @@ function CategoryModal({
     null,
   );
   const [editingCategoryName, setEditingCategoryName] = useState("");
-  const [openMenuCategoryId, setOpenMenuCategoryId] = useState<number | null>(
-    null,
-  );
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+
+  const startEditingCategory = (category: Category) => {
+    setEditingCategoryId(category.id);
+    setEditingCategoryName(category.name);
+  };
+
   const saveCategoryName = async (categoryId: number) => {
     const isSuccess = await onUpdateCategory(categoryId, editingCategoryName);
 
@@ -48,7 +70,6 @@ function CategoryModal({
         className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6"
         onClick={(e) => {
           e.stopPropagation();
-          setOpenMenuCategoryId(null);
         }}
       >
         <div className="flex items-center justify-between mb-4">
@@ -64,8 +85,7 @@ function CategoryModal({
 
         <div className="space-y-2 mb-6">
           {categories.map((category, index) => {
-            const canDragCategory =
-              editingCategoryId !== category.id && openMenuCategoryId === null;
+            const canDragCategory = editingCategoryId !== category.id;
 
             return (
               <div
@@ -116,10 +136,18 @@ function CategoryModal({
                     }}
                   />
                 ) : (
-                  <span className="font-bold text-slate-700">
+                  <button
+                    className="min-w-0 flex-1 truncate text-left font-bold text-slate-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEditingCategory(category);
+                    }}
+                    onDragStart={(e) => e.preventDefault()}
+                  >
                     {category.name}
-                  </span>
+                  </button>
                 )}
+
                 {editingCategoryId === category.id && (
                   <div className="flex gap-2 ml-2">
                     <button
@@ -144,62 +172,33 @@ function CategoryModal({
                     </button>
                   </div>
                 )}
+
                 {editingCategoryId !== category.id && (
                   <button
-                    className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 font-bold"
+                    className="ml-2 rounded-lg p-2 text-slate-300 transition-all hover:bg-red-50 hover:text-red-500"
+                    aria-label="カテゴリを削除"
                     onDragStart={(e) => e.preventDefault()}
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
-                      setOpenMenuCategoryId((currentId) =>
-                        currentId === category.id ? null : category.id,
+
+                      const ok = window.confirm(
+                        `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\n本当に削除しますか？`,
                       );
+
+                      if (!ok) return;
+
+                      const isSuccess = await onDeleteCategory(category.id);
+
+                      if (isSuccess) {
+                        if (editingCategoryId === category.id) {
+                          setEditingCategoryId(null);
+                          setEditingCategoryName("");
+                        }
+                      }
                     }}
                   >
-                    ⋯
+                    <TrashIcon />
                   </button>
-                )}
-
-                {openMenuCategoryId === category.id && (
-                  <div
-                    className="absolute right-3 top-11 z-10 w-28 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
-                    onDragStart={(e) => e.preventDefault()}
-                  >
-                    <button
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50"
-                      onClick={() => {
-                        setEditingCategoryId(category.id);
-                        setEditingCategoryName(category.name);
-                        setOpenMenuCategoryId(null);
-                      }}
-                    >
-                      編集
-                    </button>
-
-                    <button
-                      className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50"
-                      onClick={async () => {
-                        const ok = window.confirm(
-                          `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\n本当に削除しますか？`,
-                        );
-
-                        if (!ok) return;
-
-                        const isSuccess = await onDeleteCategory(category.id);
-
-                        if (isSuccess) {
-                          setOpenMenuCategoryId(null);
-
-                          if (editingCategoryId === category.id) {
-                            setEditingCategoryId(null);
-                            setEditingCategoryName("");
-                          }
-                        }
-                      }}
-                    >
-                      削除
-                    </button>
-                  </div>
                 )}
               </div>
             );

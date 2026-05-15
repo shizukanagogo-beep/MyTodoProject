@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import CategoryCard from "./CategoryCard";
 import type { Category } from "../types";
 
@@ -23,26 +22,6 @@ function TopView({
   onOpenDaily,
   onOpenFlagged,
 }: TopViewProps) {
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const categoryMenuRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        categoryMenuRef.current &&
-        !categoryMenuRef.current.contains(event.target as Node)
-      ) {
-        setIsCategoryMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
     <div className="space-y-8">
       <section className="space-y-3">
@@ -79,32 +58,24 @@ function TopView({
 
       <section>
         <div className="mb-4 flex items-center justify-between gap-4 px-1">
-          <div
-            ref={categoryMenuRef}
-            className="relative flex items-center gap-2"
-          >
+          <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-700">カテゴリ一覧</h2>
 
-            <button
-              className="h-8 w-8 rounded-full text-slate-500 font-bold hover:bg-slate-200 transition-colors"
-              onClick={() => setIsCategoryMenuOpen((prev) => !prev)}
-            >
-              ⋯
-            </button>
+            <div className="relative group">
+              <button
+                className="h-8 w-8 rounded-full text-slate-500 font-bold transition-colors hover:bg-slate-200"
+                onClick={onOpenCategoryModal}
+                aria-label="カテゴリ編集"
+              >
+                ⋯
+              </button>
 
-            {isCategoryMenuOpen && (
-              <div className="absolute left-24 top-9 z-10 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-                <button
-                  className="w-full px-4 py-2 text-left text-sm font-bold text-slate-600 hover:bg-slate-50"
-                  onClick={() => {
-                    setIsCategoryMenuOpen(false);
-                    onOpenCategoryModal();
-                  }}
-                >
-                  カテゴリの編集
-                </button>
+              <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
+                <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+                  カテゴリ編集
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
           <button
@@ -116,10 +87,11 @@ function TopView({
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <CategoryCard
               key={category.id}
               category={category}
+              colorIndex={index}
               onClick={onOpenCategoryDetail}
             />
           ))}

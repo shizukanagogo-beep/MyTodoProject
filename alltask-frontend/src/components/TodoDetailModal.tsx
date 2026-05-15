@@ -174,7 +174,7 @@ function TodoDetailModal({
 
             <input
               type="text"
-              className={`w-full text-xl font-bold bg-white border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none px-1 py-1 ${
+              className={`min-w-0 flex-1 text-xl font-bold bg-white border-b border-transparent hover:border-slate-200 focus:border-indigo-500 outline-none px-1 py-1 ${
                 editTodo.status === "DONE"
                   ? "line-through text-slate-400"
                   : "text-slate-800"
@@ -185,6 +185,20 @@ function TodoDetailModal({
               }
               placeholder="タイトル"
             />
+
+            <label className="flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2 text-slate-600 hover:bg-slate-50">
+              <input
+                type="checkbox"
+                aria-label="フラグ"
+                checked={editTodo.hasFlag}
+                onChange={(e) =>
+                  setEditTodo({ ...editTodo, hasFlag: e.target.checked })
+                }
+              />
+              <span aria-hidden="true" className="text-sm">
+                ⚑
+              </span>
+            </label>
           </div>
         </div>
 
@@ -226,88 +240,18 @@ function TodoDetailModal({
             daily={editTodo.daily}
             overdueBehavior={editTodo.overdueBehavior}
             onChange={(draft) =>
-              setEditTodo({
-                ...editTodo,
-                ...draft,
-                daily:
-                  draft.dueDate || draft.dueDateUndecided
-                    ? false
-                    : editTodo.daily,
-              })
-            }
-          />
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="relative group">
-              <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
-                <input
-                  type="checkbox"
-                  aria-label="フラグ"
-                  checked={editTodo.hasFlag}
-                  onChange={(e) =>
-                    setEditTodo({ ...editTodo, hasFlag: e.target.checked })
-                  }
-                />
-                フラグ
-              </label>
-
-              <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
-                <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                  タスクにフラグを設定します
-                </div>
-              </div>
-            </div>
-
-            <div className="relative group">
-              <label
-                className={`flex items-center gap-2 border-b border-transparent bg-white px-1 py-2 ${
-                  editTodo.dueDate || editTodo.dueDateUndecided
-                    ? "cursor-not-allowed text-slate-300"
-                    : "cursor-pointer text-slate-700 hover:border-slate-200"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  aria-label="日課"
-                  disabled={!!editTodo.dueDate || editTodo.dueDateUndecided}
-                  checked={editTodo.daily}
-                  onChange={(e) =>
-                    setEditTodo({
-                      ...editTodo,
-                      daily: e.target.checked,
-                      dueDate: e.target.checked ? "" : editTodo.dueDate,
-                      dueDateUndecided: e.target.checked
-                        ? false
-                        : editTodo.dueDateUndecided,
-                      overdueBehavior: e.target.checked
-                        ? 0
-                        : editTodo.overdueBehavior,
-                    })
-                  }
-                />
-                日課
-              </label>
-
-              {(editTodo.dueDate || editTodo.dueDateUndecided) && (
-                <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-10">
-                  <div className="bg-slate-800 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
-                    日付または未定が設定されている場合は日課として設定できません
-                  </div>
-                </div>
-              )}
-
-              {!editTodo.dueDate && !editTodo.dueDateUndecided && (
-                <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
-                  <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                    日課タスクは毎日自動的に未完了となります
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+                setEditTodo({
+                  ...editTodo,
+                  ...draft,
+                })
+              }
+            />
 
           <div>
-            <p className="text-sm font-bold text-slate-500 mb-1">詳細</p>
+            <div className="mb-1 flex items-center justify-between gap-3">
+              <p className="text-sm font-bold text-slate-500">詳細</p>
+            </div>
+
             <textarea
               className="w-full min-h-20 bg-white px-1 py-2 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded-lg outline-none text-slate-700 resize-none"
               value={editTodo.details}
@@ -319,15 +263,13 @@ function TodoDetailModal({
           </div>
 
           {!isSubtask && (
-            <div>
-              <div className="flex justify-end">
-                <button
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700"
-                  onClick={() => setIsSubtaskModalOpen(true)}
-                >
-                  +サブタスク
-                </button>
-              </div>
+            <div className="flex justify-end">
+              <button
+                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700"
+                onClick={() => setIsSubtaskModalOpen(true)}
+              >
+                +サブタスク
+              </button>
             </div>
           )}
 
@@ -394,15 +336,34 @@ function TodoDetailModal({
             </div>
 
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="タイトル"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
-                value={newSubtask.title}
-                onChange={(e) =>
-                  setNewSubtask({ ...newSubtask, title: e.target.value })
-                }
-              />
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="タイトル"
+                  className="min-w-0 flex-1 border-b border-transparent bg-white px-1 py-1 text-xl font-bold text-slate-800 outline-none hover:border-slate-200 focus:border-indigo-500"
+                  value={newSubtask.title}
+                  onChange={(e) =>
+                    setNewSubtask({ ...newSubtask, title: e.target.value })
+                  }
+                />
+
+                <label className="flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2 text-slate-600 hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    aria-label="フラグ"
+                    checked={newSubtask.hasFlag}
+                    onChange={(e) =>
+                      setNewSubtask({
+                        ...newSubtask,
+                        hasFlag: e.target.checked,
+                      })
+                    }
+                  />
+                  <span aria-hidden="true" className="text-sm">
+                    ⚑
+                  </span>
+                </label>
+              </div>
 
               <DueDateSetting
                 dueDate={newSubtask.dueDate}
@@ -410,95 +371,20 @@ function TodoDetailModal({
                 daily={newSubtask.daily}
                 overdueBehavior={newSubtask.overdueBehavior}
                 onChange={(draft) =>
-                  setNewSubtask({
-                    ...newSubtask,
-                    ...draft,
-                    daily:
-                      draft.dueDate || draft.dueDateUndecided
-                        ? false
-                        : newSubtask.daily,
-                  })
-                }
-              />
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="relative group">
-                  <label className="flex cursor-pointer items-center gap-2 border-b border-transparent bg-white px-1 py-2 text-slate-700 hover:border-slate-200">
-                    <input
-                      type="checkbox"
-                      aria-label="フラグ"
-                      checked={newSubtask.hasFlag}
-                      onChange={(e) =>
-                        setNewSubtask({
-                          ...newSubtask,
-                          hasFlag: e.target.checked,
-                        })
-                      }
-                    />
-                    フラグ
-                  </label>
-
-                  <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
-                    <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                      タスクにフラグを設定します
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative group">
-                  <label
-                    className={`flex items-center gap-2 border-b border-transparent bg-white px-1 py-2 ${
-                      newSubtask.dueDate || newSubtask.dueDateUndecided
-                        ? "cursor-not-allowed text-slate-300"
-                        : "cursor-pointer text-slate-700 hover:border-slate-200"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      aria-label="日課"
-                      disabled={
-                        !!newSubtask.dueDate || newSubtask.dueDateUndecided
-                      }
-                      checked={newSubtask.daily}
-                      onChange={(e) =>
-                        setNewSubtask({
-                          ...newSubtask,
-                          daily: e.target.checked,
-                          dueDate: e.target.checked ? "" : newSubtask.dueDate,
-                          dueDateUndecided: e.target.checked
-                            ? false
-                            : newSubtask.dueDateUndecided,
-                          overdueBehavior: e.target.checked
-                            ? 0
-                            : newSubtask.overdueBehavior,
-                        })
-                      }
-                    />
-                    日課
-                  </label>
-
-                  {(newSubtask.dueDate || newSubtask.dueDateUndecided) && (
-                    <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
-                      <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                        日付または未定が設定されている場合は日課として設定できません
-                      </div>
-                    </div>
-                  )}
-
-                  {!newSubtask.dueDate && !newSubtask.dueDateUndecided && (
-                    <div className="absolute left-0 top-full z-10 mt-1 hidden group-hover:block">
-                      <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                        日課タスクは毎日自動的に未完了となります
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+                    setNewSubtask({
+                      ...newSubtask,
+                      ...draft,
+                    })
+                  }
+                />
 
               <div>
-                <p className="mb-1 text-sm font-bold text-slate-500">詳細</p>
+                <div className="mb-1 flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold text-slate-500">詳細</p>
+                </div>
+
                 <textarea
-                  className="min-h-20 w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-slate-700 outline-none focus:border-indigo-500"
+                  className="min-h-20 w-full resize-none rounded-lg border border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500"
                   value={newSubtask.details}
                   onChange={(e) =>
                     setNewSubtask({
