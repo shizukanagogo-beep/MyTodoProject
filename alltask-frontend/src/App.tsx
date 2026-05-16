@@ -153,12 +153,11 @@ function App() {
             })}
           onAddSubtask={addSubtask}
           onUpdateTodo={async (id, payload) => {
-            const updatedTodo = await updateTodo(id, payload);
-            if (updatedTodo) {
-              updateSelectedTodo(updatedTodo);
-              return true;
+            const result = await updateTodo(id, payload);
+            if (result.success && result.updatedTodo) {
+              updateSelectedTodo(result.updatedTodo);
             }
-            return false;
+            return result;
           }}
         />
       )}
