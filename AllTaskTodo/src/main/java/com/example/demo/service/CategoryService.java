@@ -25,6 +25,8 @@ public class CategoryService {
 
     // ------------------------------------------------------------
     public Category addCategory(CategoryForm form) {
+        assignSortOrderIfNeeded(form);
+
         Category category = convertToEntity(form);
         categoryMapper.addCategory(category);
         return category;
@@ -60,6 +62,15 @@ public class CategoryService {
                 throw new ResourceNotFoundException("Category not found");
             }
         }
+    }
+
+    private void assignSortOrderIfNeeded(CategoryForm form) {
+        if (form.getSortOrder() != null) {
+            return;
+        }
+
+        Integer maxSortOrder = categoryMapper.findMaxSortOrder();
+        form.setSortOrder(maxSortOrder == null ? 1 : maxSortOrder + 1);
     }
 
     // -----------------------------------------------------------------------
