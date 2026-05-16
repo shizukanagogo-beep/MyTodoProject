@@ -244,8 +244,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   };
 
   const deleteTodo = async (id: number) => {
-    if (!window.confirm("削除しますか？")) return;
-
     setTodos((prev) =>
       prev.filter((todo) => todo.id !== id && todo.parentId !== id),
     );
