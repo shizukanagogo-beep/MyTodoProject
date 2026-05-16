@@ -134,6 +134,32 @@ class TodoControllerTest {
   }
 
   @Test
+  @DisplayName("POST /todos: 存在しないparentIdの場合404を返すこと")
+  void testPostTodos_NotFoundParentId_ShouldReturnNotFound() throws Exception {
+    String requestBody = """
+        {
+          "title": "存在しない親タスク",
+          "details": "parentId確認",
+          "categoryId": null,
+          "parentId": 999,
+          "dueDate": null,
+          "dueDateUndecided": false,
+          "daily": false,
+          "hasFlag": false,
+          "autoCarryOver": false,
+          "overdueBehavior": 0,
+          "sortOrder": 9
+        }
+        """;
+
+    mockMvc.perform(post("/todos")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("Parent TODO not found"));
+  }
+
+  @Test
   @DisplayName("POST /todos: 子タスクを親に指定した場合400を返すこと")
   void testPostTodos_ChildTodoAsParent_ShouldReturnBadRequest() throws Exception {
     String requestBody = """
