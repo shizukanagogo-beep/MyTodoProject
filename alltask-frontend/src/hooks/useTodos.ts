@@ -41,6 +41,12 @@ type AddTodoResult = {
   fieldErrors?: ApiFieldErrors | null;
 };
 
+export type UpdateTodoResult = {
+  success: boolean;
+  updatedTodo?: Todo;
+  fieldErrors?: ApiFieldErrors | null;
+};
+
 export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState<NewTodo>(initialNewTodo);
@@ -150,10 +156,14 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       overdueBehavior: number;
       sortOrder: number | null;
     },
-  ) => {
+  ): Promise<UpdateTodoResult> => {
     if (!payload.title.trim()) {
-      alert("タイトルを入力してください");
-      return null;
+      return {
+        success: false,
+        fieldErrors: {
+          title: "タイトルを入力してください",
+        },
+      };
     }
 
     try {
@@ -181,11 +191,17 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         setRandomTodoId(null);
       }
 
-      return updatedTodo;
+      return { success: true, updatedTodo };
     } catch (error) {
       console.error("更新失敗:", error);
+
+      const fieldErrors = getApiFieldErrors(error);
+      if (fieldErrors) {
+        return { success: false, fieldErrors };
+      }
+
       showErrorToast(getApiErrorMessage(error));
-      return null;
+      return { success: false };
     }
   };
 
