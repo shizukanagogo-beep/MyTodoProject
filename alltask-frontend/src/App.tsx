@@ -3,13 +3,15 @@ import { useTodos } from "./hooks/useTodos";
 import { useTodoModal } from "./hooks/useTodoModal";
 import { useCategoryModal } from "./hooks/useCategoryModal";
 import { useViewMode } from "./hooks/useViewMode";
+import { useConfirm } from "./hooks/useConfirm";
 import Loading from "./components/Loading";
 import AppLayout from "./components/AppLayout";
 import MainContent from "./components/MainContent";
 import Modals from "./components/Modals";
 import TodoDetailModal from "./components/TodoDetailModal";
+import ConfirmModal from "./components/ConfirmModal";
 import { useSelectedTodoModal } from "./hooks/useSelectedTodoModal";
-import type { NewTodo, ViewMode } from "./types";
+import type { Category, NewTodo, ViewMode } from "./types";
 import { getLocalDateString } from "./utils/date";
 
 const createInitialTodoForView = (
@@ -71,6 +73,13 @@ function App() {
   });
 
   const {
+    confirmState,
+    openConfirm,
+    closeConfirm,
+    handleConfirm,
+  } = useConfirm();
+
+  const {
     isTodoModalOpen,
     fieldErrors,
     openTodoModal,
@@ -120,6 +129,37 @@ function App() {
     return isSuccess;
   };
 
+  const requestDeleteTodo = (id: number) => {
+    openConfirm({
+      title: "タスクを削除しますか？",
+      message: "このタスクとサブタスクを削除します。\nこの操作は元に戻せません。",
+      confirmLabel: "削除",
+      danger: true,
+      onConfirm: async () => {
+        await deleteTodo(id);
+
+        if (
+          selectedTodo &&
+          (selectedTodo.id === id || selectedTodo.parentId === id)
+        ) {
+          closeTodoDetailModal();
+        }
+      },
+    });
+  };
+
+  const requestDeleteCategory = (category: Category) => {
+    openConfirm({
+      title: "カテゴリを削除しますか？",
+      message: `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\nこの操作は元に戻せません。`,
+      confirmLabel: "削除",
+      danger: true,
+      onConfirm: async () => {
+        await deleteCategoryAndReturnTopIfNeeded(category.id);
+      },
+    });
+  };
+
   if (loadingCategories) return <Loading />;
 
   return (
@@ -129,6 +169,18 @@ function App() {
         goTop();
       }}
     >
+      {confirmState && (
+        <ConfirmModal
+          title={confirmState.title}
+          message={confirmState.message}
+          confirmLabel={confirmState.confirmLabel}
+          cancelLabel={confirmState.cancelLabel}
+          danger={confirmState.danger}
+          onConfirm={handleConfirm}
+          onCancel={closeConfirm}
+        />
+      )}
+
       {selectedTodo && (
         <TodoDetailModal
           todo={selectedTodo}
@@ -140,7 +192,7 @@ function App() {
           }
           categories={categories}
           onClose={closeTodoDetailModal}
-          onDeleteTodo={deleteTodo}
+          onDeleteTodo={requestDeleteTodo}
           subtasks={allTodos
             .filter((todo) => todo.parentId === selectedTodo.id)
             .sort((a, b) => {
@@ -176,7 +228,7 @@ function App() {
         onCloseCategoryModal={closeCategoryModal}
         onAddCategory={addCategoryFromModal}
         onUpdateCategory={updateCategory}
-        onDeleteCategory={deleteCategoryAndReturnTopIfNeeded}
+        onRequestDeleteCategory={requestDeleteCategory}
         onReorderCategories={reorderCategories}
       />
 
@@ -214,7 +266,7 @@ function App() {
           goTop();
         }}
         onToggleStatus={toggleStatus}
-        onDeleteTodo={deleteTodo}
+        onDeleteTodo={requestDeleteTodo}
         onOpenTodoDetail={openTodoDetailModal}
         onReorderTodos={reorderTodos}
         onReorderSubtasks={reorderSubtasks}
