@@ -8,6 +8,7 @@ import {
   modalTitleInputClassName,
 } from "../constants/ui";
 import type { Category, NewTodo } from "../types";
+import type { ApiFieldErrors } from "../utils/apiError";
 import DueDateSetting from "./DueDateSetting";
 import FlagCheckbox from "./FlagCheckbox";
 import ModalShell from "./ModalShell";
@@ -16,6 +17,7 @@ type TodoModalProps = {
   newTodo: NewTodo;
   setNewTodo: Dispatch<SetStateAction<NewTodo>>;
   categories: Category[];
+  fieldErrors: ApiFieldErrors;
   onClose: () => void;
   onAddTodo: () => Promise<void> | void;
 };
@@ -24,18 +26,20 @@ function TodoModal({
   newTodo,
   setNewTodo,
   categories,
+  fieldErrors,
   onClose,
   onAddTodo,
 }: TodoModalProps) {
-  const [titleError, setTitleError] = useState("");
+  const [localTitleError, setLocalTitleError] = useState("");
+  const titleError = localTitleError || fieldErrors.title || "";
 
   const handleAddTodo = async () => {
     if (!newTodo.title.trim()) {
-      setTitleError("タイトルを入力してください");
+      setLocalTitleError("タイトルを入力してください");
       return;
     }
 
-    setTitleError("");
+    setLocalTitleError("");
     await onAddTodo();
   };
 
@@ -51,8 +55,8 @@ function TodoModal({
                 value={newTodo.title}
                 onChange={(e) => {
                   setNewTodo({ ...newTodo, title: e.target.value });
-                  if (titleError) {
-                    setTitleError("");
+                  if (localTitleError) {
+                    setLocalTitleError("");
                   }
                 }}
               />
