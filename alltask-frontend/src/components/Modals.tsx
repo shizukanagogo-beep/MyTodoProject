@@ -2,6 +2,7 @@ import CategoryModal from "./CategoryModal";
 import TodoModal from "./TodoModal";
 import type { Category, NewTodo } from "../types";
 import type { Dispatch, SetStateAction } from "react";
+import type { ApiFieldErrors } from "../utils/apiError";
 
 type ModalsProps = {
   isTodoModalOpen: boolean;
@@ -10,6 +11,7 @@ type ModalsProps = {
   newTodo: NewTodo;
   setNewTodo: Dispatch<SetStateAction<NewTodo>>;
   categories: Category[];
+  todoFieldErrors: ApiFieldErrors;
   onCloseTodoModal: () => void;
   onAddTodo: () => void;
 
@@ -28,6 +30,7 @@ function Modals({
   newTodo,
   setNewTodo,
   categories,
+  todoFieldErrors,
   onCloseTodoModal,
   onAddTodo,
   newCategoryName,
@@ -45,6 +48,7 @@ function Modals({
           newTodo={newTodo}
           setNewTodo={setNewTodo}
           categories={categories}
+          fieldErrors={todoFieldErrors}
           onClose={onCloseTodoModal}
           onAddTodo={onAddTodo}
         />
