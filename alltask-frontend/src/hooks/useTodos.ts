@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { DatedFilter, NewTodo, Todo, ViewMode } from "../types";
 import { getLocalDateString } from "../utils/date";
-import { getApiErrorMessage } from "../utils/apiError";
+import {
+  getApiErrorMessage,
+  getApiFieldErrors,
+  type ApiFieldErrors,
+} from "../utils/apiError";
 import { showErrorToast } from "../utils/toast";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
@@ -30,6 +34,11 @@ const initialNewTodo: NewTodo = {
 type UseTodosArgs = {
   viewMode: ViewMode;
   selectedCategoryId: number | null;
+};
+
+type AddTodoResult = {
+  success: boolean;
+  fieldErrors?: ApiFieldErrors | null;
 };
 
 export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
@@ -62,10 +71,14 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     loadTodos();
   }, [viewMode, selectedCategoryId, refreshKey]);
 
-  const addTodo = async () => {
+  const addTodo = async (): Promise<AddTodoResult> => {
     if (!newTodo.title.trim()) {
-      alert("タイトルを入力してください");
-      return false;
+      return {
+        success: false,
+        fieldErrors: {
+          title: "タイトルを入力してください",
+        },
+      };
     }
 
     const finalCategoryId =
@@ -86,11 +99,17 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       setRefreshKey((prev) => prev + 1);
       setNewTodo(initialNewTodo);
       setRandomTodoId(null);
-      return true;
+      return { success: true };
     } catch (error) {
       console.error("作成失敗:", error);
+
+      const fieldErrors = getApiFieldErrors(error);
+      if (fieldErrors) {
+        return { success: false, fieldErrors };
+      }
+
       showErrorToast(getApiErrorMessage(error));
-      return false;
+      return { success: false };
     }
   };
 
