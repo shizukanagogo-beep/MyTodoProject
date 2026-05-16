@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.TodoForm;
 import com.example.demo.entity.Status;
 import com.example.demo.entity.Todo;
+import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.repository.CategoryMapper;
 import com.example.demo.repository.TodoMapper;
 import com.example.demo.dto.TodoSortOrderForm;
 
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class TodoService {
     private final TodoMapper todoMapper;
+    private final CategoryMapper categoryMapper;
 
     // 全件取得（日課リセット・繰り越し処理を含む）-------------------------------------------------------
     @Transactional
@@ -34,9 +37,9 @@ public class TodoService {
 
     // 新規追加-------------------------------------------------------------------------------
     public Todo add(TodoForm form) {
-        // オプション（日課か日付ありかなど）の整合性を調整
+        validateBusinessRules(null, form);
         adjustTaskOptions(form);
-        // Form(DTO)からEntityへ変換
+
         Todo todo = convertToEntity(form);
         // DBへ登録（MyBatisによりIDがセットされる）
         todoMapper.add(todo);
@@ -80,10 +83,9 @@ public class TodoService {
 
     // タスク更新-------------------------------------------------------------------------------
     public boolean update(Integer id, TodoForm form) {
-        // オプションの整合性を調整
+        validateBusinessRules(id, form);
         adjustTaskOptions(form);
 
-        // Form(DTO)からEntityへ変換
         Todo todo = convertToEntity(form);
         todo.setId(id);
 
@@ -135,6 +137,44 @@ public class TodoService {
             }
         }
         return list;
+    }
+
+    // 共通メソッド---------------------------------------------------------------
+    private void validateBusinessRules(Integer todoId, TodoForm form) {
+        validateCategoryId(form);
+        validateParentId(todoId, form);
+    }
+
+    // ---------------------------------------------------------------
+    private void validateCategoryId(TodoForm form) {
+        if (form.getCategoryId() == null) {
+            return;
+        }
+
+        if (categoryMapper.findById(form.getCategoryId()) == null) {
+            throw new ResourceNotFoundException("Category not found");
+        }
+    }
+
+    // ---------------------------------------------------------------
+    private void validateParentId(Integer todoId, TodoForm form) {
+        if (form.getParentId() == null) {
+            return;
+        }
+
+        if (todoId != null && todoId.equals(form.getParentId())) {
+            throw new BadRequestException("自分自身を親タスクには指定できません");
+        }
+
+        Todo parentTodo = todoMapper.getOne(form.getParentId());
+
+        if (parentTodo == null) {
+            throw new ResourceNotFoundException("Parent TODO not found");
+        }
+
+        if (parentTodo.getParentId() != null) {
+            throw new BadRequestException("子タスクを親タスクには指定できません");
+        }
     }
 
     // 共通メソッド｜日付あり／日課／プレーンの選択（排他制御ロジック）----------------------------------
