@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { getApiErrorMessage } from "../utils/apiError";
+import { showErrorToast } from "../utils/toast";
 
 type UseCategoryModalArgs = {
   addCategoryToList: (name: string) => Promise<void>;
@@ -24,7 +26,7 @@ export function useCategoryModal({ addCategoryToList }: UseCategoryModalArgs) {
       setNewCategoryName("");
     } catch (error) {
       console.log("カテゴリ作成失敗:", error);
-      alert("カテゴリ作成に失敗しました。");
+      showErrorToast(getApiErrorMessage(error));
     }
   };
   return {
