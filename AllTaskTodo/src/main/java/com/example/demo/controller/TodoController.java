@@ -1,11 +1,10 @@
 package com.example.demo.controller;
 
 import java.util.List;
-import java.util.Map;
+
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,30 +58,18 @@ public class TodoController {
 
     // 追加---------------------------------------------------------------------
     @PostMapping
-    public ResponseEntity<?> add(@Valid @RequestBody TodoForm form,
-            BindingResult result) {
-        if (result.hasErrors()) {
-            String errorMessage = result.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(Map.of("error", errorMessage));
-        }
+    public ResponseEntity<Todo> add(@Valid @RequestBody TodoForm form) {
         Todo created = todoService.add(form);
         return ResponseEntity.ok(created);
-
     }
 
     // タスク編集----------------------------------------------------------------------
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") Integer id, @Valid @RequestBody TodoForm form,
-            BindingResult result) {
-        // 1. バリデーションチェック
-        if (result.hasErrors()) {
-            String errorMessage = result.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(Map.of("error", errorMessage));
-        }
-
+    public ResponseEntity<Todo> update(
+            @PathVariable("id") Integer id,
+            @Valid @RequestBody TodoForm form) {
         todoService.update(id, form);
 
-        // 4. 更新後のデータを取得して返却する
         Todo updated = todoService.getOne(id);
         return ResponseEntity.ok(updated);
     }
