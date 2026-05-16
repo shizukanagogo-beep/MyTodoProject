@@ -16,7 +16,7 @@ type CategoryModalProps = {
   onClose: () => void;
   onAddCategory: () => void;
   onUpdateCategory: (id: number, name: string) => Promise<boolean>;
-  onDeleteCategory: (id: number) => Promise<boolean>;
+  onRequestDeleteCategory: (category: Category) => void;
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
 };
 
@@ -27,7 +27,7 @@ function CategoryModal({
   onClose,
   onAddCategory,
   onUpdateCategory,
-  onDeleteCategory,
+  onRequestDeleteCategory,
   onReorderCategories,
 }: CategoryModalProps) {
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
@@ -166,12 +166,9 @@ function CategoryModal({
                     className="ml-2 rounded-lg p-2 text-slate-300 transition-all hover:bg-red-50 hover:text-red-500"
                     aria-label="カテゴリを削除"
                     onDragStart={(e) => e.preventDefault()}
-                    onClick={async (e) => {
+                    onClick={(e) => {
                       e.stopPropagation();
-                      const ok = window.confirm("このカテゴリを削除しますか？");
-                      if (!ok) return;
-                      const isSuccess = await onDeleteCategory(category.id);
-                      if (isSuccess && editingCategoryId === category.id) cancelEditingCategory();
+                      onRequestDeleteCategory(category);
                     }}
                   >
                     <TrashIcon />
