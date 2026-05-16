@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { DatedFilter, NewTodo, Todo, ViewMode } from "../types";
 import { getLocalDateString } from "../utils/date";
+import { getApiErrorMessage } from "../utils/apiError";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
   fetchTodos as fetchTodosApi,
@@ -53,6 +54,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         setRandomTodoId(null);
       } catch (error) {
         console.error("タスクの取得に失敗:", error);
+        alert(getApiErrorMessage(error));
       }
     };
 
@@ -86,6 +88,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       return true;
     } catch (error) {
       console.error("作成失敗:", error);
+      alert(getApiErrorMessage(error));
       return false;
     }
   };
@@ -107,6 +110,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       await updateTodoStatus(id, newStatus);
     } catch (error) {
       console.error("更新失敗:", error);
+      alert(getApiErrorMessage(error));
     }
   };
 
@@ -160,6 +164,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       return updatedTodo;
     } catch (error) {
       console.error("更新失敗:", error);
+      alert(getApiErrorMessage(error));
       return null;
     }
   };
@@ -197,6 +202,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       return true;
     } catch (error) {
       console.error("サブタスク作成失敗:", error);
+      alert(getApiErrorMessage(error));
       return false;
     }
   };
@@ -216,6 +222,8 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       await deleteTodoApi(id);
     } catch (error) {
       console.error("削除失敗:", error);
+      alert(getApiErrorMessage(error));
+      setRefreshKey((prev) => prev + 1);
     }
   };
 
@@ -408,6 +416,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       );
     } catch (error) {
       console.error("並び順更新失敗:", error);
+      alert(getApiErrorMessage(error));
       setRefreshKey((prev) => prev + 1);
     }
   };
@@ -446,6 +455,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       );
     } catch (error) {
       console.error("サブタスク並び順更新失敗:", error);
+      alert(getApiErrorMessage(error));
       setRefreshKey((prev) => prev + 1);
     }
   };
