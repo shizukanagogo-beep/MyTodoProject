@@ -60,8 +60,16 @@ function SubtaskCreateModal({
 }: SubtaskCreateModalProps) {
   const [newSubtask, setNewSubtask] =
     useState<SubtaskDraft>(initialSubtaskDraft);
+  const [titleError, setTitleError] = useState("");
 
   const handleAddSubtask = async () => {
+    if (!newSubtask.title.trim()) {
+      setTitleError("タイトルを入力してください");
+      return;
+    }
+
+    setTitleError("");
+
     const isSuccess = await onAddSubtask(parentId, {
       title: newSubtask.title,
       details: newSubtask.details,
@@ -87,26 +95,37 @@ function SubtaskCreateModal({
       overlayClassName="bg-slate-900/40"
     >
       <div className="space-y-3">
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            placeholder="タイトル"
-            className={modalTitleInputClassName}
-            value={newSubtask.title}
-            onChange={(e) =>
-              setNewSubtask({ ...newSubtask, title: e.target.value })
-            }
-          />
+        <div>
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              placeholder="タイトル"
+              className={modalTitleInputClassName}
+              value={newSubtask.title}
+              onChange={(e) => {
+                setNewSubtask({ ...newSubtask, title: e.target.value });
+                if (titleError) {
+                  setTitleError("");
+                }
+              }}
+            />
 
-          <FlagCheckbox
-            checked={newSubtask.hasFlag}
-            onChange={(checked) =>
-              setNewSubtask({
-                ...newSubtask,
-                hasFlag: checked,
-              })
-            }
-          />
+            <FlagCheckbox
+              checked={newSubtask.hasFlag}
+              onChange={(checked) =>
+                setNewSubtask({
+                  ...newSubtask,
+                  hasFlag: checked,
+                })
+              }
+            />
+          </div>
+
+          {titleError && (
+            <p className="mt-1 text-xs font-bold text-red-500">
+              {titleError}
+            </p>
+          )}
         </div>
 
         <DueDateSetting
