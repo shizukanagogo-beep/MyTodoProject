@@ -33,6 +33,12 @@ function TodoModal({
   const [localTitleError, setLocalTitleError] = useState("");
   const titleError = localTitleError || fieldErrors.title || "";
 
+  const dueDateError =
+    fieldErrors.dueDate ||
+    fieldErrors.daily ||
+    fieldErrors.dueDateUndecided ||
+    "";
+
   const handleAddTodo = async () => {
     if (!newTodo.title.trim()) {
       setLocalTitleError("タイトルを入力してください");
@@ -104,6 +110,7 @@ function TodoModal({
             dueDateUndecided={newTodo.dueDateUndecided}
             daily={newTodo.daily}
             overdueBehavior={newTodo.overdueBehavior}
+            errorMessage={dueDateError}
             onChange={(draft) =>
               setNewTodo({
                 ...newTodo,
