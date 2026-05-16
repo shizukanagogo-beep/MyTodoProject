@@ -77,6 +77,7 @@ function TodoDetailModal({
 
   const [editTodo, setEditTodo] = useState<EditableTodo>(initialTodoState);
   const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false);
+  const [titleError, setTitleError] = useState("");
 
   const hasChanges = useMemo(() => {
     return (
@@ -98,10 +99,18 @@ function TodoDetailModal({
 
   const handleCancelChanges = () => {
     setEditTodo(initialTodoState);
+    setTitleError("");
     onClose();
   };
 
   const handleMainButton = async () => {
+    if (!editTodo.title.trim()) {
+      setTitleError("タイトルを入力してください");
+      return;
+    }
+
+    setTitleError("");
+
     const isSuccess = await onUpdateTodo(todo.id, {
       title: editTodo.title,
       details: editTodo.details,
@@ -124,8 +133,9 @@ function TodoDetailModal({
 
   return (
     <ModalShell onClose={onClose} zIndexClassName="z-[70]">
-        <div className="flex justify-between items-start gap-4 mb-4">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="mb-4 flex justify-between items-start gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3">
             <input
               type="text"
               className={`${modalTitleInputClassName} ${
@@ -134,9 +144,10 @@ function TodoDetailModal({
                   : "text-slate-800"
               }`}
               value={editTodo.title}
-              onChange={(e) =>
-                setEditTodo({ ...editTodo, title: e.target.value })
-              }
+              onChange={(e) => {
+                setEditTodo({ ...editTodo, title: e.target.value });
+                if (titleError) setTitleError("");
+              }}
               placeholder="タイトル"
             />
 
@@ -147,124 +158,123 @@ function TodoDetailModal({
               }
             />
           </div>
+
+          {titleError && (
+            <p className="mt-1 text-xs font-bold text-red-500">
+              {titleError}
+            </p>
+          )}
         </div>
+      </div>
 
-        <div className="space-y-3">
-          {!isSubtask && (
-            <div>
-              <p className={`mb-1 ${modalLabelClassName}`}>カテゴリ</p>
-              <select
-                className={modalFieldInputClassName}
-                value={editTodo.categoryId ?? ""}
-                onChange={(e) =>
-                  setEditTodo({
-                    ...editTodo,
-                    categoryId: Number(e.target.value),
-                  })
-                }
-              >
-                {editTodo.categoryId === null ? (
-                  <option value="" disabled>
-                    カテゴリを選択
-                  </option>
-                ) : (
-                  <option value="" hidden />
-                )}
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {isSubtask && (
-            <div>
-              <p className={`mb-1 ${modalLabelClassName}`}>
-                親タスクのカテゴリ
-              </p>
-              <div className="border-b border-slate-100 px-1 py-2 text-slate-500">
-                <span>{parentCategory?.name ?? "カテゴリなし"}</span>
-              </div>
-            </div>
-          )}
-
-          <DueDateSetting
-            dueDate={editTodo.dueDate}
-            dueDateUndecided={editTodo.dueDateUndecided}
-            daily={editTodo.daily}
-            overdueBehavior={editTodo.overdueBehavior}
-            onChange={(draft) =>
-              setEditTodo({
-                ...editTodo,
-                ...draft,
-              })
-            }
-          />
-
+      <div className="space-y-3">
+        {!isSubtask && (
           <div>
-            <div className="mb-1 flex items-center justify-between gap-3">
-              <p className={modalLabelClassName}>詳細</p>
-            </div>
-
-            <textarea
-              className={modalTextareaClassName}
-              value={editTodo.details}
+            <p className={`mb-1 ${modalLabelClassName}`}>カテゴリ</p>
+            <select
+              className={modalFieldInputClassName}
+              value={editTodo.categoryId ?? ""}
               onChange={(e) =>
-                setEditTodo({ ...editTodo, details: e.target.value })
+                setEditTodo({
+                  ...editTodo,
+                  categoryId: Number(e.target.value),
+                })
               }
-              placeholder="詳細はありません"
-            />
+            >
+              {editTodo.categoryId === null ? (
+                <option value="" disabled>
+                  カテゴリを選択
+                </option>
+              ) : (
+                <option value="" hidden />
+              )}
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
+        )}
 
-          {!isSubtask && (
-            <div className="flex justify-end">
-              <button
-                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700"
-                onClick={() => setIsSubtaskModalOpen(true)}
-              >
-                +サブタスク
-              </button>
+        {isSubtask && (
+          <div>
+            <p className={`mb-1 ${modalLabelClassName}`}>親タスクのカテゴリ</p>
+            <div className="border-b border-slate-100 px-1 py-2 text-slate-500">
+              <span>{parentCategory?.name ?? "カテゴリなし"}</span>
             </div>
-          )}
-
-          <div className="flex gap-2 pt-2">
-            {hasChanges ? (
-              <>
-                <button
-                  className={modalSecondaryButtonClassName}
-                  onClick={handleCancelChanges}
-                >
-                  キャンセル
-                </button>
-
-                <button
-                  className={modalPrimaryButtonClassName}
-                  onClick={handleMainButton}
-                >
-                  保存
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className={modalSecondaryButtonClassName}
-                  onClick={onClose}
-                >
-                  閉じる
-                </button>
-
-                <button
-                  className={modalDangerButtonClassName}
-                  onClick={handleDelete}
-                >
-                  削除
-                </button>
-              </>
-            )}
           </div>
+        )}
+
+        <DueDateSetting
+          dueDate={editTodo.dueDate}
+          dueDateUndecided={editTodo.dueDateUndecided}
+          daily={editTodo.daily}
+          overdueBehavior={editTodo.overdueBehavior}
+          onChange={(draft) =>
+            setEditTodo({
+              ...editTodo,
+              ...draft,
+            })
+          }
+        />
+
+        <div>
+          <div className="mb-1 flex items-center justify-between gap-3">
+            <p className={modalLabelClassName}>詳細</p>
+          </div>
+
+          <textarea
+            className={modalTextareaClassName}
+            value={editTodo.details}
+            onChange={(e) =>
+              setEditTodo({ ...editTodo, details: e.target.value })
+            }
+            placeholder="詳細はありません"
+          />
         </div>
+
+        {!isSubtask && (
+          <div className="flex justify-end">
+            <button
+              className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700"
+              onClick={() => setIsSubtaskModalOpen(true)}
+            >
+              +サブタスク
+            </button>
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-2">
+          {hasChanges ? (
+            <>
+              <button
+                className={modalSecondaryButtonClassName}
+                onClick={handleCancelChanges}
+              >
+                キャンセル
+              </button>
+
+              <button
+                className={modalPrimaryButtonClassName}
+                onClick={handleMainButton}
+              >
+                保存
+              </button>
+            </>
+          ) : (
+            <>
+              <button className={modalSecondaryButtonClassName} onClick={onClose}>
+                閉じる
+              </button>
+
+              <button className={modalDangerButtonClassName} onClick={handleDelete}>
+                削除
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
       {isSubtaskModalOpen && (
         <SubtaskCreateModal
