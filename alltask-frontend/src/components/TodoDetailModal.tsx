@@ -10,6 +10,7 @@ import {
 } from "../constants/ui";
 import type { UpdateTodoPayload } from "../services/todoService";
 import type { Category, Todo } from "../types";
+import type { ApiFieldErrors } from "../utils/apiError";
 import DueDateSetting from "./DueDateSetting";
 import FlagCheckbox from "./FlagCheckbox";
 import ModalShell from "./ModalShell";
@@ -47,7 +48,13 @@ type TodoDetailModalProps = {
       sortOrder: number | null;
     },
   ) => Promise<boolean>;
-  onUpdateTodo: (id: number, payload: UpdateTodoPayload) => Promise<boolean>;
+  onUpdateTodo: (
+    id: number,
+    payload: UpdateTodoPayload,
+  ) => Promise<{
+    success: boolean;
+    fieldErrors?: ApiFieldErrors | null;
+  }>;
 };
 
 function TodoDetailModal({
@@ -64,6 +71,7 @@ function TodoDetailModal({
   const parentCategory = categories.find(
     (category) => category.id === parentTodo?.categoryId,
   );
+
   const initialTodoState: EditableTodo = {
     title: todo.title,
     details: todo.details || "",
@@ -77,7 +85,15 @@ function TodoDetailModal({
 
   const [editTodo, setEditTodo] = useState<EditableTodo>(initialTodoState);
   const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false);
-  const [titleError, setTitleError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<ApiFieldErrors>({});
+
+  const titleError = fieldErrors.title || "";
+
+  const dueDateError =
+    fieldErrors.dueDate ||
+    fieldErrors.daily ||
+    fieldErrors.dueDateUndecided ||
+    "";
 
   const hasChanges = useMemo(() => {
     return (
@@ -99,19 +115,12 @@ function TodoDetailModal({
 
   const handleCancelChanges = () => {
     setEditTodo(initialTodoState);
-    setTitleError("");
+    setFieldErrors({});
     onClose();
   };
 
   const handleMainButton = async () => {
-    if (!editTodo.title.trim()) {
-      setTitleError("タイトルを入力してください");
-      return;
-    }
-
-    setTitleError("");
-
-    const isSuccess = await onUpdateTodo(todo.id, {
+    const result = await onUpdateTodo(todo.id, {
       title: editTodo.title,
       details: editTodo.details,
       categoryId: isSubtask ? null : editTodo.categoryId,
@@ -126,9 +135,13 @@ function TodoDetailModal({
       sortOrder: todo.sortOrder,
     });
 
-    if (isSuccess) {
-      onClose();
+    if (!result.success) {
+      setFieldErrors(result.fieldErrors || {});
+      return;
     }
+
+    setFieldErrors({});
+    onClose();
   };
 
   return (
@@ -146,7 +159,9 @@ function TodoDetailModal({
               value={editTodo.title}
               onChange={(e) => {
                 setEditTodo({ ...editTodo, title: e.target.value });
-                if (titleError) setTitleError("");
+                if (fieldErrors.title) {
+                  setFieldErrors((prev) => ({ ...prev, title: undefined }));
+                }
               }}
               placeholder="タイトル"
             />
@@ -211,12 +226,26 @@ function TodoDetailModal({
           dueDateUndecided={editTodo.dueDateUndecided}
           daily={editTodo.daily}
           overdueBehavior={editTodo.overdueBehavior}
-          onChange={(draft) =>
+          errorMessage={dueDateError}
+          onChange={(draft) => {
             setEditTodo({
               ...editTodo,
               ...draft,
-            })
-          }
+            });
+
+            if (
+              fieldErrors.dueDate ||
+              fieldErrors.daily ||
+              fieldErrors.dueDateUndecided
+            ) {
+              setFieldErrors((prev) => ({
+                ...prev,
+                dueDate: undefined,
+                daily: undefined,
+                dueDateUndecided: undefined,
+              }));
+            }
+          }}
         />
 
         <div>
