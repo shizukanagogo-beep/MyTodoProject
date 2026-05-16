@@ -143,6 +143,7 @@ public class TodoService {
     private void validateBusinessRules(Integer todoId, TodoForm form) {
         validateCategoryId(form);
         validateParentId(todoId, form);
+        validateDueDateOptions(form);
     }
 
     // ---------------------------------------------------------------
@@ -174,6 +175,31 @@ public class TodoService {
 
         if (parentTodo.getParentId() != null) {
             throw new BadRequestException("子タスクを親タスクには指定できません");
+        }
+    }
+
+    // -----------------------------------------------------------------------------
+    private void validateDueDateOptions(TodoForm form) {
+
+        if (Boolean.TRUE.equals(form.getDaily())
+                && form.getDueDate() != null) {
+
+            throw new BadRequestException(
+                    "dailyタスクにはdueDateを指定できません");
+        }
+
+        if (Boolean.TRUE.equals(form.getDaily())
+                && Boolean.TRUE.equals(form.getDueDateUndecided())) {
+
+            throw new BadRequestException(
+                    "dailyタスクにはdueDateUndecidedを指定できません");
+        }
+
+        if (form.getDueDate() != null
+                && Boolean.TRUE.equals(form.getDueDateUndecided())) {
+
+            throw new BadRequestException(
+                    "dueDateとdueDateUndecidedは同時指定できません");
         }
     }
 

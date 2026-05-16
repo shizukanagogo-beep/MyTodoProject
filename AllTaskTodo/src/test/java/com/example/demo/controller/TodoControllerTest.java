@@ -186,6 +186,62 @@ class TodoControllerTest {
   }
 
   @Test
+  @DisplayName("POST /todos: dailyとdueDate同時指定時は400を返すこと")
+  void testPostTodos_DailyAndDueDate_ShouldReturnBadRequest() throws Exception {
+
+    String requestBody = """
+        {
+          "title": "不正daily",
+          "details": "daily確認",
+          "categoryId": 1,
+          "parentId": null,
+          "dueDate": "2026-05-21",
+          "dueDateUndecided": false,
+          "daily": true,
+          "hasFlag": false,
+          "autoCarryOver": false,
+          "overdueBehavior": 0,
+          "sortOrder": 9
+        }
+        """;
+
+    mockMvc.perform(post("/todos")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error")
+            .value("dailyタスクにはdueDateを指定できません"));
+  }
+
+  @Test
+  @DisplayName("POST /todos: dueDateとdueDateUndecided同時指定時は400を返すこと")
+  void testPostTodos_DueDateAndUndecided_ShouldReturnBadRequest() throws Exception {
+
+    String requestBody = """
+        {
+          "title": "不正dueDate",
+          "details": "dueDate確認",
+          "categoryId": 1,
+          "parentId": null,
+          "dueDate": "2026-05-21",
+          "dueDateUndecided": true,
+          "daily": false,
+          "hasFlag": false,
+          "autoCarryOver": false,
+          "overdueBehavior": 0,
+          "sortOrder": 9
+        }
+        """;
+
+    mockMvc.perform(post("/todos")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error")
+            .value("dueDateとdueDateUndecidedは同時指定できません"));
+  }
+
+  @Test
   @DisplayName("PUT /todos/{id}: Todoを更新できること")
   void testPutTodos_ShouldUpdateTodo() throws Exception {
     String requestBody = """
