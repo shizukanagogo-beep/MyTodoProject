@@ -20,7 +20,7 @@ type ModalsProps = {
   onCloseCategoryModal: () => void;
   onAddCategory: () => void;
   onUpdateCategory: (id: number, name: string) => Promise<boolean>;
-  onDeleteCategory: (id: number) => Promise<boolean>;
+  onRequestDeleteCategory: (category: Category) => void;
   onReorderCategories: (fromIndex: number, toIndex: number) => void;
 };
 
@@ -38,7 +38,7 @@ function Modals({
   onCloseCategoryModal,
   onAddCategory,
   onUpdateCategory,
-  onDeleteCategory,
+  onRequestDeleteCategory,
   onReorderCategories,
 }: ModalsProps) {
   return (
@@ -62,7 +62,7 @@ function Modals({
           onClose={onCloseCategoryModal}
           onAddCategory={onAddCategory}
           onUpdateCategory={onUpdateCategory}
-          onDeleteCategory={onDeleteCategory}
+          onRequestDeleteCategory={onRequestDeleteCategory}
           onReorderCategories={onReorderCategories}
         />
       )}
