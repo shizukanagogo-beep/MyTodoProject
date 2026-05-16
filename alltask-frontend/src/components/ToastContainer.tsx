@@ -36,17 +36,29 @@ function ToastContainer() {
 
   return (
     <div className="pointer-events-none fixed right-4 top-4 z-[200] flex w-80 flex-col gap-2">
-      {toasts.map((toast) => (
-        <div
-          key={toast.id}
-          className="rounded-2xl border border-red-200 bg-white px-4 py-3 shadow-xl"
-        >
-          <p className="text-sm font-bold text-red-600">エラー</p>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">
-            {toast.message}
-          </p>
-        </div>
-      ))}
+      {toasts.map((toast) => {
+        const isError = toast.variant === "error";
+
+        return (
+          <div
+            key={toast.id}
+            className={`rounded-2xl border bg-white px-4 py-3 shadow-xl ${
+              isError ? "border-red-200" : "border-slate-200"
+            }`}
+          >
+            <p
+              className={`text-sm font-bold ${
+                isError ? "text-red-600" : "text-slate-700"
+              }`}
+            >
+              {isError ? "エラー" : "通知"}
+            </p>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">
+              {toast.message}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }
