@@ -12,6 +12,7 @@ type DueDateSettingProps = {
   dueDateUndecided: boolean;
   daily: boolean;
   overdueBehavior: number;
+  errorMessage?: string;
   onChange: (draft: DueDateDraft) => void;
 };
 
@@ -55,6 +56,7 @@ function DueDateSetting({
   dueDateUndecided,
   daily,
   overdueBehavior,
+  errorMessage,
   onChange,
 }: DueDateSettingProps) {
   const commitChange = (draft: Partial<DueDateDraft>) => {
@@ -148,6 +150,12 @@ function DueDateSetting({
           </div>
         )}
       </div>
+
+      {errorMessage && (
+        <p className="mt-1 text-xs font-bold text-red-500">
+          {errorMessage}
+        </p>
+      )}
 
       {dueDate && !dueDateUndecided && (
         <div className="mt-3">
