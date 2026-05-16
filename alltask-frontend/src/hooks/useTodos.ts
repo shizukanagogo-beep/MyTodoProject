@@ -6,7 +6,7 @@ import {
   getApiFieldErrors,
   type ApiFieldErrors,
 } from "../utils/apiError";
-import { showErrorToast } from "../utils/toast";
+import { showErrorToast, showInfoToast } from "../utils/toast";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
   fetchTodos as fetchTodosApi,
@@ -220,7 +220,6 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     },
   ) => {
     if (!payload.title.trim()) {
-      alert("タイトルを入力してください");
       return false;
     }
 
@@ -411,7 +410,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     );
 
     if (incompleteTodos.length === 0) {
-      alert("未完了のタスクがありません。");
+      showInfoToast("未完了のタスクがありません。");
       return;
     }
 
