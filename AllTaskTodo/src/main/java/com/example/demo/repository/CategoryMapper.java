@@ -12,6 +12,8 @@ public interface CategoryMapper {
 
     void addCategory(Category category);
 
+    Integer findMaxSortOrder();
+
     void updateCategory(Category category);
 
     Category findById(Integer id);
