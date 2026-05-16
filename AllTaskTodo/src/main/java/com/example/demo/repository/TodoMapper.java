@@ -24,13 +24,13 @@ public interface TodoMapper {
 
 	boolean update(Todo todo);
 
-	void updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
+	boolean updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
 
 	// カテゴリーのみ変更
-	void updateCategory(@Param("id") Integer id, @Param("categoryId") Integer categoryId);
+	boolean updateCategory(@Param("id") Integer id, @Param("categoryId") Integer categoryId);
 
 	// ステータス（完了/未完了）のみ変更
-	void updateStatus(@Param("id") Integer id, @Param("status") Status status);
+	boolean updateStatus(@Param("id") Integer id, @Param("status") Status status);
 
 	// 2. 日課タスクを未完了(INCOMPLETE)に戻す
 	void resetDailyTasks();

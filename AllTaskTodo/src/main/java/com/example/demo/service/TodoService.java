@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.TodoForm;
 import com.example.demo.entity.Status;
 import com.example.demo.entity.Todo;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.TodoMapper;
 import com.example.demo.dto.TodoSortOrderForm;
 
@@ -44,23 +45,37 @@ public class TodoService {
 
     // １件取得------------------------------------------------------------------------------
     public Todo getOne(Integer id) {
-        return todoMapper.getOne(id);
+        Todo todo = todoMapper.getOne(id);
+        if (todo == null) {
+            throw new ResourceNotFoundException("TODO not found");
+        }
+        return todo;
     }
 
     // 削除------------------------------------------------------------------------------
     public boolean delete(Integer id) {
         todoMapper.deleteByParentId(id);
-        return todoMapper.delete(id);
+        boolean deleted = todoMapper.delete(id);
+        if (!deleted) {
+            throw new ResourceNotFoundException("TODO not found");
+        }
+        return true;
     }
 
     // 完了／未完了の切り替え-------------------------------------------------------------------
     public void updateStatus(Integer id, Status Status) {
-        todoMapper.updateStatus(id, Status);
+        boolean updated = todoMapper.updateStatus(id, Status);
+        if (!updated) {
+            throw new ResourceNotFoundException("TODO not found");
+        }
     }
 
     // カテゴリの移動------------------------------------------------------------------
     public void updateCategory(Integer id, Integer CategoryId) {
-        todoMapper.updateCategory(id, CategoryId);
+        boolean updated = todoMapper.updateCategory(id, CategoryId);
+        if (!updated) {
+            throw new ResourceNotFoundException("TODO not found");
+        }
     }
 
     // タスク更新-------------------------------------------------------------------------------
@@ -72,14 +87,21 @@ public class TodoService {
         Todo todo = convertToEntity(form);
         todo.setId(id);
 
-        return todoMapper.update(todo);
+        boolean updated = todoMapper.update(todo);
+        if (!updated) {
+            throw new ResourceNotFoundException("TODO not found");
+        }
+        return true;
     }
 
     // 並び順変更-------------------------------------------------
     @Transactional
     public void updateSortOrder(List<TodoSortOrderForm> forms) {
         for (TodoSortOrderForm form : forms) {
-            todoMapper.updateSortOrder(form.getId(), form.getSortOrder());
+            boolean updated = todoMapper.updateSortOrder(form.getId(), form.getSortOrder());
+            if (!updated) {
+                throw new ResourceNotFoundException("TODO not found");
+            }
         }
     }
 

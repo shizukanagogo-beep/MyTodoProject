@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { modalLabelClassName } from "../constants/ui";
 import type { Category } from "../types";
+import ModalShell from "./ModalShell";
 import TrashIcon from "./icons/TrashIcon";
 
 const categoryNameInputClassName =
@@ -49,27 +51,12 @@ function CategoryModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
-      onClick={onClose}
+    <ModalShell
+      title="カテゴリの編集"
+      onClose={onClose}
+      zIndexClassName="z-[60]"
+      panelClassName="p-6"
     >
-      <div
-        className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-slate-800">カテゴリの編集</h3>
-
-          <button
-            className="text-2xl text-slate-400 hover:text-slate-600"
-            onClick={onClose}
-          >
-            ×
-          </button>
-        </div>
-
         <div className="space-y-2 mb-6">
           {categories.map((category, index) => {
             const canDragCategory = editingCategoryId !== category.id;
@@ -199,9 +186,7 @@ function CategoryModal({
         </div>
 
         <div className="border-t border-slate-100 pt-4">
-          <p className="text-sm font-bold text-slate-500 mb-2">
-            カテゴリを追加
-          </p>
+          <p className={`mb-2 ${modalLabelClassName}`}>カテゴリを追加</p>
 
           <input
             type="text"
@@ -218,8 +203,7 @@ function CategoryModal({
             追加
           </button>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }
 

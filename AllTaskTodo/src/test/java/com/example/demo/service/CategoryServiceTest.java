@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.demo.dto.CategorySortOrderForm;
 import com.example.demo.entity.Category;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CategoryMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,6 +93,10 @@ public class CategoryServiceTest {
     @DisplayName("カテゴリ削除時、サブタスク、親タスク、カテゴリの順に削除すること")
     void testDeleteCategory_ShouldDeleteSubTodosThenTodosThenCategory() {
         Integer categoryId = 1;
+        Category category = new Category();
+        category.setId(categoryId);
+
+        when(categoryMapper.findById(categoryId)).thenReturn(category);
 
         categoryService.deleteCategory(categoryId);
 
@@ -98,6 +104,22 @@ public class CategoryServiceTest {
         inOrder.verify(categoryMapper).deleteSubTodosByCategoryId(categoryId);
         inOrder.verify(categoryMapper).deleteTodosByCategoryId(categoryId);
         inOrder.verify(categoryMapper).deleteCategory(categoryId);
+    }
+
+    @Test
+    @DisplayName("存在しないカテゴリ削除時、ResourceNotFoundExceptionを投げること")
+    void testDeleteCategory_NotFound_ShouldThrowException() {
+        Integer categoryId = 999;
+
+        when(categoryMapper.findById(categoryId)).thenReturn(null);
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> categoryService.deleteCategory(categoryId));
+
+        verify(categoryMapper, never()).deleteSubTodosByCategoryId(anyInt());
+        verify(categoryMapper, never()).deleteTodosByCategoryId(anyInt());
+        verify(categoryMapper, never()).deleteCategory(anyInt());
     }
 
     @Test
@@ -110,6 +132,9 @@ public class CategoryServiceTest {
         CategorySortOrderForm second = new CategorySortOrderForm();
         second.setId(1);
         second.setSortOrder(2);
+
+        when(categoryMapper.updateSortOrder(3, 1)).thenReturn(true);
+        when(categoryMapper.updateSortOrder(1, 2)).thenReturn(true);
 
         categoryService.updateSortOrder(List.of(first, second));
 

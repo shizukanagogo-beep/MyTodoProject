@@ -12,7 +12,7 @@ function FlagCheckbox({ checked, onChange }: FlagCheckboxProps) {
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
-      <span aria-hidden="true" className="text-sm">
+      <span aria-hidden="true" className="text-xl leading-none">
         ⚑
       </span>
     </label>

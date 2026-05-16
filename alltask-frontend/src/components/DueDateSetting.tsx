@@ -1,3 +1,5 @@
+import Tooltip from "./Tooltip";
+
 type DueDateDraft = {
   dueDate: string;
   dueDateUndecided: boolean;
@@ -12,6 +14,41 @@ type DueDateSettingProps = {
   overdueBehavior: number;
   onChange: (draft: DueDateDraft) => void;
 };
+
+type TooltipCheckboxProps = {
+  label: string;
+  displayLabel?: string;
+  checked: boolean;
+  tooltip: string;
+  onChange: (checked: boolean) => void;
+};
+
+function TooltipCheckbox({
+  label,
+  displayLabel = label,
+  checked,
+  tooltip,
+  onChange,
+}: TooltipCheckboxProps) {
+  return (
+    <Tooltip label={tooltip}>
+      <label className="flex cursor-pointer items-center gap-2 px-1 py-1 text-sm text-slate-700">
+        <input
+          type="checkbox"
+          aria-label={label}
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+        <span
+          aria-hidden={displayLabel !== label}
+          className={displayLabel === "↻" ? "text-lg leading-none" : undefined}
+        >
+          {displayLabel}
+        </span>
+      </label>
+    </Tooltip>
+  );
+}
 
 function DueDateSetting({
   dueDate,
@@ -69,41 +106,19 @@ function DueDateSetting({
         <p className="text-sm font-bold text-slate-500">日付</p>
 
         <div className="flex items-center gap-3">
-          <div className="relative group">
-            <label className="flex cursor-pointer items-center gap-2 px-1 py-1 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                aria-label="未定"
-                checked={dueDateUndecided}
-                onChange={(e) => selectUndecided(e.target.checked)}
-              />
-              未定
-            </label>
+          <TooltipCheckbox
+            label="未定"
+            checked={dueDateUndecided}
+            tooltip="予定は未定"
+            onChange={selectUndecided}
+          />
 
-            <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
-              <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                予定は未定
-              </div>
-            </div>
-          </div>
-
-          <div className="relative group">
-            <label className="flex cursor-pointer items-center gap-2 px-1 py-1 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                aria-label="日課"
-                checked={daily}
-                onChange={(e) => selectDaily(e.target.checked)}
-              />
-              日課
-            </label>
-
-            <div className="absolute right-0 top-full z-10 mt-1 hidden group-hover:block">
-              <div className="whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-                日課タスクは毎日自動的に未完了となります
-              </div>
-            </div>
-          </div>
+          <TooltipCheckbox
+            label="日課"
+            checked={daily}
+            tooltip="日課タスクは毎日自動的に未完了となります"
+            onChange={selectDaily}
+          />
         </div>
       </div>
 

@@ -7,6 +7,7 @@ type MainContentProps = {
   categories: Category[];
   selectedCategoryId: number | null;
   sortedTodos: Todo[];
+  allTodos: Todo[];
   showDoneTodos: boolean;
   datedSortMode: "manual" | "dueDate";
   onToggleShowDoneTodos: () => void;
@@ -42,6 +43,7 @@ function MainContent({
   categories,
   selectedCategoryId,
   sortedTodos,
+  allTodos,
   showDoneTodos,
   datedSortMode,
   onToggleShowDoneTodos,
@@ -82,6 +84,7 @@ function MainContent({
       categories={categories}
       selectedCategoryId={selectedCategoryId}
       sortedTodos={sortedTodos}
+      allTodos={allTodos}
       showDoneTodos={showDoneTodos}
       datedSortMode={datedSortMode}
       onToggleShowDoneTodos={onToggleShowDoneTodos}

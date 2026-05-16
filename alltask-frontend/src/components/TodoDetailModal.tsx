@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import {
+  modalDangerButtonClassName,
   modalFieldInputClassName,
+  modalLabelClassName,
+  modalPrimaryButtonClassName,
+  modalSecondaryButtonClassName,
   modalTextareaClassName,
   modalTitleInputClassName,
 } from "../constants/ui";
@@ -8,6 +12,8 @@ import type { UpdateTodoPayload } from "../services/todoService";
 import type { Category, Todo } from "../types";
 import DueDateSetting from "./DueDateSetting";
 import FlagCheckbox from "./FlagCheckbox";
+import ModalShell from "./ModalShell";
+import SubtaskCreateModal from "./SubtaskCreateModal";
 
 type EditableTodo = {
   title: string;
@@ -15,34 +21,14 @@ type EditableTodo = {
   categoryId: number | null;
   dueDate: string;
   dueDateUndecided: boolean;
-  status: Todo["status"];
   daily: boolean;
   hasFlag: boolean;
   overdueBehavior: number;
-};
-
-type SubtaskDraft = {
-  title: string;
-  details: string;
-  dueDate: string;
-  dueDateUndecided: boolean;
-  daily: boolean;
-  hasFlag: boolean;
-  overdueBehavior: number;
-};
-
-const initialSubtaskDraft: SubtaskDraft = {
-  title: "",
-  details: "",
-  dueDate: "",
-  dueDateUndecided: false,
-  daily: false,
-  hasFlag: false,
-  overdueBehavior: 0,
 };
 
 type TodoDetailModalProps = {
   todo: Todo;
+  parentTodo: Todo | null;
   subtasks: Todo[];
   categories: Category[];
   onClose: () => void;
@@ -66,6 +52,7 @@ type TodoDetailModalProps = {
 
 function TodoDetailModal({
   todo,
+  parentTodo,
   subtasks,
   categories,
   onClose,
@@ -74,13 +61,15 @@ function TodoDetailModal({
   onUpdateTodo,
 }: TodoDetailModalProps) {
   const isSubtask = todo.parentId !== null;
+  const parentCategory = categories.find(
+    (category) => category.id === parentTodo?.categoryId,
+  );
   const initialTodoState: EditableTodo = {
     title: todo.title,
     details: todo.details || "",
     categoryId: todo.categoryId,
     dueDate: todo.dueDate || "",
     dueDateUndecided: todo.dueDateUndecided,
-    status: todo.status,
     daily: todo.daily,
     hasFlag: todo.hasFlag,
     overdueBehavior: todo.overdueBehavior,
@@ -88,8 +77,6 @@ function TodoDetailModal({
 
   const [editTodo, setEditTodo] = useState<EditableTodo>(initialTodoState);
   const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false);
-  const [newSubtask, setNewSubtask] =
-    useState<SubtaskDraft>(initialSubtaskDraft);
 
   const hasChanges = useMemo(() => {
     return (
@@ -98,7 +85,6 @@ function TodoDetailModal({
       editTodo.categoryId !== todo.categoryId ||
       editTodo.dueDate !== (todo.dueDate || "") ||
       editTodo.dueDateUndecided !== todo.dueDateUndecided ||
-      editTodo.status !== todo.status ||
       editTodo.daily !== todo.daily ||
       editTodo.hasFlag !== todo.hasFlag ||
       editTodo.overdueBehavior !== todo.overdueBehavior
@@ -123,7 +109,7 @@ function TodoDetailModal({
       parentId: todo.parentId,
       dueDate: editTodo.dueDate,
       dueDateUndecided: editTodo.dueDateUndecided,
-      status: editTodo.status,
+      status: todo.status,
       daily: editTodo.daily,
       hasFlag: editTodo.hasFlag,
       autoCarryOver: todo.autoCarryOver,
@@ -136,52 +122,14 @@ function TodoDetailModal({
     }
   };
 
-  const handleAddSubtask = async () => {
-    const isSuccess = await onAddSubtask(todo.id, {
-      title: newSubtask.title,
-      details: newSubtask.details,
-      dueDate: newSubtask.dueDate || null,
-      dueDateUndecided: newSubtask.dueDateUndecided,
-      daily: newSubtask.daily,
-      hasFlag: newSubtask.hasFlag,
-      autoCarryOver: false,
-      overdueBehavior: newSubtask.overdueBehavior,
-      sortOrder: subtasks.length + 1,
-    });
-
-    if (isSuccess) {
-      setNewSubtask(initialSubtaskDraft);
-      setIsSubtaskModalOpen(false);
-    }
-  };
-
   return (
-    <div
-      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[70] flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-5"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <ModalShell onClose={onClose} zIndexClassName="z-[70]">
         <div className="flex justify-between items-start gap-4 mb-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
-              type="checkbox"
-              checked={editTodo.status === "DONE"}
-              className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-              onChange={(e) =>
-                setEditTodo({
-                  ...editTodo,
-                  status: e.target.checked ? "DONE" : "INCOMPLETE",
-                })
-              }
-            />
-
-            <input
               type="text"
               className={`${modalTitleInputClassName} ${
-                editTodo.status === "DONE"
+                todo.status === "DONE"
                   ? "line-through text-slate-400"
                   : "text-slate-800"
               }`}
@@ -204,9 +152,7 @@ function TodoDetailModal({
         <div className="space-y-3">
           {!isSubtask && (
             <div>
-              <p className="text-sm font-bold text-slate-500 mb-1">
-                カテゴリ
-              </p>
+              <p className={`mb-1 ${modalLabelClassName}`}>カテゴリ</p>
               <select
                 className={modalFieldInputClassName}
                 value={editTodo.categoryId ?? ""}
@@ -233,6 +179,17 @@ function TodoDetailModal({
             </div>
           )}
 
+          {isSubtask && (
+            <div>
+              <p className={`mb-1 ${modalLabelClassName}`}>
+                親タスクのカテゴリ
+              </p>
+              <div className="border-b border-slate-100 px-1 py-2 text-slate-500">
+                <span>{parentCategory?.name ?? "カテゴリなし"}</span>
+              </div>
+            </div>
+          )}
+
           <DueDateSetting
             dueDate={editTodo.dueDate}
             dueDateUndecided={editTodo.dueDateUndecided}
@@ -248,7 +205,7 @@ function TodoDetailModal({
 
           <div>
             <div className="mb-1 flex items-center justify-between gap-3">
-              <p className="text-sm font-bold text-slate-500">詳細</p>
+              <p className={modalLabelClassName}>詳細</p>
             </div>
 
             <textarea
@@ -276,14 +233,14 @@ function TodoDetailModal({
             {hasChanges ? (
               <>
                 <button
-                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                  className={modalSecondaryButtonClassName}
                   onClick={handleCancelChanges}
                 >
                   キャンセル
                 </button>
 
                 <button
-                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors"
+                  className={modalPrimaryButtonClassName}
                   onClick={handleMainButton}
                 >
                   保存
@@ -292,14 +249,14 @@ function TodoDetailModal({
             ) : (
               <>
                 <button
-                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                  className={modalSecondaryButtonClassName}
                   onClick={onClose}
                 >
                   閉じる
                 </button>
 
                 <button
-                  className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors"
+                  className={modalDangerButtonClassName}
                   onClick={handleDelete}
                 >
                   削除
@@ -308,105 +265,20 @@ function TodoDetailModal({
             )}
           </div>
         </div>
-      </div>
 
       {isSubtaskModalOpen && (
-        <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/40 p-4"
-          onClick={(e) => {
-            e.stopPropagation();
+        <SubtaskCreateModal
+          parentId={todo.id}
+          sortOrder={subtasks.length + 1}
+          onClose={() => setIsSubtaskModalOpen(false)}
+          onCreateSuccess={() => {
             setIsSubtaskModalOpen(false);
+            onClose();
           }}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-slate-800">
-                サブタスク作成
-              </h3>
-              <button
-                className="text-2xl text-slate-400 hover:text-slate-600"
-                onClick={() => setIsSubtaskModalOpen(false)}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  placeholder="タイトル"
-                  className={modalTitleInputClassName}
-                  value={newSubtask.title}
-                  onChange={(e) =>
-                    setNewSubtask({ ...newSubtask, title: e.target.value })
-                  }
-                />
-
-                <FlagCheckbox
-                  checked={newSubtask.hasFlag}
-                  onChange={(checked) =>
-                    setNewSubtask({
-                      ...newSubtask,
-                      hasFlag: checked,
-                    })
-                  }
-                />
-              </div>
-
-              <DueDateSetting
-                dueDate={newSubtask.dueDate}
-                dueDateUndecided={newSubtask.dueDateUndecided}
-                daily={newSubtask.daily}
-                overdueBehavior={newSubtask.overdueBehavior}
-                onChange={(draft) =>
-                  setNewSubtask({
-                    ...newSubtask,
-                    ...draft,
-                  })
-                }
-              />
-
-              <div>
-                <div className="mb-1 flex items-center justify-between gap-3">
-                  <p className="text-sm font-bold text-slate-500">詳細</p>
-                </div>
-
-                <textarea
-                  className={modalTextareaClassName}
-                  value={newSubtask.details}
-                  onChange={(e) =>
-                    setNewSubtask({
-                      ...newSubtask,
-                      details: e.target.value,
-                    })
-                  }
-                  placeholder="詳細メモ"
-                />
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  className="flex-1 rounded-xl bg-slate-100 py-3 font-bold text-slate-600 transition-colors hover:bg-slate-200"
-                  onClick={() => setIsSubtaskModalOpen(false)}
-                >
-                  キャンセル
-                </button>
-                <button
-                  className="flex-1 rounded-xl bg-indigo-600 py-3 font-bold text-white transition-colors hover:bg-indigo-700"
-                  onClick={handleAddSubtask}
-                >
-                  作成
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          onAddSubtask={onAddSubtask}
+        />
       )}
-    </div>
+    </ModalShell>
   );
 }
 

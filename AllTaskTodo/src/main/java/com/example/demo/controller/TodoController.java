@@ -43,25 +43,15 @@ public class TodoController {
 
     // １件get---------------------------------------------------------------------
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOne(@PathVariable("id") Integer id) {
+    public ResponseEntity<Todo> getOne(@PathVariable("id") Integer id) {
         Todo todo = todoService.getOne(id);
-        if (todo == null) {
-            return ResponseEntity
-                    .status(404)
-                    .body(Map.of("error", "TODO not found"));
-        }
         return ResponseEntity.ok(todo);
     }
 
     // 削除---------------------------------------------------------------------
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Integer id) {
-        boolean exist = todoService.delete(id);
-        if (!exist) {
-            return ResponseEntity
-                    .status(404)
-                    .body(Map.of("error", "TODO not found"));
-        }
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+        todoService.delete(id);
         return ResponseEntity
                 .noContent()
                 .build();
@@ -90,12 +80,7 @@ public class TodoController {
             return ResponseEntity.status(400).body(Map.of("error", errorMessage));
         }
 
-        boolean isUpdated = todoService.update(id, form);
-
-        // 3. 更新に失敗した場合（対象のIDが存在しないなど）
-        if (!isUpdated) {
-            return ResponseEntity.status(404).body(Map.of("error", "TODO not found"));
-        }
+        todoService.update(id, form);
 
         // 4. 更新後のデータを取得して返却する
         Todo updated = todoService.getOne(id);

@@ -22,6 +22,6 @@ public interface CategoryMapper {
 
     void deleteCategory(Integer id);
 
-    void updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
+    boolean updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
 
 }

@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import com.example.demo.entity.Category;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CategoryMapper;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.CategorySortOrderForm;
@@ -30,11 +31,18 @@ public class CategoryService {
     public Category updateCategory(Integer id, Category category) {
         category.setId(id);
         categoryMapper.updateCategory(category);
-        return categoryMapper.findById(id);
+        Category updatedCategory = categoryMapper.findById(id);
+        if (updatedCategory == null) {
+            throw new ResourceNotFoundException("Category not found");
+        }
+        return updatedCategory;
     }
 
     // -------------------------------------------------------------
     public void deleteCategory(Integer id) {
+        if (categoryMapper.findById(id) == null) {
+            throw new ResourceNotFoundException("Category not found");
+        }
         categoryMapper.deleteSubTodosByCategoryId(id);
         categoryMapper.deleteTodosByCategoryId(id);
         categoryMapper.deleteCategory(id);
@@ -44,7 +52,10 @@ public class CategoryService {
     @Transactional
     public void updateSortOrder(List<CategorySortOrderForm> forms) {
         for (CategorySortOrderForm form : forms) {
-            categoryMapper.updateSortOrder(form.getId(), form.getSortOrder());
+            boolean updated = categoryMapper.updateSortOrder(form.getId(), form.getSortOrder());
+            if (!updated) {
+                throw new ResourceNotFoundException("Category not found");
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 import type { Todo } from "../types";
+import { getLocalDateString } from "../utils/date";
 import TrashIcon from "./icons/TrashIcon";
 
 type TodoItemProps = {
@@ -16,14 +17,6 @@ function TodoItem({
   onOpenTodoDetail,
   subdued = false,
 }: TodoItemProps) {
-  const getLocalDateString = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const date = String(today.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${date}`;
-  };
   const today = getLocalDateString();
   const isOverdue =
     todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";

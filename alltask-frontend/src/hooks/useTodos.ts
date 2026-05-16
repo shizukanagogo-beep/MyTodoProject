@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import type { NewTodo, Todo, ViewMode } from "../types";
+import type { DatedFilter, NewTodo, Todo, ViewMode } from "../types";
+import { getLocalDateString } from "../utils/date";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
   fetchTodos as fetchTodosApi,
@@ -9,27 +10,6 @@ import {
   updateTodoSortOrder,
   deleteTodo as deleteTodoApi,
 } from "../services/todoService";
-
-const getLocalDateString = () => {
-  const today = new Date();
-
-  return formatLocalDate(today);
-};
-
-const getTomorrowLocalDateString = () => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  return formatLocalDate(tomorrow);
-};
-
-const formatLocalDate = (dateValue: Date) => {
-  const year = dateValue.getFullYear();
-  const month = String(dateValue.getMonth() + 1).padStart(2, "0");
-  const date = String(dateValue.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${date}`;
-};
 
 const initialNewTodo: NewTodo = {
   title: "",
@@ -49,8 +29,6 @@ type UseTodosArgs = {
   viewMode: ViewMode;
   selectedCategoryId: number | null;
 };
-
-type DatedFilter = "all" | "today" | "tomorrow" | "undecided";
 
 export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -242,7 +220,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   };
 
   const today = getLocalDateString();
-  const tomorrow = getTomorrowLocalDateString();
+  const tomorrow = getLocalDateString(1);
   const isOverdueTodo = (todo: Todo) =>
     todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
   const todoMap = new Map(todos.map((todo) => [todo.id, todo]));

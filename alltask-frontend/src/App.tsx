@@ -10,15 +10,7 @@ import Modals from "./components/Modals";
 import TodoDetailModal from "./components/TodoDetailModal";
 import { useSelectedTodoModal } from "./hooks/useSelectedTodoModal";
 import type { NewTodo, ViewMode } from "./types";
-
-const getLocalDateString = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const date = String(today.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${date}`;
-};
+import { getLocalDateString } from "./utils/date";
 
 const createInitialTodoForView = (
   viewMode: ViewMode,
@@ -139,6 +131,12 @@ function App() {
       {selectedTodo && (
         <TodoDetailModal
           todo={selectedTodo}
+          parentTodo={
+            selectedTodo.parentId === null
+              ? null
+              : (allTodos.find((todo) => todo.id === selectedTodo.parentId) ??
+                null)
+          }
           categories={categories}
           onClose={closeTodoDetailModal}
           onDeleteTodo={deleteTodo}
@@ -186,6 +184,7 @@ function App() {
         categories={categories}
         selectedCategoryId={selectedCategoryId}
         sortedTodos={sortedTodos}
+        allTodos={allTodos}
         showDoneTodos={showDoneTodos}
         datedSortMode={datedSortMode}
         onToggleShowDoneTodos={() => setShowDoneTodos((prev) => !prev)}

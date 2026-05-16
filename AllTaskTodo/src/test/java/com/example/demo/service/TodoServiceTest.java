@@ -204,6 +204,9 @@ public class TodoServiceTest {
         second.setId(1);
         second.setSortOrder(2);
 
+        when(todoMapper.updateSortOrder(3, 1)).thenReturn(true);
+        when(todoMapper.updateSortOrder(1, 2)).thenReturn(true);
+
         todoService.updateSortOrder(List.of(first, second));
 
         verify(todoMapper).updateSortOrder(3, 1);

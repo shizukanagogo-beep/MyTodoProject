@@ -50,3 +50,5 @@ export type ViewMode =
   | "DATED"
   | "DAILY"
   | "FLAGGED";
+
+export type DatedFilter = "all" | "today" | "tomorrow" | "undecided";
