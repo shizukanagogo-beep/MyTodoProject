@@ -72,6 +72,7 @@ function App() {
 
   const {
     isTodoModalOpen,
+    fieldErrors,
     openTodoModal,
     closeTodoModal,
     addTodoAndCloseModal,
@@ -168,6 +169,7 @@ function App() {
         newTodo={newTodo}
         setNewTodo={setNewTodo}
         categories={categories}
+        todoFieldErrors={fieldErrors}
         onCloseTodoModal={closeTodoModal}
         onAddTodo={addTodoAndCloseModal}
         newCategoryName={newCategoryName}
