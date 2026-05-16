@@ -17,12 +17,21 @@
           sort_order ASC,
           id ASC
     </select>
+
+    <select id="findMaxSortOrder" resultType="java.lang.Integer">
+        SELECT
+          MAX(sort_order)
+        FROM
+          categories
+    </select>
+
     <!-- =============================================================== -->
     <insert id="addCategory" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO categories (name, sort_order)
         VALUES
           (#{name}, #{sortOrder})
     </insert>
+
     <!-- =============================================================== -->
     <update id="updateCategory" parameterType="com.example.demo.entity.Category">
         UPDATE categories
@@ -32,6 +41,7 @@
         WHERE
           id = #{id}
     </update>
+
     <!-- =============================================================== -->
     <select id="findById" parameterType="java.lang.Integer" resultType="com.example.demo.entity.Category">
         SELECT
@@ -43,6 +53,7 @@
         WHERE
           id = #{id}
     </select>
+
     <!-- =============================================================== -->
     <delete id="deleteSubTodosByCategoryId" parameterType="java.lang.Integer">
         DELETE FROM todos
@@ -56,16 +67,19 @@
               category_id = #{categoryId}
           )
     </delete>
+
     <delete id="deleteTodosByCategoryId" parameterType="java.lang.Integer">
         DELETE FROM todos
         WHERE
           category_id = #{categoryId}
     </delete>
+
     <delete id="deleteCategory" parameterType="java.lang.Integer">
         DELETE FROM categories
         WHERE
           id = #{id}
     </delete>
+
     <!-- ====================================================================== -->
     <update id="updateSortOrder">
         UPDATE categories
@@ -74,5 +88,6 @@
         WHERE
           id = #{id}
     </update>
+
     <!-- =========================================================================== -->
 </mapper>
