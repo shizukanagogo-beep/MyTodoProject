@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import {
   modalFieldInputClassName,
   modalLabelClassName,
@@ -17,7 +17,7 @@ type TodoModalProps = {
   setNewTodo: Dispatch<SetStateAction<NewTodo>>;
   categories: Category[];
   onClose: () => void;
-  onAddTodo: () => void;
+  onAddTodo: () => Promise<void> | void;
 };
 
 function TodoModal({
@@ -27,26 +27,49 @@ function TodoModal({
   onClose,
   onAddTodo,
 }: TodoModalProps) {
+  const [titleError, setTitleError] = useState("");
+
+  const handleAddTodo = async () => {
+    if (!newTodo.title.trim()) {
+      setTitleError("タイトルを入力してください");
+      return;
+    }
+
+    setTitleError("");
+    await onAddTodo();
+  };
+
   return (
     <ModalShell onClose={onClose}>
       <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <input
-              type="text"
-              placeholder="タイトル"
-              className={modalTitleInputClassName}
-              value={newTodo.title}
-              onChange={(e) =>
-                setNewTodo({ ...newTodo, title: e.target.value })
-              }
-            />
+          <div>
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                placeholder="タイトル"
+                className={modalTitleInputClassName}
+                value={newTodo.title}
+                onChange={(e) => {
+                  setNewTodo({ ...newTodo, title: e.target.value });
+                  if (titleError) {
+                    setTitleError("");
+                  }
+                }}
+              />
 
-            <FlagCheckbox
-              checked={newTodo.hasFlag}
-              onChange={(checked) =>
-                setNewTodo({ ...newTodo, hasFlag: checked })
-              }
-            />
+              <FlagCheckbox
+                checked={newTodo.hasFlag}
+                onChange={(checked) =>
+                  setNewTodo({ ...newTodo, hasFlag: checked })
+                }
+              />
+            </div>
+
+            {titleError && (
+              <p className="mt-1 text-xs font-bold text-red-500">
+                {titleError}
+              </p>
+            )}
           </div>
 
           <div>
@@ -109,7 +132,7 @@ function TodoModal({
             </button>
             <button
               className={modalPrimaryButtonClassName}
-              onClick={onAddTodo}
+              onClick={handleAddTodo}
             >
               作成
             </button>
