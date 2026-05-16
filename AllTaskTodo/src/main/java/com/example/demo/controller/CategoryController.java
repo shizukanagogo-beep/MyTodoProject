@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entity.Category;
 import com.example.demo.service.CategoryService;
 import org.springframework.web.bind.annotation.PatchMapping;
+
+import com.example.demo.dto.CategoryForm;
 import com.example.demo.dto.CategorySortOrderForm;
 
 import lombok.RequiredArgsConstructor;
@@ -36,16 +38,16 @@ public class CategoryController {
 
     // -----------------------------------------------------
     @PostMapping
-    public Category addCategory(@RequestBody Category category) {
-        return categoryService.addCategory(category);
+    public Category addCategory(@RequestBody CategoryForm form) {
+        return categoryService.addCategory(form);
     }
 
     // -----------------------------------------------------==
     @PutMapping("/{id}")
     public Category updateCategory(
             @PathVariable Integer id,
-            @RequestBody Category category) {
-        return categoryService.updateCategory(id, category);
+            @RequestBody CategoryForm form) {
+        return categoryService.updateCategory(id, form);
     }
 
     // ------------------------------------------------------

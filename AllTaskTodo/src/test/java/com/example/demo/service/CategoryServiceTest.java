@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -15,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.demo.dto.CategoryForm;
 import com.example.demo.dto.CategorySortOrderForm;
 import com.example.demo.entity.Category;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -53,16 +53,17 @@ public class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("カテゴリ追加時、Mapperに渡したカテゴリを返すこと")
+    @DisplayName("カテゴリ追加時、フォームをEntityに変換してMapperへ渡し、追加したカテゴリを返すこと")
     void testAddCategory_ShouldReturnAddedCategory() {
-        Category category = new Category();
-        category.setName("仕事");
-        category.setSortOrder(1);
+        CategoryForm form = new CategoryForm();
+        form.setName("仕事");
+        form.setSortOrder(1);
 
-        Category result = categoryService.addCategory(category);
+        Category result = categoryService.addCategory(form);
 
-        assertSame(category, result, "渡したカテゴリインスタンスをそのまま返すこと");
-        verify(categoryMapper).addCategory(category);
+        assertEquals("仕事", result.getName(), "フォームのカテゴリ名がセットされること");
+        assertEquals(1, result.getSortOrder(), "フォームの並び順がセットされること");
+        verify(categoryMapper).addCategory(result);
     }
 
     @Test
@@ -70,23 +71,29 @@ public class CategoryServiceTest {
     void testUpdateCategory_ShouldSetIdUpdateAndReturnUpdatedCategory() {
         Integer id = 1;
 
-        Category request = new Category();
-        request.setName("更新後カテゴリ");
-        request.setSortOrder(5);
+        CategoryForm form = new CategoryForm();
+        form.setName("更新後カテゴリ");
+        form.setSortOrder(5);
+
+        Category existing = new Category();
+        existing.setId(id);
+        existing.setName("更新前カテゴリ");
+        existing.setSortOrder(1);
 
         Category updated = new Category();
         updated.setId(id);
         updated.setName("更新後カテゴリ");
         updated.setSortOrder(5);
 
-        when(categoryMapper.findById(id)).thenReturn(updated);
+        when(categoryMapper.findById(id)).thenReturn(existing, updated);
 
-        Category result = categoryService.updateCategory(id, request);
+        Category result = categoryService.updateCategory(id, form);
 
         assertEquals(updated, result, "更新後のカテゴリを返すこと");
-        assertEquals(id, request.getId(), "更新対象IDがセットされること");
-        verify(categoryMapper).updateCategory(request);
-        verify(categoryMapper).findById(id);
+        verify(categoryMapper).updateCategory(argThat(category -> category.getId().equals(id)
+                && category.getName().equals("更新後カテゴリ")
+                && category.getSortOrder().equals(5)));
+        verify(categoryMapper, times(2)).findById(id);
     }
 
     @Test
