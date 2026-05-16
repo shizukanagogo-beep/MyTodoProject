@@ -444,6 +444,22 @@ class TodoControllerTest {
   }
 
   @Test
+  @DisplayName("PATCH /todos/sort-order: 存在しないTodoの場合404を返すこと")
+  void testPatchTodoSortOrder_NotFoundTodo_ShouldReturnNotFound() throws Exception {
+    String requestBody = """
+        [
+          { "id": 999, "sortOrder": 1 }
+        ]
+        """;
+
+    mockMvc.perform(patch("/todos/sort-order")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("TODO not found"));
+  }
+
+  @Test
   @DisplayName("DELETE /todos/{id}: Todoを削除できること")
   void testDeleteTodo_ShouldDeleteTodo() throws Exception {
     mockMvc.perform(delete("/todos/6"))
