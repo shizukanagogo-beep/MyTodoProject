@@ -248,6 +248,33 @@ class TodoControllerTest {
   }
 
   @Test
+  @DisplayName("PUT /todos/{id}: 自分自身を親に指定した場合400を返すこと")
+  void testPutTodos_SelfAsParent_ShouldReturnBadRequest() throws Exception {
+    String requestBody = """
+        {
+          "title": "自分自身を親にする",
+          "details": "parentId確認",
+          "categoryId": null,
+          "parentId": 1,
+          "dueDate": null,
+          "dueDateUndecided": false,
+          "status": "INCOMPLETE",
+          "daily": false,
+          "hasFlag": false,
+          "autoCarryOver": false,
+          "overdueBehavior": 0,
+          "sortOrder": 9
+        }
+        """;
+
+    mockMvc.perform(put("/todos/1")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("自分自身を親タスクには指定できません"));
+  }
+
+  @Test
   @DisplayName("PATCH /todos/{id}/status: ステータスを更新できること")
   void testPatchTodoStatus_ShouldUpdateStatus() throws Exception {
     mockMvc.perform(patch("/todos/1/status")
@@ -282,6 +309,22 @@ class TodoControllerTest {
     mockMvc.perform(get("/todos/2"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sortOrder").value(10));
+  }
+
+  @Test
+  @DisplayName("PATCH /todos/sort-order: sortOrderがnullの場合400を返すこと")
+  void testPatchTodoSortOrder_NullSortOrder_ShouldReturnBadRequest() throws Exception {
+    String requestBody = """
+        [
+          { "id": 1, "sortOrder": null }
+        ]
+        """;
+
+    mockMvc.perform(patch("/todos/sort-order")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Validation failed"));
   }
 
   @Test
