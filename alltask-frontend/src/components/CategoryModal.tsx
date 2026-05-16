@@ -7,7 +7,7 @@ import TrashIcon from "./icons/TrashIcon";
 const categoryNameInputClassName =
   "flex-1 border-b border-transparent bg-white px-1 py-2 font-bold text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500";
 const newCategoryInputClassName =
-  "mb-3 w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500";
+  "w-full border-b border-transparent bg-white px-1 py-2 text-slate-700 outline-none hover:border-slate-200 focus:border-indigo-500";
 
 type CategoryModalProps = {
   categories: Category[];
@@ -30,24 +30,46 @@ function CategoryModal({
   onDeleteCategory,
   onReorderCategories,
 }: CategoryModalProps) {
-  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
-    null,
-  );
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
+  const [newCategoryNameError, setNewCategoryNameError] = useState("");
+  const [editingCategoryNameError, setEditingCategoryNameError] = useState("");
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
 
   const startEditingCategory = (category: Category) => {
     setEditingCategoryId(category.id);
     setEditingCategoryName(category.name);
+    setEditingCategoryNameError("");
+  };
+
+  const cancelEditingCategory = () => {
+    setEditingCategoryId(null);
+    setEditingCategoryName("");
+    setEditingCategoryNameError("");
   };
 
   const saveCategoryName = async (categoryId: number) => {
+    if (!editingCategoryName.trim()) {
+      setEditingCategoryNameError("カテゴリ名を入力してください");
+      return;
+    }
+
+    setEditingCategoryNameError("");
     const isSuccess = await onUpdateCategory(categoryId, editingCategoryName);
 
     if (isSuccess) {
-      setEditingCategoryId(null);
-      setEditingCategoryName("");
+      cancelEditingCategory();
     }
+  };
+
+  const addCategory = () => {
+    if (!newCategoryName.trim()) {
+      setNewCategoryNameError("カテゴリ名を入力してください");
+      return;
+    }
+
+    setNewCategoryNameError("");
+    onAddCategory();
   };
 
   return (
@@ -57,31 +79,27 @@ function CategoryModal({
       zIndexClassName="z-[60]"
       panelClassName="p-6"
     >
-        <div className="space-y-2 mb-6">
-          {categories.map((category, index) => {
-            const canDragCategory = editingCategoryId !== category.id;
+      <div className="space-y-2 mb-6">
+        {categories.map((category, index) => {
+          const canDragCategory = editingCategoryId !== category.id;
 
-            return (
+          return (
+            <div key={category.id}>
               <div
-                key={category.id}
                 draggable={canDragCategory}
                 onDragStart={(e) => {
                   if (!canDragCategory) {
                     e.preventDefault();
                     return;
                   }
-
                   setDraggingIndex(index);
                 }}
                 onDragOver={(e) => {
-                  if (canDragCategory) {
-                    e.preventDefault();
-                  }
+                  if (canDragCategory) e.preventDefault();
                 }}
                 onDrop={() => {
                   if (!canDragCategory) return;
                   if (draggingIndex === null) return;
-
                   onReorderCategories(draggingIndex, index);
                   setDraggingIndex(null);
                 }}
@@ -96,17 +114,15 @@ function CategoryModal({
                     className={categoryNameInputClassName}
                     value={editingCategoryName}
                     autoFocus
-                    onChange={(e) => setEditingCategoryName(e.target.value)}
+                    onChange={(e) => {
+                      setEditingCategoryName(e.target.value);
+                      if (editingCategoryNameError) setEditingCategoryNameError("");
+                    }}
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => {
                       if (e.nativeEvent.isComposing) return;
-                      if (e.key === "Enter") {
-                        saveCategoryName(category.id);
-                      }
-                      if (e.key === "Escape") {
-                        setEditingCategoryId(null);
-                        setEditingCategoryName("");
-                      }
+                      if (e.key === "Enter") saveCategoryName(category.id);
+                      if (e.key === "Escape") cancelEditingCategory();
                     }}
                   />
                 ) : (
@@ -128,13 +144,11 @@ function CategoryModal({
                       className="text-xs font-bold text-slate-500 hover:text-slate-700"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setEditingCategoryId(null);
-                        setEditingCategoryName("");
+                        cancelEditingCategory();
                       }}
                     >
                       キャンセル
                     </button>
-
                     <button
                       className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
                       onClick={(e) => {
@@ -154,55 +168,55 @@ function CategoryModal({
                     onDragStart={(e) => e.preventDefault()}
                     onClick={async (e) => {
                       e.stopPropagation();
-
-                      const ok = window.confirm(
-                        `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\n本当に削除しますか？`,
-                      );
-
+                      const ok = window.confirm("このカテゴリを削除しますか？");
                       if (!ok) return;
-
                       const isSuccess = await onDeleteCategory(category.id);
-
-                      if (isSuccess) {
-                        if (editingCategoryId === category.id) {
-                          setEditingCategoryId(null);
-                          setEditingCategoryName("");
-                        }
-                      }
+                      if (isSuccess && editingCategoryId === category.id) cancelEditingCategory();
                     }}
                   >
                     <TrashIcon />
                   </button>
                 )}
               </div>
-            );
-          })}
 
-          {categories.length === 0 && (
-            <p className="text-center py-8 text-slate-400">
-              カテゴリがありません
-            </p>
-          )}
-        </div>
+              {editingCategoryId === category.id && editingCategoryNameError && (
+                <p className="mt-1 px-4 text-xs font-bold text-red-500">
+                  {editingCategoryNameError}
+                </p>
+              )}
+            </div>
+          );
+        })}
 
-        <div className="border-t border-slate-100 pt-4">
-          <p className={`mb-2 ${modalLabelClassName}`}>カテゴリを追加</p>
+        {categories.length === 0 && (
+          <p className="text-center py-8 text-slate-400">カテゴリがありません</p>
+        )}
+      </div>
 
-          <input
-            type="text"
-            className={newCategoryInputClassName}
-            placeholder="カテゴリ名 (例: 仕事、買い物)"
-            value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-          />
-
-          <button
-            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-md"
-            onClick={onAddCategory}
-          >
-            追加
-          </button>
-        </div>
+      <div className="border-t border-slate-100 pt-4">
+        <p className={`mb-2 ${modalLabelClassName}`}>カテゴリを追加</p>
+        <input
+          type="text"
+          className={newCategoryInputClassName}
+          placeholder="カテゴリ名 (例: 仕事、買い物)"
+          value={newCategoryName}
+          onChange={(e) => {
+            setNewCategoryName(e.target.value);
+            if (newCategoryNameError) setNewCategoryNameError("");
+          }}
+        />
+        {newCategoryNameError && (
+          <p className="mt-1 text-xs font-bold text-red-500">
+            {newCategoryNameError}
+          </p>
+        )}
+        <button
+          className="mt-3 w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-md"
+          onClick={addCategory}
+        >
+          追加
+        </button>
+      </div>
     </ModalShell>
   );
 }
