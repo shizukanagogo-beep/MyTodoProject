@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.Category;
 import com.example.demo.service.CategoryService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PatchMapping;
 
 import com.example.demo.dto.CategoryForm;
@@ -38,7 +41,7 @@ public class CategoryController {
 
     // -----------------------------------------------------
     @PostMapping
-    public Category addCategory(@RequestBody CategoryForm form) {
+    public Category addCategory(@Valid @RequestBody CategoryForm form) {
         return categoryService.addCategory(form);
     }
 
@@ -46,7 +49,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     public Category updateCategory(
             @PathVariable Integer id,
-            @RequestBody CategoryForm form) {
+            @Valid @RequestBody CategoryForm form) {
         return categoryService.updateCategory(id, form);
     }
 
@@ -59,7 +62,7 @@ public class CategoryController {
 
     // ---------------------------------------------------------------
     @PatchMapping("/sort-order")
-    public void updateSortOrder(@RequestBody List<CategorySortOrderForm> forms) {
+    public void updateSortOrder(@RequestBody List<@Valid CategorySortOrderForm> forms) {
         categoryService.updateSortOrder(forms);
     }
 }
