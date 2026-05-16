@@ -16,23 +16,17 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException exception) {
-                return ResponseEntity
-                                .status(HttpStatus.NOT_FOUND)
-                                .body(new ApiError(exception.getMessage()));
+                return error(HttpStatus.NOT_FOUND, exception.getMessage());
         }
 
         @ExceptionHandler(BadRequestException.class)
         public ResponseEntity<ApiError> handleBadRequest(BadRequestException exception) {
-                return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiError(exception.getMessage()));
+                return error(HttpStatus.BAD_REQUEST, exception.getMessage());
         }
 
         @ExceptionHandler(HttpMessageNotReadableException.class)
         public ResponseEntity<ApiError> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
-                return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiError("Invalid request body"));
+                return error(HttpStatus.BAD_REQUEST, "Invalid request body");
         }
 
         @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -65,8 +59,12 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiError> handleException(Exception exception) {
+                return error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
+        }
+
+        private ResponseEntity<ApiError> error(HttpStatus status, String message) {
                 return ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new ApiError("Internal server error"));
+                                .status(status)
+                                .body(new ApiError(message));
         }
 }
