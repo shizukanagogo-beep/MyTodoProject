@@ -1,9 +1,19 @@
 import axios from "axios";
 
+export type ApiFieldErrors = Record<string, string>;
+
 type ApiErrorResponse = {
   error?: string;
-  details?: Record<string, string>;
+  details?: ApiFieldErrors;
 };
+
+export function getApiFieldErrors(error: unknown): ApiFieldErrors | null {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return error.response?.data?.details ?? null;
+  }
+
+  return null;
+}
 
 export function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
