@@ -242,7 +242,6 @@ class TodoControllerTest {
   }
 
   @Test
-<<<<<<< HEAD
   @DisplayName("POST /todos: dailyとdueDateUndecided同時指定時は400を返すこと")
   void testPostTodos_DailyAndDueDateUndecided_ShouldReturnBadRequest() throws Exception {
     String requestBody = """
@@ -270,8 +269,6 @@ class TodoControllerTest {
   }
 
   @Test
-=======
->>>>>>> 17a6e127df5663849be4fc4136a4803137f1597c
   @DisplayName("PUT /todos/{id}: Todoを更新できること")
   void testPutTodos_ShouldUpdateTodo() throws Exception {
     String requestBody = """
@@ -371,6 +368,39 @@ class TodoControllerTest {
     mockMvc.perform(get("/todos/1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("DONE"));
+  }
+
+  @Test
+  @DisplayName("PATCH /todos/{id}/category: カテゴリを変更できること")
+  void testPatchTodoCategory_ShouldUpdateCategory() throws Exception {
+    mockMvc.perform(patch("/todos/1/category")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("2"))
+        .andExpect(status().isOk());
+
+    mockMvc.perform(get("/todos/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.categoryId").value(2));
+  }
+
+  @Test
+  @DisplayName("PATCH /todos/{id}/category: 存在しないcategoryIdの場合404を返すこと")
+  void testPatchTodoCategory_NotFoundCategoryId_ShouldReturnNotFound() throws Exception {
+    mockMvc.perform(patch("/todos/1/category")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("999"))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("Category not found"));
+  }
+
+  @Test
+  @DisplayName("PATCH /todos/{id}/category: 存在しないTodoの場合404を返すこと")
+  void testPatchTodoCategory_NotFoundTodo_ShouldReturnNotFound() throws Exception {
+    mockMvc.perform(patch("/todos/999/category")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("1"))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("TODO not found"));
   }
 
   @Test

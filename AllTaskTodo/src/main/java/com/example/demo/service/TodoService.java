@@ -74,8 +74,12 @@ public class TodoService {
     }
 
     // カテゴリの移動------------------------------------------------------------------
-    public void updateCategory(Integer id, Integer CategoryId) {
-        boolean updated = todoMapper.updateCategory(id, CategoryId);
+    public void updateCategory(Integer id, Integer categoryId) {
+        if (categoryId != null && categoryMapper.findById(categoryId) == null) {
+            throw new ResourceNotFoundException("Category not found");
+        }
+
+        boolean updated = todoMapper.updateCategory(id, categoryId);
         if (!updated) {
             throw new ResourceNotFoundException("TODO not found");
         }

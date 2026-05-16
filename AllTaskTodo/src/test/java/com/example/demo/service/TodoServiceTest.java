@@ -15,11 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.demo.repository.TodoMapper;
 import com.example.demo.dto.TodoForm;
 import com.example.demo.dto.TodoSortOrderForm;
 import com.example.demo.entity.Status;
 import com.example.demo.entity.Todo;
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.repository.CategoryMapper;
+import com.example.demo.repository.TodoMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class TodoServiceTest {
@@ -27,31 +29,46 @@ public class TodoServiceTest {
     @Mock
     private TodoMapper todoMapper;
 
+    @Mock
+    private CategoryMapper categoryMapper;
+
     @InjectMocks
     private TodoService todoService;
 
     @Test
-    @DisplayName("日課タスクを追加する際、期限と自動繰越が強制的に無効化されるか")
-    void testAdd_DailyTask_ShouldClearDueDateAndCarryOver() {
+    @DisplayName("日課タスクに日付を同時指定した場合、例外になること")
+    void testAdd_DailyTaskWithDueDate_ShouldThrowBadRequest() {
         TodoForm form = new TodoForm();
         form.setTitle("筋トレ");
         form.setDaily(true);
         form.setDueDate(LocalDate.of(2025, 12, 31));
         form.setAutoCarryOver(true);
+        form.setDueDateUndecided(false);
+
+        BadRequestException exception = assertThrows(
+                BadRequestException.class,
+                () -> todoService.add(form));
+
+        assertEquals("dailyタスクにはdueDateを指定できません", exception.getMessage());
+        verify(todoMapper, never()).add(any(Todo.class));
+    }
+
+    @Test
+    @DisplayName("日課タスクに期限未定を同時指定した場合、例外になること")
+    void testAdd_DailyTaskWithDueDateUndecided_ShouldThrowBadRequest() {
+        TodoForm form = new TodoForm();
+        form.setTitle("筋トレ");
+        form.setDaily(true);
+        form.setDueDate(null);
+        form.setAutoCarryOver(true);
         form.setDueDateUndecided(true);
 
-        doNothing().when(todoMapper).add(any(Todo.class));
+        BadRequestException exception = assertThrows(
+                BadRequestException.class,
+                () -> todoService.add(form));
 
-        Todo result = todoService.add(form);
-
-        assertEquals("筋トレ", result.getTitle());
-        assertEquals(Status.INCOMPLETE, result.getStatus(), "ステータスがnullの場合はINCOMPLETE");
-        assertTrue(result.getDaily(), "日課フラグはそのままON");
-        assertNull(result.getDueDate(), "日課では強制的に日付はnull");
-        assertFalse(result.getDueDateUndecided(), "日課では期限未定もfalseになること");
-        assertFalse(result.getAutoCarryOver(), "日課なので自動繰越は強制機にfalse");
-
-        verify(todoMapper, times(1)).add(any(Todo.class));
+        assertEquals("dailyタスクにはdueDateUndecidedを指定できません", exception.getMessage());
+        verify(todoMapper, never()).add(any(Todo.class));
     }
 
     // ==========================================
@@ -63,11 +80,12 @@ public class TodoServiceTest {
     void testAdd_DueDateTask_ShouldDisableDaily() {
         TodoForm form = new TodoForm();
         form.setTitle("会議");
-        form.setDueDate(LocalDate.of(2025, 12, 31)); // 日付あり
-        form.setDaily(false); // 矛盾する日課設定
-        form.setAutoCarryOver(true); // 繰越はONのまま活かされるべき
+        form.setDueDate(LocalDate.of(2025, 12, 31));
+        form.setDaily(false);
+        form.setAutoCarryOver(true);
 
         doNothing().when(todoMapper).add(any(Todo.class));
+
         Todo result = todoService.add(form);
 
         assertFalse(result.getDaily(), "日付があるので日課フラグはfalseにされること");
@@ -76,12 +94,12 @@ public class TodoServiceTest {
     }
 
     @Test
-    @DisplayName("期限未定タスクを追加する際、期限と日課と自動繰越が無効化されること")
-    void testAdd_DueDateUndecidedTask_ShouldClearDueDateDailyAndCarryOver() {
+    @DisplayName("期限未定タスクを追加する際、日付なしなら登録できること")
+    void testAdd_DueDateUndecidedTaskWithoutDueDate_ShouldAdd() {
         TodoForm form = new TodoForm();
         form.setTitle("期限未定タスク");
         form.setDueDateUndecided(true);
-        form.setDueDate(LocalDate.of(2026, 5, 12));
+        form.setDueDate(null);
         form.setDaily(false);
         form.setAutoCarryOver(true);
 
@@ -90,7 +108,7 @@ public class TodoServiceTest {
         Todo result = todoService.add(form);
 
         assertTrue(result.getDueDateUndecided(), "期限未定フラグはtrueになること");
-        assertNull(result.getDueDate(), "期限未定では日付はnullになること");
+        assertNull(result.getDueDate(), "期限未定では日付はnullであること");
         assertFalse(result.getDaily(), "期限未定では日課はfalseになること");
         assertFalse(result.getAutoCarryOver(), "期限未定では自動繰越はfalseになること");
 
@@ -98,8 +116,26 @@ public class TodoServiceTest {
     }
 
     @Test
-    @DisplayName("日付と期限未定が同時に指定された場合、期限未定を優先すること")
-    void testAdd_DueDateAndUndecidedTask_ShouldPreferDueDateUndecided() {
+    @DisplayName("期限未定タスクに日付を同時指定した場合、例外になること")
+    void testAdd_DueDateUndecidedTaskWithDueDate_ShouldThrowBadRequest() {
+        TodoForm form = new TodoForm();
+        form.setTitle("期限未定タスク");
+        form.setDueDateUndecided(true);
+        form.setDueDate(LocalDate.of(2026, 5, 12));
+        form.setDaily(false);
+        form.setAutoCarryOver(true);
+
+        BadRequestException exception = assertThrows(
+                BadRequestException.class,
+                () -> todoService.add(form));
+
+        assertEquals("dueDateとdueDateUndecidedは同時指定できません", exception.getMessage());
+        verify(todoMapper, never()).add(any(Todo.class));
+    }
+
+    @Test
+    @DisplayName("日付と期限未定が同時に指定された場合、例外になること")
+    void testAdd_DueDateAndUndecidedTask_ShouldThrowBadRequest() {
         TodoForm form = new TodoForm();
         form.setTitle("日付ありタスク");
         form.setDueDate(LocalDate.of(2026, 5, 12));
@@ -107,16 +143,12 @@ public class TodoServiceTest {
         form.setDaily(false);
         form.setAutoCarryOver(true);
 
-        doNothing().when(todoMapper).add(any(Todo.class));
+        BadRequestException exception = assertThrows(
+                BadRequestException.class,
+                () -> todoService.add(form));
 
-        Todo result = todoService.add(form);
-
-        assertNull(result.getDueDate(), "期限未定が優先されるため日付はnullになること");
-        assertTrue(result.getDueDateUndecided(), "期限未定フラグはtrueのままになること");
-        assertFalse(result.getDaily(), "期限未定では日課はfalseになること");
-        assertFalse(result.getAutoCarryOver(), "期限未定では自動繰越はfalseになること");
-
-        verify(todoMapper, times(1)).add(any(Todo.class));
+        assertEquals("dueDateとdueDateUndecidedは同時指定できません", exception.getMessage());
+        verify(todoMapper, never()).add(any(Todo.class));
     }
 
     @Test
@@ -124,11 +156,12 @@ public class TodoServiceTest {
     void testAdd_PlainTask_ShouldDisableCarryOver() {
         TodoForm form = new TodoForm();
         form.setTitle("買い物");
-        form.setDueDate(null); // 日付なし
-        form.setDaily(false); // 日課でもない
-        form.setAutoCarryOver(true); // 矛盾する繰越設定
+        form.setDueDate(null);
+        form.setDaily(false);
+        form.setAutoCarryOver(true);
 
         doNothing().when(todoMapper).add(any(Todo.class));
+
         Todo result = todoService.add(form);
 
         assertFalse(result.getAutoCarryOver(), "日付がないので自動繰越はfalseにされること");
@@ -143,9 +176,10 @@ public class TodoServiceTest {
     void testAdd_StatusNull_ShouldSetIncomplete() {
         TodoForm form = new TodoForm();
         form.setTitle("ステータスなしタスク");
-        form.setStatus(null); // わざとnullにする
+        form.setStatus(null);
 
         doNothing().when(todoMapper).add(any(Todo.class));
+
         Todo result = todoService.add(form);
 
         assertEquals(Status.INCOMPLETE, result.getStatus(), "nullの場合はINCOMPLETEになること");
@@ -156,9 +190,10 @@ public class TodoServiceTest {
     void testAdd_StatusProvided_ShouldKeepStatus() {
         TodoForm form = new TodoForm();
         form.setTitle("完了済みタスク");
-        form.setStatus(Status.DONE); // 明示的にDONEを指定
+        form.setStatus(Status.DONE);
 
         doNothing().when(todoMapper).add(any(Todo.class));
+
         Todo result = todoService.add(form);
 
         assertEquals(Status.DONE, result.getStatus(), "指定されたステータスがそのままセットされること");
@@ -190,7 +225,8 @@ public class TodoServiceTest {
         boolean result = todoService.update(1, form);
 
         assertTrue(result, "更新成功を返すこと");
-        verify(todoMapper).update(argThat(todo -> todo.getId().equals(1) && todo.getSortOrder().equals(8)));
+        verify(todoMapper).update(argThat(todo -> todo.getId().equals(1)
+                && todo.getSortOrder().equals(8)));
     }
 
     @Test
