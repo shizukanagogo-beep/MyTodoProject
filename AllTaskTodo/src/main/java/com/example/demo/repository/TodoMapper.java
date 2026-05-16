@@ -16,6 +16,8 @@ public interface TodoMapper {
 
 	void add(Todo todo);
 
+	Integer findMaxSortOrderByParentId(@Param("parentId") Integer parentId);
+
 	Todo getOne(Integer id);
 
 	boolean delete(Integer id);
