@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Category } from "../types";
 import { getApiErrorMessage } from "../utils/apiError";
+import { showErrorToast } from "../utils/toast";
 import {
   fetchCategories as fetchCategoriesApi,
   addCategory as addCategoryApi,
@@ -20,7 +21,7 @@ export function useCategories() {
         setCategories(categories);
       } catch (error) {
         console.error("カテゴリの取得に失敗:", error);
-        alert(getApiErrorMessage(error));
+        showErrorToast(getApiErrorMessage(error));
       } finally {
         setLoadingCategories(false);
       }
@@ -51,7 +52,7 @@ export function useCategories() {
       return true;
     } catch (error) {
       console.error("カテゴリ更新失敗:", error);
-      alert(getApiErrorMessage(error));
+      showErrorToast(getApiErrorMessage(error));
       return false;
     }
   };
@@ -63,7 +64,7 @@ export function useCategories() {
       return true;
     } catch (error) {
       console.error("カテゴリ削除失敗:", error);
-      alert(getApiErrorMessage(error));
+      showErrorToast(getApiErrorMessage(error));
       return false;
     }
   };
@@ -91,7 +92,7 @@ export function useCategories() {
       );
     } catch (error) {
       console.error("カテゴリ並び順更新失敗:", error);
-      alert(getApiErrorMessage(error));
+      showErrorToast(getApiErrorMessage(error));
       const categories = await fetchCategoriesApi();
       setCategories(categories);
     }
