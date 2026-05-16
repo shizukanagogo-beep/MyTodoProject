@@ -103,7 +103,7 @@ public class TodoController {
 
     // 並び順変更-------------------------------------------------------------
     @PatchMapping("/sort-order")
-    public ResponseEntity<Void> updateSortOrder(@RequestBody List<TodoSortOrderForm> forms) {
+    public ResponseEntity<Void> updateSortOrder(@RequestBody List<@Valid TodoSortOrderForm> forms) {
         todoService.updateSortOrder(forms);
         return ResponseEntity.ok().build();
     }
