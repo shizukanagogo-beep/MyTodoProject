@@ -39,7 +39,6 @@ export function useCategories() {
 
   const updateCategory = async (id: number, name: string) => {
     if (!name.trim()) {
-      alert("カテゴリ名を入力してください");
       return false;
     }
     try {
