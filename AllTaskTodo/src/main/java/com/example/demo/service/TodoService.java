@@ -39,6 +39,7 @@ public class TodoService {
     public Todo add(TodoForm form) {
         validateBusinessRules(null, form);
         adjustTaskOptions(form);
+        assignSortOrderIfNeeded(form);
 
         Todo todo = convertToEntity(form);
         // DBへ登録（MyBatisによりIDがセットされる）
@@ -148,6 +149,16 @@ public class TodoService {
         validateCategoryId(form);
         validateParentId(todoId, form);
         validateDueDateOptions(form);
+    }
+
+    private void assignSortOrderIfNeeded(TodoForm form) {
+        if (form.getSortOrder() != null) {
+            return;
+        }
+
+        Integer maxSortOrder = todoMapper.findMaxSortOrderByParentId(form.getParentId());
+
+        form.setSortOrder(maxSortOrder == null ? 1 : maxSortOrder + 1);
     }
 
     // ---------------------------------------------------------------
