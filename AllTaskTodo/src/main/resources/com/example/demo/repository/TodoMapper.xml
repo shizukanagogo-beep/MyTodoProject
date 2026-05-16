@@ -60,6 +60,24 @@
           sort_order ASC,
           id DESC
     </select>
+
+    <select id="findMaxSortOrderByParentId" resultType="java.lang.Integer">
+        SELECT
+          MAX(sort_order)
+        FROM
+          todos
+        <where>
+            <choose>
+                <when test="parentId == null">
+                    parent_id IS NULL
+                </when>
+                <otherwise>
+                    parent_id = #{parentId}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
     <!-- 2. １件取得 =========================================-->
     <select id="getOne" parameterType="java.lang.Integer" resultType="com.example.demo.entity.Todo">
         SELECT
@@ -81,6 +99,7 @@
         WHERE
           id = #{id}
     </select>
+
     <!-- 4. 新規登録 (TodoForm/Todo両方に対応可能) -->
     <insert id="add" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO todos (
@@ -113,6 +132,7 @@
             #{sortOrder}
           )
     </insert>
+
     <!-- 5. 全項目更新 (Todoエンティティを使用) -->
     <update id="update" parameterType="com.example.demo.entity.Todo">
         UPDATE todos
@@ -132,6 +152,7 @@
         WHERE
           id = #{id}
     </update>
+
     <!-- 並び順変更=================== -->
     <update id="updateSortOrder">
         UPDATE todos
@@ -140,6 +161,7 @@
         WHERE
           id = #{id}
     </update>
+
     <!-- 6. ステータスのみ更新 -->
     <update id="updateStatus">
         UPDATE todos
@@ -148,6 +170,7 @@
         WHERE
           id = #{id}
     </update>
+
     <!-- 7. カテゴリーのみ移動 -->
     <update id="updateCategory">
         UPDATE todos
@@ -156,17 +179,20 @@
         WHERE
           id = #{id}
     </update>
+
     <!-- 8. 削除 -->
     <delete id="delete" parameterType="java.lang.Integer">
         DELETE FROM todos
         WHERE
           id = #{id}
     </delete>
+
     <delete id="deleteByParentId" parameterType="java.lang.Integer">
         DELETE FROM todos
         WHERE
           parent_id = #{parentId}
     </delete>
+
     <!-- 9. 日課のリセット (Serviceから呼ばれる) -->
     <update id="resetDailyTasks">
         UPDATE todos
