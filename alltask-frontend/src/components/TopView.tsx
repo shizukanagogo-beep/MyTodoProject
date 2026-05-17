@@ -25,6 +25,10 @@ function TopView({
   return (
     <div className="space-y-8">
       <section className="space-y-3">
+        <div className="px-1">
+          <h2 className="text-lg font-bold text-slate-700">スマートリスト</h2>
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button
             onClick={onOpenDated}
