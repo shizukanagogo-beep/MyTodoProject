@@ -303,26 +303,13 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const reorderTodos = async (orderedParentTodoIds: number[]) => {
     if (orderedParentTodoIds.length === 0) return;
     if (randomTodoId !== null) return;
-    if (viewMode === "DATED" && datedSortMode === "dueDate") return;
 
-    const todoById = new Map(todos.map((todo) => [todo.id, todo]));
-    const targetTodos = orderedParentTodoIds
-      .map((todoId) => todoById.get(todoId))
-      .filter((todo): todo is Todo => todo !== undefined);
-
-    const sortOrderSlots = targetTodos
-      .map((todo) => todo.sortOrder)
-      .sort((a, b) => {
-        if (a === null && b !== null) return 1;
-        if (a !== null && b === null) return -1;
-        if (a !== null && b !== null) return a - b;
-        return 0;
-      });
-
-    const updatedTodos = targetTodos.map((todo, index) => ({
-      ...todo,
-      sortOrder: sortOrderSlots[index] ?? index + 1,
-    }));
+    const updatedTodos = orderedParentTodoIds
+      .map((todoId, index) => {
+        const todo = todos.find((todo) => todo.id === todoId);
+        return todo === undefined ? null : { ...todo, sortOrder: index + 1 };
+      })
+      .filter((todo): todo is Todo => todo !== null);
 
     setTodos((prev) => {
       const updatedTodoMap = new Map(updatedTodos.map((todo) => [todo.id, todo]));
