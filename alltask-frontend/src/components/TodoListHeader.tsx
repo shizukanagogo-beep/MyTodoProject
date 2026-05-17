@@ -87,6 +87,24 @@ const DoneFilterIcon = () => (
   </svg>
 );
 
+const CalendarIcon = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    className="h-5 w-5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M8 2v4" />
+    <path d="M16 2v4" />
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <path d="M3 10h18" />
+  </svg>
+);
+
 function HeaderIconButton({
   active,
   ariaLabel,
@@ -159,20 +177,24 @@ function TodoListHeader({
 
         {viewMode === "DATED" && (
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <select
-              aria-label="日付フィルター"
-              value={datedFilter}
-              onChange={(e) =>
-                onChangeDatedFilter(e.target.value as DatedFilter)
-              }
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 outline-none transition-colors hover:bg-slate-50 focus:border-indigo-500"
-            >
-              {datedFilterItems.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center rounded-xl border border-slate-200 bg-white pl-3 text-slate-500 transition-colors hover:bg-slate-50 focus-within:border-indigo-500">
+              <CalendarIcon />
+
+              <select
+                aria-label="日付フィルター"
+                value={datedFilter}
+                onChange={(e) =>
+                  onChangeDatedFilter(e.target.value as DatedFilter)
+                }
+                className="bg-transparent px-2 py-2 text-sm font-bold text-slate-600 outline-none"
+              >
+                {datedFilterItems.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <button
               onClick={() =>
