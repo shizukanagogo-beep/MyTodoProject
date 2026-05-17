@@ -176,16 +176,16 @@
         WHERE parent_id = #{parentId}
     </delete>
 
-    <update id="resetDailyTasks">
-        UPDATE todos
-        SET
-          status = 'INCOMPLETE',
-          daily_reset_date = CURRENT_DATE
-        WHERE
-          is_daily = TRUE
-          AND (
-            daily_reset_date IS NULL
-            OR daily_reset_date < CURRENT_DATE
-          )
-    </update>
+   <update id="resetDailyTasks">
+    UPDATE todos
+    SET
+      status = 'INCOMPLETE',
+      daily_reset_date = CURRENT_DATE
+    WHERE
+      is_daily = TRUE
+      AND (
+        daily_reset_date IS NULL
+        OR daily_reset_date &lt; CURRENT_DATE
+      )
+</update>
 </mapper>
