@@ -23,7 +23,7 @@ type MainContentProps = {
   onToggleStatus: (id: number, currentStatus: Todo["status"]) => void;
   onDeleteTodo: (id: number) => void;
   onOpenTodoDetail: (todo: Todo) => void;
-  onReorderTodos: (fromIndex: number, toIndex: number) => void;
+  onReorderTodos: (orderedParentTodoIds: number[]) => void;
   onReorderSubtasks: (
     parentId: number,
     fromIndex: number,
