@@ -96,7 +96,7 @@ function TopView({
               key={category.id}
               category={category}
               colorIndex={index}
-              onOpenCategoryDetail={onOpenCategoryDetail}
+              onClick={onOpenCategoryDetail}
             />
           ))}
         </div>
