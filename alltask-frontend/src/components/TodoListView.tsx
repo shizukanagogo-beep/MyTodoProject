@@ -191,7 +191,6 @@ function TodoListView({
         draggingSubtask={draggingSubtask}
         isSubtasksCollapsed={isSubtasksCollapsed}
         parentContextType={parentContextType}
-        showsDirectMatchesOnly={showsDirectMatchesOnly}
         onStartParentDrag={setDraggingIndex}
         onDropParent={(targetIndex) => {
           if (!canReorder) return;
