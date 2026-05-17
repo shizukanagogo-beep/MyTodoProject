@@ -1,5 +1,5 @@
 import type { Category, DatedFilter, Todo, ViewMode } from "../types";
-import { getLocalDateString } from "./date";
+import { matchesDatedFilter } from "./todoDate";
 
 export type TodoCategoryGroup = {
   id: number | null;
@@ -10,9 +10,6 @@ export type TodoCategoryGroup = {
 
 export type ParentContextType = "completed" | "related";
 
-const isOverdueTodo = (todo: Todo, today: string) =>
-  todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
-
 export const canGroupTodoListByCategory = (viewMode: ViewMode) =>
   viewMode === "DATED" || viewMode === "DAILY" || viewMode === "FLAGGED";
 
@@ -22,21 +19,7 @@ export function matchesDirectListCondition(
   datedFilter: DatedFilter,
 ) {
   if (viewMode === "DATED") {
-    const today = getLocalDateString();
-
-    if (datedFilter === "today") {
-      return todo.dueDate?.slice(0, 10) === today;
-    }
-
-    if (datedFilter === "tomorrow") {
-      return todo.dueDate?.slice(0, 10) === getLocalDateString(1);
-    }
-
-    if (datedFilter === "undecided") {
-      return todo.dueDateUndecided && !isOverdueTodo(todo, today);
-    }
-
-    return todo.dueDate !== null || todo.dueDateUndecided;
+    return matchesDatedFilter(todo, datedFilter);
   }
 
   if (viewMode === "DAILY") {

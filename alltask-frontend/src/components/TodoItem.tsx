@@ -1,5 +1,5 @@
 import type { Todo } from "../types";
-import { getLocalDateString } from "../utils/date";
+import { isOverdueTodo } from "../utils/todoDate";
 import TrashIcon from "./icons/TrashIcon";
 
 type TodoItemProps = {
@@ -17,9 +17,7 @@ function TodoItem({
   onOpenTodoDetail,
   subdued = false,
 }: TodoItemProps) {
-  const today = getLocalDateString();
-  const isOverdue =
-    todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
+  const isOverdue = isOverdueTodo(todo);
   const stateClass =
     todo.status === "DONE"
       ? "opacity-60 bg-slate-50"

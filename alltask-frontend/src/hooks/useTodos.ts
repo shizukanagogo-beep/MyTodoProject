@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { APP_MESSAGES } from "../constants/messages";
 import type { DatedFilter, NewTodo, Todo, ViewMode } from "../types";
-import { getLocalDateString } from "../utils/date";
 import {
   getApiErrorMessage,
   getApiFieldErrors,
   type ApiFieldErrors,
 } from "../utils/apiError";
 import { showErrorToast, showInfoToast } from "../utils/toast";
+import {
+  getTodoDateContext,
+  isOverdueTodo,
+  matchesDatedFilter,
+} from "../utils/todoDate";
 import { matchesTodoView } from "../utils/todoFilters";
 import {
   fetchTodos as fetchTodosApi,
@@ -261,10 +265,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const today = getLocalDateString();
-  const tomorrow = getLocalDateString(1);
-  const isOverdueTodo = (todo: Todo) =>
-    todo.dueDate !== null && todo.dueDate < today && todo.status !== "DONE";
+  const dateContext = getTodoDateContext();
   const todoMap = new Map(todos.map((todo) => [todo.id, todo]));
   const childrenByParentId = todos.reduce((map, todo) => {
     if (todo.parentId === null) return map;
@@ -288,16 +289,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
 
     if (viewMode === "DATED") {
-      if (effectiveDatedFilter === "today") {
-        return todo.dueDate?.slice(0, 10) === today;
-      }
-      if (effectiveDatedFilter === "tomorrow") {
-        return todo.dueDate?.slice(0, 10) === tomorrow;
-      }
-      if (effectiveDatedFilter === "undecided") {
-        return todo.dueDateUndecided && !isOverdueTodo(todo);
-      }
-      return todo.dueDate !== null || todo.dueDateUndecided;
+      return matchesDatedFilter(todo, effectiveDatedFilter, dateContext);
     }
 
     if (viewMode === "DAILY") {
@@ -322,7 +314,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (
       viewMode === "DATED" &&
       effectiveDatedFilter === "undecided" &&
-      isOverdueTodo(todo)
+      isOverdueTodo(todo, dateContext.today)
     ) {
       return false;
     }
