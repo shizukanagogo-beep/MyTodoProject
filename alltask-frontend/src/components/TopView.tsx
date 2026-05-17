@@ -41,14 +41,14 @@ function TopView({
             onClick={onOpenDaily}
             className="p-4 bg-emerald-500 text-white rounded-xl font-bold shadow-md hover:bg-emerald-600"
           >
-            日課
+            日課タスク
           </button>
 
           <button
             onClick={onOpenFlagged}
             className="p-4 bg-teal-500 text-white rounded-xl font-bold shadow-md hover:bg-teal-600"
           >
-            フラグ
+            フラグ付き
           </button>
 
           <button
