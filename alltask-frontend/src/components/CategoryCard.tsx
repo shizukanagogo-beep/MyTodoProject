@@ -75,9 +75,6 @@ function CategoryCard({
           <h3 className="truncate text-base font-bold tracking-wide text-slate-800">
             {category.name}
           </h3>
-          <p className="mt-1 text-xs font-semibold text-slate-400">
-            Open category
-          </p>
         </div>
 
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-all group-hover:bg-white group-hover:text-sky-600 group-hover:shadow-sm">
