@@ -292,6 +292,79 @@ public class TodoServiceTest {
     }
 
     @Test
+    @DisplayName("期限日が今日の場合、期限超過処理で更新しないこと")
+    void testApplyOverdueBehaviors_DueDateToday_ShouldNotUpdate() {
+        LocalDate today = LocalDate.of(2026, 5, 12);
+        Todo todo = createOverdueTodo(1, today);
+
+        when(todoMapper.getList(any(TodoForm.class))).thenReturn(List.of(todo));
+
+        todoService.applyOverdueBehaviors(today);
+
+        verify(todoMapper, never()).update(any(Todo.class));
+        assertEquals(today, todo.getDueDate(), "期限日は今日のまま");
+        assertEquals(Status.INCOMPLETE, todo.getStatus(), "ステータスは未完了のまま");
+    }
+
+    @Test
+    @DisplayName("期限日が未来の場合、期限超過処理で更新しないこと")
+    void testApplyOverdueBehaviors_FutureDueDate_ShouldNotUpdate() {
+        LocalDate today = LocalDate.of(2026, 5, 12);
+        Todo todo = createOverdueTodo(1, today.plusDays(1));
+
+        when(todoMapper.getList(any(TodoForm.class))).thenReturn(List.of(todo));
+
+        todoService.applyOverdueBehaviors(today);
+
+        verify(todoMapper, never()).update(any(Todo.class));
+        assertEquals(today.plusDays(1), todo.getDueDate(), "期限日は未来日のまま");
+        assertEquals(Status.INCOMPLETE, todo.getStatus(), "ステータスは未完了のまま");
+    }
+
+    @Test
+    @DisplayName("期限日が未設定の場合、期限超過処理で更新しないこと")
+    void testApplyOverdueBehaviors_DueDateNull_ShouldNotUpdate() {
+        LocalDate today = LocalDate.of(2026, 5, 12);
+        Todo todo = createOverdueTodo(1, null);
+
+        when(todoMapper.getList(any(TodoForm.class))).thenReturn(List.of(todo));
+
+        todoService.applyOverdueBehaviors(today);
+
+        verify(todoMapper, never()).update(any(Todo.class));
+        assertNull(todo.getDueDate(), "期限日は未設定のまま");
+        assertEquals(Status.INCOMPLETE, todo.getStatus(), "ステータスは未完了のまま");
+    }
+
+    @Test
+    @DisplayName("期限超過時の挙動が未設定の場合、期限超過処理で更新しないこと")
+    void testApplyOverdueBehaviors_BehaviorNull_ShouldNotUpdate() {
+        LocalDate today = LocalDate.of(2026, 5, 12);
+        Todo todo = createOverdueTodo(null, today.minusDays(1));
+
+        when(todoMapper.getList(any(TodoForm.class))).thenReturn(List.of(todo));
+
+        todoService.applyOverdueBehaviors(today);
+
+        verify(todoMapper, never()).update(any(Todo.class));
+        assertEquals(today.minusDays(1), todo.getDueDate(), "期限日は過去日のまま");
+        assertEquals(Status.INCOMPLETE, todo.getStatus(), "ステータスは未完了のまま");
+    }
+
+    @Test
+    @DisplayName("完了済みタスクは期限超過処理の取得対象に含めないこと")
+    void testApplyOverdueBehaviors_ShouldFetchOnlyIncompleteTodos() {
+        LocalDate today = LocalDate.of(2026, 5, 12);
+
+        when(todoMapper.getList(any(TodoForm.class))).thenReturn(List.of());
+
+        todoService.applyOverdueBehaviors(today);
+
+        verify(todoMapper).getList(argThat(form -> form.getStatus() == Status.INCOMPLETE));
+        verify(todoMapper, never()).update(any(Todo.class));
+    }
+
+    @Test
     @DisplayName("一覧取得時、Clockで固定した今日の日付を使って期限超過タスクを処理すること")
     void testGetList_ShouldApplyOverdueBehaviorsUsingInjectedClock() {
         TodoForm condition = new TodoForm();
