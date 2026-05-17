@@ -18,7 +18,6 @@ type TodoWithSubtasksProps = {
   draggingSubtask: DraggingSubtask;
   isSubtasksCollapsed: boolean;
   parentContextType: ParentContextType | null;
-  showsDirectMatchesOnly: boolean;
   onStartParentDrag: (index: number) => void;
   onDropParent: (index: number) => void;
   onEndParentDrag: () => void;
@@ -47,7 +46,6 @@ function TodoWithSubtasks({
   draggingSubtask,
   isSubtasksCollapsed,
   parentContextType,
-  showsDirectMatchesOnly,
   onStartParentDrag,
   onDropParent,
   onEndParentDrag,
