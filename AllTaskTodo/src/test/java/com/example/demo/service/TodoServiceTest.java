@@ -231,6 +231,11 @@ public class TodoServiceTest {
         form.setTitle("並び順更新タスク");
         form.setSortOrder(8);
 
+        Todo existingTodo = new Todo();
+        existingTodo.setId(1);
+        existingTodo.setDaily(false);
+
+        when(todoMapper.getOne(1)).thenReturn(existingTodo);
         when(todoMapper.update(any(Todo.class))).thenReturn(true);
 
         boolean result = todoService.update(1, form);
