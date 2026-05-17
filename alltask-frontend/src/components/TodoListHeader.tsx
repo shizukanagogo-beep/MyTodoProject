@@ -160,7 +160,7 @@ function TodoListHeader({
       : viewMode === "UNCATEGORIZED"
         ? "カテゴリなし"
         : viewMode === "DATED"
-          ? "日付ありタスク"
+          ? "日付あり"
           : viewMode === "DAILY"
             ? "日課タスク"
             : viewMode === "FLAGGED"
