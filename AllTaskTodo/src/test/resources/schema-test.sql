@@ -20,6 +20,7 @@ CREATE TABLE todos (
         due_date_undecided BOOLEAN DEFAULT FALSE,
         auto_carry_over BOOLEAN DEFAULT FALSE,
         is_daily BOOLEAN DEFAULT FALSE,
+        daily_reset_date DATE,
         has_flag BOOLEAN DEFAULT FALSE,
         category_id INT,
         parent_id INT,
