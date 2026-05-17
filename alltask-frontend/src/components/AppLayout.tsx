@@ -9,7 +9,7 @@ type AppLayoutProps = {
 
 function AppLayout({ children, onTitleClick }: AppLayoutProps) {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="theme-dark min-h-screen bg-slate-50 text-slate-900 font-sans">
       <Header onTitleClick={onTitleClick} />
       <ToastContainer />
 
