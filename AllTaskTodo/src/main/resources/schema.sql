@@ -21,12 +21,12 @@ CREATE TABLE
         due_date_undecided BOOLEAN DEFAULT FALSE,
         auto_carry_over BOOLEAN DEFAULT FALSE,
         is_daily BOOLEAN DEFAULT FALSE,
+        daily_reset_date DATE,
         has_flag BOOLEAN DEFAULT FALSE,
         category_id int,
         parent_id int,
         overdue_behavior int DEFAULT 0,
         sort_order INT NULL,
-        daily_reset_date DATE,
         foreign KEY (category_id) references categories (id),
         foreign KEY (parent_id) references todos (id) ON DELETE CASCADE
     );
