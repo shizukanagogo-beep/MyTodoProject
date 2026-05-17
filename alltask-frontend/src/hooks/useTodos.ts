@@ -128,6 +128,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     } catch (error) {
       console.error("更新失敗:", error);
       showErrorToast(getApiErrorMessage(error));
+      setRefreshKey((prev) => prev + 1);
     }
   };
 
