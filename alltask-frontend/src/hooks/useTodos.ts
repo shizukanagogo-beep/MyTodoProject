@@ -365,19 +365,17 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       datedFilter: effectiveDatedFilter,
     });
 
-  const reorderTodos = async (fromIndex: number, toIndex: number) => {
-    if (fromIndex === toIndex) return;
+  const reorderTodos = async (orderedParentTodoIds: number[]) => {
+    if (orderedParentTodoIds.length === 0) return;
     if (randomTodoId !== null) return;
     if (viewMode === "DATED" && datedSortMode === "dueDate") return;
 
-    const reorderedTodos = sortedTodos.filter((todo) => todo.parentId === null);
-    const [movedTodo] = reorderedTodos.splice(fromIndex, 1);
-    reorderedTodos.splice(toIndex, 0, movedTodo);
-
-    const updatedTodos = reorderedTodos.map((todo, index) => ({
-      ...todo,
-      sortOrder: index + 1,
-    }));
+    const updatedTodos = orderedParentTodoIds
+      .map((todoId, index) => {
+        const todo = todos.find((todo) => todo.id === todoId);
+        return todo === undefined ? null : { ...todo, sortOrder: index + 1 };
+      })
+      .filter((todo): todo is Todo => todo !== null);
 
     setTodos((prev) => {
       const updatedTodoMap = new Map(
