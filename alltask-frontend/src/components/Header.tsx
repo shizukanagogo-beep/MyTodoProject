@@ -8,10 +8,10 @@ function Header({ onTitleClick }: HeaderProps) {
       <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
         <h1
           onClick={onTitleClick}
-          className="cursor-pointer text-3xl font-semibold tracking-wide text-orange-700 transition-opacity hover:opacity-80"
+          className="cursor-pointer text-3xl font-semibold tracking-wide text-amber-600 transition-opacity hover:opacity-80"
           style={{
             fontFamily:
-              '"Trebuchet MS", "Gill Sans", "Avenir Next", sans-serif',
+              '"Segoe Print", "Bradley Hand", "Comic Sans MS", cursive',
           }}
         >
           To Forget
