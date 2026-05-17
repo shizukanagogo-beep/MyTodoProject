@@ -11,12 +11,6 @@ function Header({ onTitleClick }: HeaderProps) {
           onClick={onTitleClick}
           className="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
         >
-          <img
-            src="/app-logo.png"
-            alt=""
-            aria-hidden="true"
-            className="h-9 w-9 object-contain"
-          />
           <span
             className="text-3xl font-semibold tracking-wide text-amber-600"
             style={{
@@ -26,6 +20,12 @@ function Header({ onTitleClick }: HeaderProps) {
           >
             To Forget
           </span>
+          <img
+            src="/app-logo.png"
+            alt=""
+            aria-hidden="true"
+            className="h-9 w-9 object-contain"
+          />
         </button>
       </div>
     </header>
