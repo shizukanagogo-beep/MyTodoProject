@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { APP_MESSAGES } from "../constants/messages";
 import type { DatedFilter, NewTodo, Todo, ViewMode } from "../types";
 import { getLocalDateString } from "../utils/date";
 import {
@@ -47,6 +48,10 @@ export type UpdateTodoResult = {
   fieldErrors?: ApiFieldErrors | null;
 };
 
+const getTitleRequiredFieldErrors = (): ApiFieldErrors => ({
+  title: APP_MESSAGES.validation.titleRequired,
+});
+
 export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState<NewTodo>(initialNewTodo);
@@ -81,9 +86,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (!newTodo.title.trim()) {
       return {
         success: false,
-        fieldErrors: {
-          title: "タイトルを入力してください",
-        },
+        fieldErrors: getTitleRequiredFieldErrors(),
       };
     }
 
@@ -160,9 +163,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     if (!payload.title.trim()) {
       return {
         success: false,
-        fieldErrors: {
-          title: "タイトルを入力してください",
-        },
+        fieldErrors: getTitleRequiredFieldErrors(),
       };
     }
 
@@ -410,7 +411,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     );
 
     if (incompleteTodos.length === 0) {
-      showInfoToast("未完了のタスクがありません。");
+      showInfoToast(APP_MESSAGES.random.noIncompleteTodos);
       return;
     }
 

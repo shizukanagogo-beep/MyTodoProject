@@ -11,6 +11,7 @@ import Modals from "./components/Modals";
 import TodoDetailModal from "./components/TodoDetailModal";
 import ConfirmModal from "./components/ConfirmModal";
 import { useSelectedTodoModal } from "./hooks/useSelectedTodoModal";
+import { APP_MESSAGES } from "./constants/messages";
 import type { Category, NewTodo, ViewMode } from "./types";
 import { getLocalDateString } from "./utils/date";
 
@@ -130,10 +131,12 @@ function App() {
   };
 
   const requestDeleteTodo = (id: number) => {
+    const confirmMessage = APP_MESSAGES.confirm.deleteTodo;
+
     openConfirm({
-      title: "タスクを削除しますか？",
-      message: "このタスクとサブタスクを削除します。\nこの操作は元に戻せません。",
-      confirmLabel: "削除",
+      title: confirmMessage.title,
+      message: confirmMessage.message,
+      confirmLabel: confirmMessage.confirmLabel,
       danger: true,
       onConfirm: async () => {
         await deleteTodo(id);
@@ -149,10 +152,12 @@ function App() {
   };
 
   const requestDeleteCategory = (category: Category) => {
+    const confirmMessage = APP_MESSAGES.confirm.deleteCategory(category.name);
+
     openConfirm({
-      title: "カテゴリを削除しますか？",
-      message: `「${category.name}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\nこの操作は元に戻せません。`,
-      confirmLabel: "削除",
+      title: confirmMessage.title,
+      message: confirmMessage.message,
+      confirmLabel: confirmMessage.confirmLabel,
       danger: true,
       onConfirm: async () => {
         await deleteCategoryAndReturnTopIfNeeded(category.id);

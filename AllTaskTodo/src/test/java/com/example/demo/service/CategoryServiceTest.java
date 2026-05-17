@@ -1,151 +1,88 @@
 package com.example.demo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 
 import com.example.demo.dto.CategoryForm;
-import com.example.demo.dto.CategorySortOrderForm;
 import com.example.demo.entity.Category;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CategoryMapper;
+import com.example.demo.repository.TodoMapper;
 
-@ExtendWith(MockitoExtension.class)
-public class CategoryServiceTest {
+@SpringBootTest
+@ActiveProfiles("test")
+@TestPropertySource(properties = {
+        "spring.datasource.url=jdbc:h2:mem:alltask_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.sql.init.mode=never"
+})
+@Sql(scripts = {
+        "classpath:schema-test.sql",
+        "classpath:data-test.sql"
+})
+class CategoryServiceTest {
 
-    @Mock
-    private CategoryMapper categoryMapper;
-
-    @InjectMocks
+    @Autowired
     private CategoryService categoryService;
 
-    @Test
-    @DisplayName("カテゴリ一覧取得時、Mapperの結果をそのまま返すこと")
-    void testFindAll_ShouldReturnMapperResult() {
-        Category first = new Category();
-        first.setId(1);
-        first.setName("仕事");
-        first.setSortOrder(1);
+    @Autowired
+    private CategoryMapper categoryMapper;
 
-        Category second = new Category();
-        second.setId(2);
-        second.setName("買い物");
-        second.setSortOrder(2);
-
-        List<Category> categories = List.of(first, second);
-
-        when(categoryMapper.findAll()).thenReturn(categories);
-
-        List<Category> result = categoryService.findAll();
-
-        assertEquals(categories, result, "Mapperの結果をそのまま返すこと");
-        verify(categoryMapper).findAll();
-    }
+    @Autowired
+    private TodoMapper todoMapper;
 
     @Test
-    @DisplayName("カテゴリ追加時、フォームをEntityに変換してMapperへ渡し、追加したカテゴリを返すこと")
-    void testAddCategory_ShouldReturnAddedCategory() {
+    @DisplayName("カテゴリ作成時、sortOrderが自動採番されること")
+    void testAddCategory_ShouldAssignSortOrder() {
         CategoryForm form = new CategoryForm();
-        form.setName("仕事");
-        form.setSortOrder(1);
+        form.setName("新規カテゴリ");
+        form.setSortOrder(null);
 
         Category result = categoryService.addCategory(form);
 
-        assertEquals("仕事", result.getName(), "フォームのカテゴリ名がセットされること");
-        assertEquals(1, result.getSortOrder(), "フォームの並び順がセットされること");
-        verify(categoryMapper).addCategory(result);
+        assertNotNull(result.getId());
+        assertEquals("新規カテゴリ", result.getName());
+        assertEquals(5, result.getSortOrder());
+        assertEquals(5, categoryMapper.findById(result.getId()).getSortOrder());
     }
 
     @Test
-    @DisplayName("カテゴリ更新時、IDをセットして更新し、更新後のカテゴリを返すこと")
-    void testUpdateCategory_ShouldSetIdUpdateAndReturnUpdatedCategory() {
-        Integer id = 1;
-
+    @DisplayName("存在しないカテゴリ更新時、ResourceNotFoundExceptionになること")
+    void testUpdateCategory_NotFound_ShouldThrowException() {
         CategoryForm form = new CategoryForm();
-        form.setName("更新後カテゴリ");
-        form.setSortOrder(5);
-
-        Category existing = new Category();
-        existing.setId(id);
-        existing.setName("更新前カテゴリ");
-        existing.setSortOrder(1);
-
-        Category updated = new Category();
-        updated.setId(id);
-        updated.setName("更新後カテゴリ");
-        updated.setSortOrder(5);
-
-        when(categoryMapper.findById(id)).thenReturn(existing, updated);
-
-        Category result = categoryService.updateCategory(id, form);
-
-        assertEquals(updated, result, "更新後のカテゴリを返すこと");
-        verify(categoryMapper).updateCategory(argThat(category -> category.getId().equals(id)
-                && category.getName().equals("更新後カテゴリ")
-                && category.getSortOrder().equals(5)));
-        verify(categoryMapper, times(2)).findById(id);
-    }
-
-    @Test
-    @DisplayName("カテゴリ削除時、サブタスク、親タスク、カテゴリの順に削除すること")
-    void testDeleteCategory_ShouldDeleteSubTodosThenTodosThenCategory() {
-        Integer categoryId = 1;
-        Category category = new Category();
-        category.setId(categoryId);
-
-        when(categoryMapper.findById(categoryId)).thenReturn(category);
-
-        categoryService.deleteCategory(categoryId);
-
-        InOrder inOrder = inOrder(categoryMapper);
-        inOrder.verify(categoryMapper).deleteSubTodosByCategoryId(categoryId);
-        inOrder.verify(categoryMapper).deleteTodosByCategoryId(categoryId);
-        inOrder.verify(categoryMapper).deleteCategory(categoryId);
-    }
-
-    @Test
-    @DisplayName("存在しないカテゴリ削除時、ResourceNotFoundExceptionを投げること")
-    void testDeleteCategory_NotFound_ShouldThrowException() {
-        Integer categoryId = 999;
-
-        when(categoryMapper.findById(categoryId)).thenReturn(null);
+        form.setName("存在しないカテゴリ");
+        form.setSortOrder(1);
 
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> categoryService.deleteCategory(categoryId));
-
-        verify(categoryMapper, never()).deleteSubTodosByCategoryId(anyInt());
-        verify(categoryMapper, never()).deleteTodosByCategoryId(anyInt());
-        verify(categoryMapper, never()).deleteCategory(anyInt());
+                () -> categoryService.updateCategory(999, form));
     }
 
     @Test
-    @DisplayName("カテゴリ並び順更新時、受け取ったIDと並び順を順番にMapperへ渡すこと")
-    void testUpdateSortOrder_ShouldUpdateEachCategorySortOrder() {
-        CategorySortOrderForm first = new CategorySortOrderForm();
-        first.setId(3);
-        first.setSortOrder(1);
+    @DisplayName("カテゴリ削除時、対象カテゴリのTodoとSubTodoも削除されること")
+    void testDeleteCategory_ShouldDeleteTodosAndSubTodos() {
+        assertNotNull(categoryMapper.findById(1));
+        assertNotNull(todoMapper.getOne(6));
+        assertNotNull(todoMapper.getOne(7));
+        assertNotNull(todoMapper.getOne(8));
 
-        CategorySortOrderForm second = new CategorySortOrderForm();
-        second.setId(1);
-        second.setSortOrder(2);
+        categoryService.deleteCategory(1);
 
-        when(categoryMapper.updateSortOrder(3, 1)).thenReturn(true);
-        when(categoryMapper.updateSortOrder(1, 2)).thenReturn(true);
-
-        categoryService.updateSortOrder(List.of(first, second));
-
-        verify(categoryMapper).updateSortOrder(3, 1);
-        verify(categoryMapper).updateSortOrder(1, 2);
+        assertNull(todoMapper.getOne(6));
+        assertNull(todoMapper.getOne(7));
+        assertNull(todoMapper.getOne(8));
+        assertNull(categoryMapper.findById(1));
     }
 }

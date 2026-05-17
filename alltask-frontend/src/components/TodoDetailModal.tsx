@@ -27,6 +27,13 @@ type EditableTodo = {
   overdueBehavior: number;
 };
 
+const dueDateErrorFieldNames = ["dueDate", "daily", "dueDateUndecided"];
+
+const getFirstFieldError = (
+  fieldErrors: ApiFieldErrors,
+  fieldNames: string[],
+) => fieldNames.map((fieldName) => fieldErrors[fieldName]).find(Boolean) || "";
+
 type TodoDetailModalProps = {
   todo: Todo;
   parentTodo: Todo | null;
@@ -88,12 +95,7 @@ function TodoDetailModal({
   const [fieldErrors, setFieldErrors] = useState<ApiFieldErrors>({});
 
   const titleError = fieldErrors.title || "";
-
-  const dueDateError =
-    fieldErrors.dueDate ||
-    fieldErrors.daily ||
-    fieldErrors.dueDateUndecided ||
-    "";
+  const dueDateError = getFirstFieldError(fieldErrors, dueDateErrorFieldNames);
 
   const hasChanges = useMemo(() => {
     return (
@@ -144,6 +146,16 @@ function TodoDetailModal({
     onClose();
   };
 
+  const clearFieldErrors = (fieldNames: string[]) => {
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      fieldNames.forEach((fieldName) => {
+        delete next[fieldName];
+      });
+      return next;
+    });
+  };
+
   return (
     <ModalShell onClose={onClose} zIndexClassName="z-[70]">
       <div className="mb-4 flex justify-between items-start gap-4">
@@ -160,7 +172,7 @@ function TodoDetailModal({
               onChange={(e) => {
                 setEditTodo({ ...editTodo, title: e.target.value });
                 if (fieldErrors.title) {
-                  setFieldErrors((prev) => ({ ...prev, title: undefined }));
+                  clearFieldErrors(["title"]);
                 }
               }}
               placeholder="タイトル"
@@ -238,12 +250,7 @@ function TodoDetailModal({
               fieldErrors.daily ||
               fieldErrors.dueDateUndecided
             ) {
-              setFieldErrors((prev) => ({
-                ...prev,
-                dueDate: undefined,
-                daily: undefined,
-                dueDateUndecided: undefined,
-              }));
+              clearFieldErrors(dueDateErrorFieldNames);
             }
           }}
         />

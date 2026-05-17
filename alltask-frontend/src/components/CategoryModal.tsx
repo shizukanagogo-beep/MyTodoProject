@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { APP_MESSAGES } from "../constants/messages";
 import { modalLabelClassName } from "../constants/ui";
 import type { Category } from "../types";
 import ModalShell from "./ModalShell";
@@ -50,7 +51,7 @@ function CategoryModal({
 
   const saveCategoryName = async (categoryId: number) => {
     if (!editingCategoryName.trim()) {
-      setEditingCategoryNameError("カテゴリ名を入力してください");
+      setEditingCategoryNameError(APP_MESSAGES.validation.categoryNameRequired);
       return;
     }
 
@@ -64,7 +65,7 @@ function CategoryModal({
 
   const addCategory = () => {
     if (!newCategoryName.trim()) {
-      setNewCategoryNameError("カテゴリ名を入力してください");
+      setNewCategoryNameError(APP_MESSAGES.validation.categoryNameRequired);
       return;
     }
 

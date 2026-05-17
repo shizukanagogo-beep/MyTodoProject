@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { APP_MESSAGES } from "../constants/messages";
 import {
   modalLabelClassName,
   modalPrimaryButtonClassName,
@@ -64,7 +65,7 @@ function SubtaskCreateModal({
 
   const handleAddSubtask = async () => {
     if (!newSubtask.title.trim()) {
-      setTitleError("タイトルを入力してください");
+      setTitleError(APP_MESSAGES.validation.titleRequired);
       return;
     }
 
