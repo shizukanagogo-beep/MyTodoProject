@@ -16,6 +16,7 @@ public class Todo {
     private Integer parentId;
     private Boolean autoCarryOver;
     private Boolean daily;
+    private LocalDate dailyResetDate;
     private Boolean hasFlag;
     private Integer overdueBehavior;
     private Integer sortOrder;
