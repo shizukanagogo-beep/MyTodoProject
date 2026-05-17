@@ -96,6 +96,11 @@ public class TodoService {
         Todo todo = convertToEntity(form);
         todo.setId(id);
 
+        Todo existingTodo = getOne(id);
+        if (Boolean.TRUE.equals(todo.getDaily())) {
+            todo.setDailyResetDate(existingTodo.getDailyResetDate());
+        }
+
         boolean updated = todoMapper.update(todo);
         if (!updated) {
             throw new ResourceNotFoundException("TODO not found");
@@ -263,6 +268,10 @@ public class TodoService {
         todo.setAutoCarryOver(form.getAutoCarryOver());
         todo.setDaily(form.getDaily());
         todo.setHasFlag(form.getHasFlag());
+
+        if (Boolean.TRUE.equals(form.getDaily())) {
+            todo.setDailyResetDate(LocalDate.now(clock));
+        }
 
         // カテゴリー・日付超過挙動
         todo.setParentId(form.getParentId());

@@ -26,6 +26,7 @@ CREATE TABLE
         parent_id int,
         overdue_behavior int DEFAULT 0,
         sort_order INT NULL,
+        daily_reset_date DATE,
         foreign KEY (category_id) references categories (id),
         foreign KEY (parent_id) references todos (id) ON DELETE CASCADE
     );
