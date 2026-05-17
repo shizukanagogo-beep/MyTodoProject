@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,11 +23,12 @@ import lombok.RequiredArgsConstructor;
 public class TodoService {
     private final TodoMapper todoMapper;
     private final CategoryMapper categoryMapper;
+    private final Clock clock;
 
     // 全件取得（日課リセット・繰り越し処理を含む）-------------------------------------------------------
     @Transactional
     public List<Todo> getList(TodoForm condition) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
 
         // 既存の定時バッチ的な処理
         todoMapper.resetDailyTasks();

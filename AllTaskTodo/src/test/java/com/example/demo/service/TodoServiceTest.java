@@ -4,14 +4,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,8 +35,16 @@ public class TodoServiceTest {
     @Mock
     private CategoryMapper categoryMapper;
 
-    @InjectMocks
     private TodoService todoService;
+
+    private final Clock fixedClock = Clock.fixed(
+            Instant.parse("2026-05-12T00:00:00Z"),
+            ZoneId.of("Asia/Tokyo"));
+
+    @BeforeEach
+    void setUp() {
+        todoService = new TodoService(todoMapper, categoryMapper, fixedClock);
+    }
 
     @Test
     @DisplayName("日課タスクに日付を同時指定した場合、例外になること")
@@ -278,6 +289,30 @@ public class TodoServiceTest {
         verify(todoMapper, never()).update(any(Todo.class));
         assertEquals(today.minusDays(1), todo.getDueDate(), "期限日は過去日のまま");
         assertEquals(Status.INCOMPLETE, todo.getStatus(), "ステータスは未完了のまま");
+    }
+
+    @Test
+    @DisplayName("一覧取得時、Clockで固定した今日の日付を使って期限超過タスクを処理すること")
+    void testGetList_ShouldApplyOverdueBehaviorsUsingInjectedClock() {
+        TodoForm condition = new TodoForm();
+        LocalDate fixedToday = LocalDate.of(2026, 5, 12);
+        Todo overdueTodo = createOverdueTodo(1, fixedToday.minusDays(1));
+        Todo listedTodo = createOverdueTodo(1, fixedToday);
+
+        when(todoMapper.getList(any(TodoForm.class)))
+                .thenReturn(List.of(overdueTodo))
+                .thenReturn(List.of(listedTodo));
+
+        List<Todo> result = todoService.getList(condition);
+
+        InOrder inOrder = inOrder(todoMapper);
+        inOrder.verify(todoMapper).resetDailyTasks();
+        inOrder.verify(todoMapper).getList(argThat(form -> form.getStatus() == Status.INCOMPLETE));
+        inOrder.verify(todoMapper).update(overdueTodo);
+        inOrder.verify(todoMapper).getList(condition);
+
+        assertEquals(fixedToday, overdueTodo.getDueDate(), "Clockで固定した日付に繰り越されること");
+        assertEquals(List.of(listedTodo), result, "一覧取得結果を返すこと");
     }
 
     @Test
