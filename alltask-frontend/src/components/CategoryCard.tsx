@@ -45,7 +45,11 @@ const colorThemes = [
   },
 ];
 
-function CategoryCard({ category, colorIndex, onClick }: CategoryCardProps) {
+function CategoryCard({
+  category,
+  colorIndex,
+  onClick,
+}: CategoryCardProps) {
   const theme = colorThemes[colorIndex % colorThemes.length];
 
   return (

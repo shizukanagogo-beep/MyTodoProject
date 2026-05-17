@@ -12,7 +12,7 @@ import TodoDetailModal from "./components/TodoDetailModal";
 import ConfirmModal from "./components/ConfirmModal";
 import { useSelectedTodoModal } from "./hooks/useSelectedTodoModal";
 import { APP_MESSAGES } from "./constants/messages";
-import type { Category, NewTodo, ViewMode } from "./types";
+import type { Category, NewTodo, Todo, ViewMode } from "./types";
 import { getLocalDateString } from "./utils/date";
 
 const createInitialTodoForView = (
@@ -61,6 +61,8 @@ function App() {
     updateTodo,
     toggleStatus,
     deleteTodo,
+    deleteCompletedTodos,
+    getCompletedTodosByCurrentView,
     reorderTodos,
     reorderSubtasks,
     isRandomMode,
@@ -164,6 +166,36 @@ function App() {
       },
     });
   };
+
+  const requestDeleteCompletedTodos = (targetTodos: Todo[]) => {
+    if (targetTodos.length === 0) {
+      return;
+    }
+
+    const confirmMessage = APP_MESSAGES.confirm.deleteCompletedTodos();
+    const targetTodoIds = new Set(targetTodos.map((todo) => todo.id));
+
+    openConfirm({
+      title: confirmMessage.title,
+      message: confirmMessage.message,
+      confirmLabel: confirmMessage.confirmLabel,
+      danger: true,
+      onConfirm: async () => {
+        await deleteCompletedTodos(targetTodos);
+
+        if (
+          selectedTodo &&
+          (targetTodoIds.has(selectedTodo.id) ||
+            (selectedTodo.parentId !== null &&
+              targetTodoIds.has(selectedTodo.parentId)))
+        ) {
+          closeTodoDetailModal();
+        }
+      },
+    });
+  };
+
+  const currentCompletedTodos = getCompletedTodosByCurrentView();
 
   if (loadingCategories) return <Loading />;
 
@@ -272,6 +304,10 @@ function App() {
         }}
         onToggleStatus={toggleStatus}
         onDeleteTodo={requestDeleteTodo}
+        onRequestDeleteCompletedTodos={() =>
+          requestDeleteCompletedTodos(currentCompletedTodos)
+        }
+        canDeleteCompletedTodos={currentCompletedTodos.length > 0}
         onOpenTodoDetail={openTodoDetailModal}
         onReorderTodos={reorderTodos}
         onReorderSubtasks={reorderSubtasks}

@@ -40,6 +40,8 @@ type TodoListViewProps = {
   onToggleRandomTodo: () => void;
   datedFilter: DatedFilter;
   onChangeDatedFilter: (filter: DatedFilter) => void;
+  onRequestDeleteCompletedTodos: () => void;
+  canDeleteCompletedTodos: boolean;
 };
 
 function TodoListView({
@@ -64,6 +66,8 @@ function TodoListView({
   onToggleRandomTodo,
   datedFilter,
   onChangeDatedFilter,
+  onRequestDeleteCompletedTodos,
+  canDeleteCompletedTodos,
 }: TodoListViewProps) {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [draggingCategoryId, setDraggingCategoryId] = useState<number | null>(
@@ -327,6 +331,8 @@ function TodoListView({
         }}
         onToggleRandomTodo={onToggleRandomTodo}
         onChangeDatedFilter={onChangeDatedFilter}
+        onRequestDeleteCompletedTodos={onRequestDeleteCompletedTodos}
+        canDeleteCompletedTodos={canDeleteCompletedTodos}
       />
 
       <div className="space-y-3">{renderTodoList()}</div>

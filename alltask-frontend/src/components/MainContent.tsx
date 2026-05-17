@@ -36,6 +36,8 @@ type MainContentProps = {
   onChangeDatedFilter: (
     filter: "all" | "today" | "tomorrow" | "undecided",
   ) => void;
+  onRequestDeleteCompletedTodos: () => void;
+  canDeleteCompletedTodos: boolean;
 };
 
 function MainContent({
@@ -66,6 +68,8 @@ function MainContent({
   onToggleRandomTodo,
   datedFilter,
   onChangeDatedFilter,
+  onRequestDeleteCompletedTodos,
+  canDeleteCompletedTodos,
 }: MainContentProps) {
   return viewMode === "TOP" ? (
     <TopView
@@ -101,6 +105,8 @@ function MainContent({
       onToggleRandomTodo={onToggleRandomTodo}
       datedFilter={datedFilter}
       onChangeDatedFilter={onChangeDatedFilter}
+      onRequestDeleteCompletedTodos={onRequestDeleteCompletedTodos}
+      canDeleteCompletedTodos={canDeleteCompletedTodos}
     />
   );
 }

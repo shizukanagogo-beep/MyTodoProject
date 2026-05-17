@@ -18,5 +18,11 @@ export const APP_MESSAGES = {
       message: `「${categoryName}」を削除します。\nこのカテゴリ内のタスクもすべて削除されます。\nこの操作は元に戻せません。`,
       confirmLabel: "削除",
     }),
+    deleteCompletedTodos: () => ({
+      title: "完了済みのタスクを削除しますか？",
+      message:
+        "完了済みの親タスクを削除すると、未完了のサブタスクも削除されます。\nこの操作は元に戻せません。",
+      confirmLabel: "削除",
+    }),
   },
 } as const;

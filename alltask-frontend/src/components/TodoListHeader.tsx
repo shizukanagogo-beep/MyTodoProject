@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Category, DatedFilter, ViewMode } from "../types";
 import Tooltip from "./Tooltip";
+import TrashIcon from "./icons/TrashIcon";
 
 type TodoListHeaderProps = {
   viewMode: ViewMode;
@@ -19,6 +20,8 @@ type TodoListHeaderProps = {
   onToggleGroupByCategory: () => void;
   onToggleRandomTodo: () => void;
   onChangeDatedFilter: (filter: DatedFilter) => void;
+  onRequestDeleteCompletedTodos: () => void;
+  canDeleteCompletedTodos: boolean;
 };
 
 type HeaderIconButtonProps = {
@@ -27,6 +30,7 @@ type HeaderIconButtonProps = {
   tooltip: string;
   children: ReactNode;
   onClick: () => void;
+  disabled?: boolean;
 };
 
 const filterButtonBaseClass =
@@ -111,6 +115,7 @@ function HeaderIconButton({
   tooltip,
   children,
   onClick,
+  disabled = false,
 }: HeaderIconButtonProps) {
   return (
     <Tooltip label={tooltip}>
@@ -118,9 +123,10 @@ function HeaderIconButton({
         type="button"
         aria-label={ariaLabel}
         onClick={onClick}
+        disabled={disabled}
         className={`${iconButtonBaseClass} ${
           active ? activeIconButtonClass : inactiveIconButtonClass
-        }`}
+        } ${disabled ? "cursor-not-allowed opacity-40 hover:bg-white" : ""}`}
       >
         {children}
       </button>
@@ -145,6 +151,8 @@ function TodoListHeader({
   onToggleGroupByCategory,
   onToggleRandomTodo,
   onChangeDatedFilter,
+  onRequestDeleteCompletedTodos,
+  canDeleteCompletedTodos,
 }: TodoListHeaderProps) {
   const viewTitle =
     viewMode === "CATEGORY_DETAIL"
@@ -235,6 +243,16 @@ function TodoListHeader({
               onClick={onToggleShowDoneTodos}
             >
               <DoneFilterIcon />
+            </HeaderIconButton>
+
+            <HeaderIconButton
+              active={false}
+              ariaLabel="完了済みのタスクを全て削除"
+              tooltip="完了済みのタスクを全て削除"
+              onClick={onRequestDeleteCompletedTodos}
+              disabled={!canDeleteCompletedTodos}
+            >
+              <TrashIcon />
             </HeaderIconButton>
 
             {canGroupByCategory && (

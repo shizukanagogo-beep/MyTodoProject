@@ -8,9 +8,13 @@ function Header({ onTitleClick }: HeaderProps) {
       <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
         <h1
           onClick={onTitleClick}
-          className="text-2xl font-black text-indigo-600 cursor-pointer hover:opacity-80 transition-opacity"
+          className="cursor-pointer text-3xl font-semibold tracking-wide text-orange-700 transition-opacity hover:opacity-80"
+          style={{
+            fontFamily:
+              '"Trebuchet MS", "Gill Sans", "Avenir Next", sans-serif',
+          }}
         >
-          AllTask Todo
+          To Forget
         </h1>
       </div>
     </header>
