@@ -44,6 +44,9 @@ type TodoListViewProps = {
   canDeleteCompletedTodos: boolean;
 };
 
+const canReorderCurrentView = (viewMode: ViewMode) =>
+  viewMode === "CATEGORY_DETAIL" || viewMode === "UNCATEGORIZED";
+
 function TodoListView({
   viewMode,
   categories,
@@ -78,7 +81,7 @@ function TodoListView({
   const canGroupByCategory = canGroupTodoListByCategory(viewMode);
   const showsDirectMatchesOnly = canGroupByCategory;
   const effectiveGroupByCategory = canGroupByCategory && groupByCategory;
-  const canReorder = !effectiveGroupByCategory && !isRandomMode && (viewMode !== "DATED" || datedSortMode === "manual");
+  const canReorder = canReorderCurrentView(viewMode) && !effectiveGroupByCategory && !isRandomMode;
   const shouldSubdueTodo = (todo: Todo) => canGroupByCategory && !matchesDirectListCondition(todo, viewMode, datedFilter);
   const listTodos = getListTodos({ sortedTodos, viewMode, datedFilter, showDoneTodos, showsDirectMatchesOnly });
   const parentTodos = getParentTodos(listTodos);
