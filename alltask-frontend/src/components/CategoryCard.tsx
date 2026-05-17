@@ -3,7 +3,7 @@ import type { Category } from "../types";
 type CategoryCardProps = {
   category: Category;
   colorIndex: number;
-  onClick: (categoryId: number) => void;
+  onOpenCategoryDetail: (categoryId: number) => void;
 };
 
 const colorThemes = [
@@ -42,14 +42,13 @@ const colorThemes = [
 function CategoryCard({
   category,
   colorIndex,
-  onClick,
+  onOpenCategoryDetail,
 }: CategoryCardProps) {
   const theme = colorThemes[colorIndex % colorThemes.length];
 
   return (
-    <button
+    <div
       className={`group relative min-h-24 overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-lg ${theme.border}`}
-      onClick={() => onClick(category.id)}
     >
       <div
         className={`absolute -right-8 -top-8 h-24 w-24 rounded-full transition-colors ${theme.glow}`}
@@ -65,11 +64,16 @@ function CategoryCard({
           </h3>
         </div>
 
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-all group-hover:bg-white group-hover:text-sky-600 group-hover:shadow-sm">
+        <button
+          type="button"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-all hover:bg-white hover:text-sky-600 hover:shadow-sm"
+          aria-label={`${category.name}を開く`}
+          onClick={() => onOpenCategoryDetail(category.id)}
+        >
           →
-        </div>
+        </button>
       </div>
-    </button>
+    </div>
   );
 }
 
