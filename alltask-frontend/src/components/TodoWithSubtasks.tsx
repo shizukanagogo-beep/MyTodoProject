@@ -106,10 +106,23 @@ function TodoWithSubtasks({
           {subtasks.map((subtask, subtaskIndex) => (
             <div
               key={subtask.id}
-              draggable
-              onDragStart={() => onStartSubtaskDrag(todo.id, subtaskIndex)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => onDropSubtask(todo.id, subtaskIndex)}
+              draggable={canReorder}
+              onDragStart={(e) => {
+                if (!canReorder) {
+                  e.preventDefault();
+                  return;
+                }
+
+                onStartSubtaskDrag(todo.id, subtaskIndex);
+              }}
+              onDragOver={(e) => {
+                if (canReorder) e.preventDefault();
+              }}
+              onDrop={() => {
+                if (!canReorder) return;
+
+                onDropSubtask(todo.id, subtaskIndex);
+              }}
               onDragEnd={onEndSubtaskDrag}
               className={`${subtaskConnectorItemClassName} ${
                 draggingSubtask?.parentId === todo.id &&
