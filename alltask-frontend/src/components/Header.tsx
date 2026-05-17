@@ -24,7 +24,7 @@ function Header({ onTitleClick }: HeaderProps) {
             src="/app-logo.png"
             alt=""
             aria-hidden="true"
-            className="h-9 w-9 object-contain"
+            className="h-12 w-12 object-contain"
           />
         </button>
       </div>
