@@ -60,12 +60,10 @@ function TodoWithSubtasks({
   onOpenTodoDetail,
   getSubdued,
 }: TodoWithSubtasksProps) {
-  const shouldShowSubtasks =
-    subtasks.length > 0 &&
-    (parentContextType !== null ||
-      showsDirectMatchesOnly ||
-      !isSubtasksCollapsed);
   const isContextParent = parentContextType !== null;
+  const shouldShowSubtasks =
+    subtasks.length > 0 && (isContextParent || !isSubtasksCollapsed);
+  const canCollapseSubtasks = !isContextParent && subtasks.length > 0;
 
   return (
     <div className="space-y-2">
@@ -80,18 +78,16 @@ function TodoWithSubtasks({
         className={draggingIndex === index ? "opacity-50" : ""}
       >
         <div className="relative">
-          {!isContextParent &&
-            !showsDirectMatchesOnly &&
-            subtasks.length > 0 && (
-              <CollapseToggleButton
-                collapsed={isSubtasksCollapsed}
-                className="absolute -left-5 top-1/2 -translate-y-1/2 text-xs text-slate-300 hover:text-slate-500"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleSubtasksCollapsed(todo.id);
-                }}
-              />
-            )}
+          {canCollapseSubtasks && (
+            <CollapseToggleButton
+              collapsed={isSubtasksCollapsed}
+              className="absolute -left-5 top-1/2 -translate-y-1/2 text-xs text-slate-300 hover:text-slate-500"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleSubtasksCollapsed(todo.id);
+              }}
+            />
+          )}
 
           {parentContextType !== null ? (
             <ParentContextCard todo={todo} contextType={parentContextType} />
