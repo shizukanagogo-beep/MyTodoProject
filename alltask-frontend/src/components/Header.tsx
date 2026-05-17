@@ -11,14 +11,8 @@ function Header({ onTitleClick }: HeaderProps) {
           onClick={onTitleClick}
           className="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
         >
-          <span
-            className="text-3xl font-semibold tracking-wide text-amber-600"
-            style={{
-              fontFamily:
-                '"Segoe Print", "Bradley Hand", "Comic Sans MS", cursive',
-            }}
-          >
-            To Forget
+          <span className="text-3xl font-bold tracking-[0.12em] text-sky-700">
+            Slepper
           </span>
           <img
             src="/app-logo.png"
