@@ -8,24 +8,30 @@ services:
 
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
-  # backend:
-  #   build: ./AllTaskTodo
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-  #     SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-  #     SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-  #     APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+  backend:
+    build: ./AllTaskTodo
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+      SPRING_SQL_INIT_MODE: ${SPRING_SQL_INIT_MODE}
 
-  # frontend:
-  #   build: ./alltask-frontend
-  #   ports:
-  #     - "5173:5173"
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+  frontend:
+    build: ./alltask-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+
+volumes:
+  mysql_data:
