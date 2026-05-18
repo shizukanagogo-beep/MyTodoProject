@@ -360,9 +360,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
     try {
       await updateTodoSortOrder(
-        updatedTodos.map((todo) => ({
+        updatedTodos.map((todo, index) => ({
           id: todo.id,
-          sortOrder: todo.sortOrder,
+          sortOrder: index + 1,
         })),
       );
     } catch (error) {
@@ -384,10 +384,12 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     const [movedTodo] = reorderedSubtasks.splice(fromIndex, 1);
     reorderedSubtasks.splice(toIndex, 0, movedTodo);
 
-    const updatedSubtasks = reorderedSubtasks.map((todo, index) => ({
-      ...todo,
-      sortOrder: index + 1,
-    }));
+    const updatedSubtasks: Todo[] = reorderedSubtasks.map(
+      (todo, index): Todo => ({
+        ...todo,
+        sortOrder: index + 1,
+      }),
+    );
 
     setTodos((prev) => {
       const updatedTodoMap = new Map(
@@ -398,9 +400,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
     try {
       await updateTodoSortOrder(
-        updatedSubtasks.map((todo) => ({
+        updatedSubtasks.map((todo, index) => ({
           id: todo.id,
-          sortOrder: todo.sortOrder,
+          sortOrder: index + 1,
         })),
       );
     } catch (error) {
