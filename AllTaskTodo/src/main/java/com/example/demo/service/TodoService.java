@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.TodoForm;
+import com.example.demo.dto.TodoSortOrderForm;
 import com.example.demo.entity.Status;
 import com.example.demo.entity.Todo;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CategoryMapper;
 import com.example.demo.repository.TodoMapper;
-import com.example.demo.dto.TodoSortOrderForm;
 
 import lombok.RequiredArgsConstructor;
 
@@ -140,6 +140,7 @@ public class TodoService {
                 } else if (Integer.valueOf(3).equals(behavior)) {
                     todo.setDueDate(null);
                     todo.setDueDateUndecided(true);
+                    todo.setOverdueBehavior(0);
                     updated = true;
                 }
 
