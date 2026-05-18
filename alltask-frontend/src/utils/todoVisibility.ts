@@ -32,6 +32,41 @@ const getChildrenByParentId = (todos: Todo[]) =>
     return map;
   }, new Map<number, Todo[]>());
 
+const compareTodosByManualOrder = (a: Todo, b: Todo) => {
+  if (a.sortOrder === null && b.sortOrder !== null) return 1;
+  if (a.sortOrder !== null && b.sortOrder === null) return -1;
+  if (a.sortOrder !== null && b.sortOrder !== null) {
+    return a.sortOrder - b.sortOrder;
+  }
+
+  return b.id - a.id;
+};
+
+const compareTodosByDueDate = (a: Todo, b: Todo) => {
+  if (a.dueDateUndecided && !b.dueDateUndecided) return 1;
+  if (!a.dueDateUndecided && b.dueDateUndecided) return -1;
+  if (a.dueDate === null && b.dueDate !== null) return 1;
+  if (a.dueDate !== null && b.dueDate === null) return -1;
+  if (a.dueDate !== null && b.dueDate !== null) {
+    const dueDateOrder = a.dueDate.localeCompare(b.dueDate);
+    if (dueDateOrder !== 0) return dueDateOrder;
+  }
+
+  return compareTodosByManualOrder(a, b);
+};
+
+const sortDatedTodosWithParentGroups = (todos: Todo[]) => {
+  const childrenByParentId = getChildrenByParentId(todos);
+  const parentTodos = todos
+    .filter((todo) => todo.parentId === null)
+    .sort(compareTodosByDueDate);
+
+  return parentTodos.flatMap((parentTodo) => [
+    parentTodo,
+    ...(childrenByParentId.get(parentTodo.id) ?? []).sort(compareTodosByManualOrder),
+  ]);
+};
+
 const matchesTodoVisibleViewWithMap = ({
   todo,
   todoMap,
@@ -149,26 +184,11 @@ export function sortTodosForView(
   viewMode: ViewMode,
   datedSortMode: DatedSortMode,
 ) {
-  return [...todos].sort((a, b) => {
-    if (viewMode === "DATED" && datedSortMode === "dueDate") {
-      if (a.dueDateUndecided && !b.dueDateUndecided) return 1;
-      if (!a.dueDateUndecided && b.dueDateUndecided) return -1;
-      if (a.dueDate === null && b.dueDate !== null) return 1;
-      if (a.dueDate !== null && b.dueDate === null) return -1;
-      if (a.dueDate !== null && b.dueDate !== null) {
-        const dueDateOrder = a.dueDate.localeCompare(b.dueDate);
-        if (dueDateOrder !== 0) return dueDateOrder;
-      }
-    }
+  if (viewMode === "DATED" && datedSortMode === "dueDate") {
+    return sortDatedTodosWithParentGroups(todos);
+  }
 
-    if (a.sortOrder === null && b.sortOrder !== null) return 1;
-    if (a.sortOrder !== null && b.sortOrder === null) return -1;
-    if (a.sortOrder !== null && b.sortOrder !== null) {
-      return a.sortOrder - b.sortOrder;
-    }
-
-    return b.id - a.id;
-  });
+  return [...todos].sort(compareTodosByManualOrder);
 }
 
 export function getDisplayedTodos(
