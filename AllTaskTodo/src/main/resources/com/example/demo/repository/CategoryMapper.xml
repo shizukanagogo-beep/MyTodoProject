@@ -56,18 +56,20 @@
 
     <!-- =============================================================== -->
     <delete id="deleteSubTodosByCategoryId" parameterType="java.lang.Integer">
-        DELETE FROM todos
-        WHERE
-          parent_id IN (
-            SELECT
-              id
-            FROM
-              todos
-            WHERE
-              category_id = #{categoryId}
-          )
+    DELETE FROM todos
+    WHERE
+      parent_id IN (
+        SELECT id
+        FROM (
+          SELECT
+            id
+          FROM
+            todos
+          WHERE
+            category_id = #{categoryId}
+        ) AS category_todos
+      )
     </delete>
-
     <delete id="deleteTodosByCategoryId" parameterType="java.lang.Integer">
         DELETE FROM todos
         WHERE

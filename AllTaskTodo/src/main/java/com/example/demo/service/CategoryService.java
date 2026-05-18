@@ -44,6 +44,7 @@ public class CategoryService {
     }
 
     // -------------------------------------------------------------
+    @Transactional
     public void deleteCategory(Integer id) {
         if (categoryMapper.findById(id) == null) {
             throw new ResourceNotFoundException("Category not found");
