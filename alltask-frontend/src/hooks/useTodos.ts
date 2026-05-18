@@ -171,8 +171,26 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         sortOrder: payload.sortOrder,
       });
 
+      const shouldKeepTodoInCurrentView = (currentTodos: Todo[]) => {
+        if (matchesTodoView(updatedTodo, viewMode, selectedCategoryId)) {
+          return true;
+        }
+
+        if (updatedTodo.parentId === null) {
+          return false;
+        }
+
+        const parentTodo = currentTodos.find(
+          (todo) => todo.id === updatedTodo.parentId,
+        );
+
+        return parentTodo === undefined
+          ? false
+          : matchesTodoView(parentTodo, viewMode, selectedCategoryId);
+      };
+
       setTodos((prev) => {
-        if (!matchesTodoView(updatedTodo, viewMode, selectedCategoryId)) {
+        if (!shouldKeepTodoInCurrentView(prev)) {
           return prev.filter((todo) => todo.id !== id);
         }
         return prev.map((todo) => (todo.id === id ? updatedTodo : todo));
@@ -180,8 +198,7 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
       if (
         randomTodoId === id &&
-        (!matchesTodoView(updatedTodo, viewMode, selectedCategoryId) ||
-          updatedTodo.status === "DONE")
+        (!shouldKeepTodoInCurrentView(todos) || updatedTodo.status === "DONE")
       ) {
         setRandomTodoId(null);
       }
