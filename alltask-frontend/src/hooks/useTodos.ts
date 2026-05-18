@@ -63,10 +63,13 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   const [newTodo, setNewTodo] = useState<NewTodo>(initialNewTodo);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showDoneTodos, setShowDoneTodos] = useState(true);
-  const [datedSortMode, setDatedSortMode] = useState<"manual" | "dueDate">("manual");
+  const [datedSortMode, setDatedSortMode] = useState<"manual" | "dueDate">(
+    "manual",
+  );
   const [randomTodoId, setRandomTodoId] = useState<number | null>(null);
   const [datedFilter, setDatedFilter] = useState<DatedFilter>("all");
-  const effectiveDatedFilter: DatedFilter = viewMode === "DATED" ? datedFilter : "all";
+  const effectiveDatedFilter: DatedFilter =
+    viewMode === "DATED" ? datedFilter : "all";
 
   useEffect(() => {
     if (viewMode === "TOP") return;
@@ -90,10 +93,12 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       return { success: false, fieldErrors: getTitleRequiredFieldErrors() };
     }
 
-    const finalCategoryId = newTodo.categoryId === "" ? null : newTodo.categoryId;
+    const finalCategoryId =
+      newTodo.categoryId === "" ? null : newTodo.categoryId;
     const payload = {
       ...newTodo,
-      categoryId: typeof finalCategoryId === "number" ? Number(finalCategoryId) : null,
+      categoryId:
+        typeof finalCategoryId === "number" ? Number(finalCategoryId) : null,
       parentId: null,
       dueDate: newTodo.dueDate || null,
       dueDateUndecided: newTodo.dueDateUndecided,
@@ -117,7 +122,11 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
 
   const toggleStatus = async (id: number, currentStatus: Todo["status"]) => {
     const newStatus = currentStatus === "DONE" ? "INCOMPLETE" : "DONE";
-    setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, status: newStatus } : todo)));
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, status: newStatus } : todo,
+      ),
+    );
 
     if (randomTodoId === id && newStatus === "DONE") {
       setRandomTodoId(null);
@@ -169,7 +178,11 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
         return prev.map((todo) => (todo.id === id ? updatedTodo : todo));
       });
 
-      if (randomTodoId === id && (!matchesTodoView(updatedTodo, viewMode, selectedCategoryId) || updatedTodo.status === "DONE")) {
+      if (
+        randomTodoId === id &&
+        (!matchesTodoView(updatedTodo, viewMode, selectedCategoryId) ||
+          updatedTodo.status === "DONE")
+      ) {
         setRandomTodoId(null);
       }
 
@@ -219,7 +232,9 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   };
 
   const deleteTodo = async (id: number) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id && todo.parentId !== id));
+    setTodos((prev) =>
+      prev.filter((todo) => todo.id !== id && todo.parentId !== id),
+    );
     if (randomTodoId === id) setRandomTodoId(null);
 
     try {
@@ -240,7 +255,11 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
       .map((todo) => todo.id);
 
     setTodos((prev) =>
-      prev.filter((todo) => !targetIds.has(todo.id) && (todo.parentId === null || !targetIds.has(todo.parentId))),
+      prev.filter(
+        (todo) =>
+          !targetIds.has(todo.id) &&
+          (todo.parentId === null || !targetIds.has(todo.parentId)),
+      ),
     );
 
     if (randomTodoId !== null) setRandomTodoId(null);
@@ -255,7 +274,14 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   };
 
   const visibleTodos = useMemo(
-    () => getVisibleTodos({ todos, viewMode, selectedCategoryId, datedFilter: effectiveDatedFilter, showDoneTodos }),
+    () =>
+      getVisibleTodos({
+        todos,
+        viewMode,
+        selectedCategoryId,
+        datedFilter: effectiveDatedFilter,
+        showDoneTodos,
+      }),
     [todos, viewMode, selectedCategoryId, effectiveDatedFilter, showDoneTodos],
   );
 
@@ -264,7 +290,10 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     [visibleTodos, viewMode, datedSortMode],
   );
 
-  const displayedTodos = useMemo(() => getDisplayedTodos(sortedTodos, randomTodoId), [randomTodoId, sortedTodos]);
+  const displayedTodos = useMemo(
+    () => getDisplayedTodos(sortedTodos, randomTodoId),
+    [randomTodoId, sortedTodos],
+  );
 
   const changeDatedFilter = (filter: DatedFilter) => {
     setDatedFilter(filter);
@@ -285,7 +314,13 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     const incompleteTodos = sortedTodos.filter(
       (todo) =>
         todo.status === "INCOMPLETE" &&
-        matchesTodoVisibleView({ todo, todos, viewMode, selectedCategoryId, datedFilter: effectiveDatedFilter }),
+        matchesTodoVisibleView({
+          todo,
+          todos,
+          viewMode,
+          selectedCategoryId,
+          datedFilter: effectiveDatedFilter,
+        }),
     );
 
     if (incompleteTodos.length === 0) {
@@ -298,26 +333,38 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
   };
 
   const getCompletedTodosByCurrentView = () =>
-    getCompletedTodosForView({ todos, viewMode, selectedCategoryId, datedFilter: effectiveDatedFilter });
+    getCompletedTodosForView({
+      todos,
+      viewMode,
+      selectedCategoryId,
+      datedFilter: effectiveDatedFilter,
+    });
 
   const reorderTodos = async (orderedParentTodoIds: number[]) => {
     if (orderedParentTodoIds.length === 0) return;
     if (randomTodoId !== null) return;
 
-    const updatedTodos = orderedParentTodoIds
-      .map((todoId, index) => {
+    const updatedTodos: Todo[] = orderedParentTodoIds
+      .map((todoId, index): Todo | null => {
         const todo = todos.find((todo) => todo.id === todoId);
         return todo === undefined ? null : { ...todo, sortOrder: index + 1 };
       })
       .filter((todo): todo is Todo => todo !== null);
 
     setTodos((prev) => {
-      const updatedTodoMap = new Map(updatedTodos.map((todo) => [todo.id, todo]));
+      const updatedTodoMap = new Map(
+        updatedTodos.map((todo) => [todo.id, todo]),
+      );
       return prev.map((todo) => updatedTodoMap.get(todo.id) ?? todo);
     });
 
     try {
-      await updateTodoSortOrder(updatedTodos.map((todo) => ({ id: todo.id, sortOrder: todo.sortOrder })));
+      await updateTodoSortOrder(
+        updatedTodos.map((todo) => ({
+          id: todo.id,
+          sortOrder: todo.sortOrder,
+        })),
+      );
     } catch (error) {
       console.error("並び順更新失敗:", error);
       showErrorToast(getApiErrorMessage(error));
@@ -325,7 +372,11 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     }
   };
 
-  const reorderSubtasks = async (parentId: number, fromIndex: number, toIndex: number) => {
+  const reorderSubtasks = async (
+    parentId: number,
+    fromIndex: number,
+    toIndex: number,
+  ) => {
     if (fromIndex === toIndex) return;
 
     const subtasks = sortedTodos.filter((todo) => todo.parentId === parentId);
@@ -333,15 +384,25 @@ export function useTodos({ viewMode, selectedCategoryId }: UseTodosArgs) {
     const [movedTodo] = reorderedSubtasks.splice(fromIndex, 1);
     reorderedSubtasks.splice(toIndex, 0, movedTodo);
 
-    const updatedSubtasks = reorderedSubtasks.map((todo, index) => ({ ...todo, sortOrder: index + 1 }));
+    const updatedSubtasks = reorderedSubtasks.map((todo, index) => ({
+      ...todo,
+      sortOrder: index + 1,
+    }));
 
     setTodos((prev) => {
-      const updatedTodoMap = new Map(updatedSubtasks.map((todo) => [todo.id, todo]));
+      const updatedTodoMap = new Map(
+        updatedSubtasks.map((todo) => [todo.id, todo]),
+      );
       return prev.map((todo) => updatedTodoMap.get(todo.id) ?? todo);
     });
 
     try {
-      await updateTodoSortOrder(updatedSubtasks.map((todo) => ({ id: todo.id, sortOrder: todo.sortOrder })));
+      await updateTodoSortOrder(
+        updatedSubtasks.map((todo) => ({
+          id: todo.id,
+          sortOrder: todo.sortOrder,
+        })),
+      );
     } catch (error) {
       console.error("サブタスク並び順更新失敗:", error);
       showErrorToast(getApiErrorMessage(error));
