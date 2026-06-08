@@ -12,7 +12,7 @@ function Header({ onTitleClick }: HeaderProps) {
           className="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
         >
           <span className="text-3xl font-bold tracking-[0.12em] text-sky-700">
-            Slepper
+            Sleeper
           </span>
           <img
             src="/app-logo.png"
