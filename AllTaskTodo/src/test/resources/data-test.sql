@@ -1,4 +1,13 @@
 INSERT INTO
+    users (id, username, password)
+VALUES
+    (
+        1,
+        'test',
+        '$2y$10$S.N3y1Z0bbq14E8wprrl6ef71OLFJ4kmMJiG7.cAWHAsn7ybJd.Fi'
+    );
+
+INSERT INTO
     categories (id, name, sort_order)
 VALUES
     (1, '仕事', 1),

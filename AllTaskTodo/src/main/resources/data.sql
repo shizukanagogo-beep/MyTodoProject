@@ -3,10 +3,25 @@ DELETE FROM todos;
 
 DELETE FROM categories;
 
+DELETE FROM users;
+
 -- AUTO_INCREMENT をリセット
 ALTER TABLE todos AUTO_INCREMENT = 1;
 
 ALTER TABLE categories AUTO_INCREMENT = 1;
+
+ALTER TABLE users AUTO_INCREMENT = 1;
+
+-- 開発用ユーザー
+-- username: test
+-- password: password
+INSERT INTO
+    users (username, password)
+VALUES
+    (
+        'test',
+        '$2y$10$S.N3y1Z0bbq14E8wprrl6ef71OLFJ4kmMJiG7.cAWHAsn7ybJd.Fi'
+    );
 
 -- カテゴリの挿入
 INSERT INTO

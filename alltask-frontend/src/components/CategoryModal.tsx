@@ -31,7 +31,9 @@ function CategoryModal({
   onRequestDeleteCategory,
   onReorderCategories,
 }: CategoryModalProps) {
-  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
+    null,
+  );
   const [editingCategoryName, setEditingCategoryName] = useState("");
   const [newCategoryNameError, setNewCategoryNameError] = useState("");
   const [editingCategoryNameError, setEditingCategoryNameError] = useState("");
@@ -117,7 +119,8 @@ function CategoryModal({
                     autoFocus
                     onChange={(e) => {
                       setEditingCategoryName(e.target.value);
-                      if (editingCategoryNameError) setEditingCategoryNameError("");
+                      if (editingCategoryNameError)
+                        setEditingCategoryNameError("");
                     }}
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => {
@@ -177,17 +180,20 @@ function CategoryModal({
                 )}
               </div>
 
-              {editingCategoryId === category.id && editingCategoryNameError && (
-                <p className="mt-1 px-4 text-xs font-bold text-red-500">
-                  {editingCategoryNameError}
-                </p>
-              )}
+              {editingCategoryId === category.id &&
+                editingCategoryNameError && (
+                  <p className="mt-1 px-4 text-xs font-bold text-red-500">
+                    {editingCategoryNameError}
+                  </p>
+                )}
             </div>
           );
         })}
 
         {categories.length === 0 && (
-          <p className="text-center py-8 text-slate-400">カテゴリがありません</p>
+          <p className="text-center py-8 text-slate-400">
+            カテゴリがありません
+          </p>
         )}
       </div>
 
