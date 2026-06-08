@@ -4,6 +4,7 @@
     <select id="getList" parameterType="com.example.demo.dto.TodoForm" resultType="com.example.demo.entity.Todo">
         SELECT
           id,
+          user_id AS userId,
           title,
           status,
           details,
@@ -20,6 +21,7 @@
         FROM
           todos
         <where>
+            user_id = #{userId}
             <if test="status != null">
                 AND status = #{status}
             </if>
@@ -65,6 +67,8 @@
         SELECT MAX(sort_order)
         FROM todos
         <where>
+            user_id = #{userId}
+            AND
             <choose>
                 <when test="parentId == null">
                     parent_id IS NULL
@@ -79,6 +83,7 @@
     <select id="getOne" parameterType="java.lang.Integer" resultType="com.example.demo.entity.Todo">
         SELECT
           id,
+          user_id AS userId,
           title,
           status,
           details,
@@ -93,11 +98,14 @@
           overdue_behavior AS overdueBehavior,
           sort_order AS sortOrder
         FROM todos
-        WHERE id = #{id}
+        WHERE
+          id = #{id}
+          AND user_id = #{userId}
     </select>
 
     <insert id="add" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO todos (
+            user_id,
             title,
             status,
             details,
@@ -113,6 +121,7 @@
             sort_order
           )
         VALUES (
+            #{userId},
             #{title},
             #{status},
             #{details},
@@ -145,35 +154,47 @@
           parent_id = #{parentId},
           overdue_behavior = #{overdueBehavior},
           sort_order = #{sortOrder}
-        WHERE id = #{id}
+        WHERE
+          id = #{id}
+          AND user_id = #{userId}
     </update>
 
     <update id="updateSortOrder">
         UPDATE todos
         SET sort_order = #{sortOrder}
-        WHERE id = #{id}
+        WHERE
+          id = #{id}
+          AND user_id = #{userId}
     </update>
 
     <update id="updateStatus">
         UPDATE todos
         SET status = #{status}
-        WHERE id = #{id}
+        WHERE
+          id = #{id}
+          AND user_id = #{userId}
     </update>
 
     <update id="updateCategory">
         UPDATE todos
         SET category_id = #{categoryId}
-        WHERE id = #{id}
+        WHERE
+          id = #{id}
+          AND user_id = #{userId}
     </update>
 
     <delete id="delete" parameterType="java.lang.Integer">
         DELETE FROM todos
-        WHERE id = #{id}
+        WHERE
+          id = #{id}
+          AND user_id = #{userId}
     </delete>
 
     <delete id="deleteByParentId" parameterType="java.lang.Integer">
         DELETE FROM todos
-        WHERE parent_id = #{parentId}
+        WHERE
+          parent_id = #{parentId}
+          AND user_id = #{userId}
     </delete>
 
    <update id="resetDailyTasks">
@@ -182,6 +203,8 @@
       status = 'INCOMPLETE',
       daily_reset_date = CURRENT_DATE
     WHERE
+      user_id = #{userId}
+      AND
       is_daily = TRUE
       AND (
         daily_reset_date IS NULL

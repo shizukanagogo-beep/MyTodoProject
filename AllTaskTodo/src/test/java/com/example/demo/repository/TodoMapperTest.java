@@ -29,14 +29,29 @@ import com.example.demo.entity.Todo;
         "classpath:data-test.sql"
 })
 class TodoMapperTest {
+    private static final Integer USER_ID = 1;
 
     @Autowired
     private TodoMapper todoMapper;
 
     @Test
+    @DisplayName("getList: 他ユーザーのTodoは取得されないこと")
+    void testGetList_ShouldNotReturnOtherUserTodos() {
+        TodoForm form = new TodoForm();
+        form.setUserId(USER_ID);
+
+        List<Todo> result = todoMapper.getList(form);
+
+        assertTrue(
+                result.stream().noneMatch(todo -> Integer.valueOf(9).equals(todo.getId())),
+                "他ユーザーのTodoが含まれないこと");
+    }
+
+    @Test
     @DisplayName("getList: sortOrder順で取得されること")
     void testGetList_ShouldOrderBySortOrder() {
         TodoForm form = new TodoForm();
+        form.setUserId(USER_ID);
         form.setCategoryId(4);
 
         List<Todo> result = todoMapper.getList(form);
@@ -54,6 +69,7 @@ class TodoMapperTest {
     @DisplayName("getList: existsDueDate=trueで日付ありと期限未定が取得されること")
     void testGetList_ExistsDueDate_ShouldReturnDueDateAndUndecidedTodos() {
         TodoForm form = new TodoForm();
+        form.setUserId(USER_ID);
         form.setExistsDueDate(true);
 
         List<Todo> result = todoMapper.getList(form);
@@ -71,6 +87,7 @@ class TodoMapperTest {
     @DisplayName("getList: categoryUnassigned=trueでcategoryIdがnullのTodoが取得されること")
     void testGetList_CategoryUnassigned_ShouldReturnTodosWithoutCategory() {
         TodoForm form = new TodoForm();
+        form.setUserId(USER_ID);
         form.setCategoryUnassigned(true);
 
         List<Todo> result = todoMapper.getList(form);
@@ -94,6 +111,7 @@ class TodoMapperTest {
     @DisplayName("getList: parentId指定で子タスクが取得されること")
     void testGetList_ParentId_ShouldReturnSubtasks() {
         TodoForm form = new TodoForm();
+        form.setUserId(USER_ID);
         form.setParentId(6);
 
         List<Todo> result = todoMapper.getList(form);

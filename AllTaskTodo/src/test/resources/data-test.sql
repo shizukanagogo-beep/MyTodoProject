@@ -5,19 +5,26 @@ VALUES
         1,
         'test',
         '$2y$10$S.N3y1Z0bbq14E8wprrl6ef71OLFJ4kmMJiG7.cAWHAsn7ybJd.Fi'
+    ),
+    (
+        2,
+        'other',
+        '$2y$10$S.N3y1Z0bbq14E8wprrl6ef71OLFJ4kmMJiG7.cAWHAsn7ybJd.Fi'
     );
 
 INSERT INTO
-    categories (id, name, sort_order)
+    categories (id, user_id, name, sort_order)
 VALUES
-    (1, '仕事', 1),
-    (2, 'プライベート', 2),
-    (3, '買い物', 3),
-    (4, '並び順テスト', 4);
+    (1, 1, '仕事', 1),
+    (2, 1, 'プライベート', 2),
+    (3, 1, '買い物', 3),
+    (4, 1, '並び順テスト', 4),
+    (5, 2, '他ユーザーのカテゴリ', 1);
 
 INSERT INTO
     todos (
         id,
+        user_id,
         title,
         status,
         details,
@@ -34,6 +41,7 @@ INSERT INTO
 VALUES
     (
         1,
+        1,
         'sortOrder 2 の仕事タスク',
         'INCOMPLETE',
         '並び順確認用',
@@ -49,6 +57,7 @@ VALUES
     ),
     (
         2,
+        1,
         'sortOrder 1 の仕事タスク',
         'INCOMPLETE',
         '並び順確認用',
@@ -64,6 +73,7 @@ VALUES
     ),
     (
         3,
+        1,
         '日付ありタスク',
         'INCOMPLETE',
         'existsDueDate確認用',
@@ -79,6 +89,7 @@ VALUES
     ),
     (
         4,
+        1,
         '期限未定タスク',
         'INCOMPLETE',
         'existsDueDate確認用',
@@ -94,6 +105,7 @@ VALUES
     ),
     (
         5,
+        1,
         'カテゴリなしタスク',
         'INCOMPLETE',
         'categoryUnassigned確認用',
@@ -109,6 +121,7 @@ VALUES
     ),
     (
         6,
+        1,
         '親タスク',
         'INCOMPLETE',
         'parentId確認用',
@@ -124,6 +137,7 @@ VALUES
     ),
     (
         7,
+        1,
         '子タスクA',
         'INCOMPLETE',
         'parentId確認用',
@@ -139,6 +153,7 @@ VALUES
     ),
     (
         8,
+        1,
         '子タスクB',
         'DONE',
         'parentId確認用',
@@ -151,4 +166,20 @@ VALUES
         6,
         0,
         2
+    ),
+    (
+        9,
+        2,
+        '他ユーザーのタスク',
+        'INCOMPLETE',
+        'user_id分離確認用',
+        NULL,
+        FALSE,
+        FALSE,
+        FALSE,
+        FALSE,
+        5,
+        NULL,
+        0,
+        1
     );

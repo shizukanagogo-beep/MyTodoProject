@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class Todo {
     private Integer id;
+    private Integer userId;
     private Integer categoryId;
     private String title;
     private Status status;

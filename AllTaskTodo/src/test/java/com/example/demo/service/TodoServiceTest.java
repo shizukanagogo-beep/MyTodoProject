@@ -25,15 +25,20 @@ import com.example.demo.entity.Todo;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.repository.CategoryMapper;
 import com.example.demo.repository.TodoMapper;
+import com.example.demo.security.CurrentUserService;
 
 @ExtendWith(MockitoExtension.class)
 public class TodoServiceTest {
+    private static final Integer USER_ID = 1;
 
     @Mock
     private TodoMapper todoMapper;
 
     @Mock
     private CategoryMapper categoryMapper;
+
+    @Mock
+    private CurrentUserService currentUserService;
 
     private TodoService todoService;
 
@@ -43,7 +48,8 @@ public class TodoServiceTest {
 
     @BeforeEach
     void setUp() {
-        todoService = new TodoService(todoMapper, categoryMapper, fixedClock);
+        when(currentUserService.getCurrentUserId()).thenReturn(USER_ID);
+        todoService = new TodoService(todoMapper, categoryMapper, currentUserService, fixedClock);
     }
 
     @Test
@@ -235,7 +241,7 @@ public class TodoServiceTest {
         existingTodo.setId(1);
         existingTodo.setDaily(false);
 
-        when(todoMapper.getOne(1)).thenReturn(existingTodo);
+        when(todoMapper.getOne(1, USER_ID)).thenReturn(existingTodo);
         when(todoMapper.update(any(Todo.class))).thenReturn(true);
 
         boolean result = todoService.update(1, form);
@@ -256,13 +262,13 @@ public class TodoServiceTest {
         second.setId(1);
         second.setSortOrder(2);
 
-        when(todoMapper.updateSortOrder(3, 1)).thenReturn(true);
-        when(todoMapper.updateSortOrder(1, 2)).thenReturn(true);
+        when(todoMapper.updateSortOrder(3, 1, USER_ID)).thenReturn(true);
+        when(todoMapper.updateSortOrder(1, 2, USER_ID)).thenReturn(true);
 
         todoService.updateSortOrder(List.of(first, second));
 
-        verify(todoMapper).updateSortOrder(3, 1);
-        verify(todoMapper).updateSortOrder(1, 2);
+        verify(todoMapper).updateSortOrder(3, 1, USER_ID);
+        verify(todoMapper).updateSortOrder(1, 2, USER_ID);
     }
 
     @Test
@@ -270,15 +276,15 @@ public class TodoServiceTest {
     void testDelete_ShouldDeleteChildrenBeforeParent() {
         Integer id = 1;
 
-        when(todoMapper.delete(id)).thenReturn(true);
+        when(todoMapper.delete(id, USER_ID)).thenReturn(true);
 
         boolean result = todoService.delete(id);
 
         assertTrue(result, "親タスク削除の結果を返すこと");
 
         InOrder inOrder = inOrder(todoMapper);
-        inOrder.verify(todoMapper).deleteByParentId(id);
-        inOrder.verify(todoMapper).delete(id);
+        inOrder.verify(todoMapper).deleteByParentId(id, USER_ID);
+        inOrder.verify(todoMapper).delete(id, USER_ID);
     }
 
     @Test
@@ -384,7 +390,7 @@ public class TodoServiceTest {
         List<Todo> result = todoService.getList(condition);
 
         InOrder inOrder = inOrder(todoMapper);
-        inOrder.verify(todoMapper).resetDailyTasks();
+        inOrder.verify(todoMapper).resetDailyTasks(USER_ID);
         inOrder.verify(todoMapper).getList(argThat(form -> form.getStatus() == Status.INCOMPLETE));
         inOrder.verify(todoMapper).update(overdueTodo);
         inOrder.verify(todoMapper).getList(condition);

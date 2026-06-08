@@ -25,13 +25,13 @@ VALUES
 
 -- カテゴリの挿入
 INSERT INTO
-    categories (name, sort_order)
+    categories (user_id, name, sort_order)
 VALUES
-    ('仕事', 1),
-    ('プライベート', 2),
-    ('買い物', 3),
-    ('学習', 4),
-    ('家事', 5);
+    (1, '仕事', 1),
+    (1, 'プライベート', 2),
+    (1, '買い物', 3),
+    (1, '学習', 4),
+    (1, '家事', 5);
 
 -- ============================================================
 -- 親タスク
@@ -39,6 +39,7 @@ VALUES
 INSERT INTO
     todos (
         id,
+        user_id,
         title,
         status,
         details,
@@ -55,6 +56,7 @@ INSERT INTO
 VALUES
     (
         1,
+        1,
         'バックエンドAPIの動作確認',
         'INCOMPLETE',
         'TodoController / TodoService / TodoMapper の疎通を確認する',
@@ -70,6 +72,7 @@ VALUES
     ),
     (
         2,
+        1,
         'フロントのタスク一覧を確認',
         'INCOMPLETE',
         '日付あり・日課・フラグ・カテゴリ別の表示を確認する',
@@ -85,6 +88,7 @@ VALUES
     ),
     (
         3,
+        1,
         '期限超過時の繰り越しテスト',
         'INCOMPLETE',
         '期限を過ぎたら今日の日付に繰り越される',
@@ -100,6 +104,7 @@ VALUES
     ),
     (
         4,
+        1,
         '期限超過時の完了テスト',
         'INCOMPLETE',
         '期限を過ぎたら自動的にDONEになる',
@@ -115,6 +120,7 @@ VALUES
     ),
     (
         5,
+        1,
         '期限超過時の未定化テスト',
         'INCOMPLETE',
         '期限を過ぎたら日付を消して未定にする',
@@ -130,6 +136,7 @@ VALUES
     ),
     (
         6,
+        1,
         '旅行の準備',
         'INCOMPLETE',
         '持ち物や予約確認をサブタスクで管理する',
@@ -145,6 +152,7 @@ VALUES
     ),
     (
         7,
+        1,
         '牛乳を買う',
         'INCOMPLETE',
         '帰りにスーパーで買う',
@@ -160,6 +168,7 @@ VALUES
     ),
     (
         8,
+        1,
         'TypeScriptの型整理',
         'INCOMPLETE',
         'types.ts と payload 型の整合性を確認する',
@@ -175,6 +184,7 @@ VALUES
     ),
     (
         9,
+        1,
         '毎日のスクワット',
         'INCOMPLETE',
         '日課タスクのリセット確認用',
@@ -190,6 +200,7 @@ VALUES
     ),
     (
         10,
+        1,
         '洗濯する',
         'DONE',
         '完了済み表示切替の確認用',
@@ -205,6 +216,7 @@ VALUES
     ),
     (
         11,
+        1,
         'カテゴリなしのメモ',
         'INCOMPLETE',
         'カテゴリなし画面の確認用',
@@ -225,6 +237,7 @@ VALUES
 -- ============================================================
 INSERT INTO
     todos (
+        user_id,
         title,
         status,
         details,
@@ -240,6 +253,7 @@ INSERT INTO
     )
 VALUES
     (
+        1,
         'Controllerのレスポンスを確認',
         'INCOMPLETE',
         'POST / PUT / PATCH / DELETE のレスポンス確認',
@@ -254,6 +268,7 @@ VALUES
         1
     ),
     (
+        1,
         'Mapper XMLのSQLを確認',
         'DONE',
         'sort_order と parent_id のマッピング確認',
@@ -268,6 +283,7 @@ VALUES
         2
     ),
     (
+        1,
         '日付ありリストを確認',
         'INCOMPLETE',
         '今日・明日・未定フィルターを見る',
@@ -282,6 +298,7 @@ VALUES
         1
     ),
     (
+        1,
         'ランダム表示を確認',
         'INCOMPLETE',
         '未完了タスクから1件だけ表示されるか確認',
@@ -296,6 +313,7 @@ VALUES
         2
     ),
     (
+        1,
         '航空券を確認',
         'INCOMPLETE',
         '予約番号と出発時間を確認する',
@@ -310,6 +328,7 @@ VALUES
         1
     ),
     (
+        1,
         '持ち物リストを作る',
         'INCOMPLETE',
         '充電器、財布、身分証、薬など',
@@ -324,6 +343,7 @@ VALUES
         2
     ),
     (
+        1,
         '宿泊先に連絡',
         'DONE',
         'チェックイン時間を伝える',
@@ -338,6 +358,7 @@ VALUES
         3
     ),
     (
+        1,
         'スーパーに寄る',
         'INCOMPLETE',
         '駅前のスーパーに寄る',

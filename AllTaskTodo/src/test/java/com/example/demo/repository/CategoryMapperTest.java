@@ -28,6 +28,7 @@ import com.example.demo.entity.Category;
         "classpath:data-test.sql"
 })
 class CategoryMapperTest {
+    private static final Integer USER_ID = 1;
 
     @Autowired
     private CategoryMapper categoryMapper;
@@ -36,9 +37,19 @@ class CategoryMapperTest {
     private TodoMapper todoMapper;
 
     @Test
+    @DisplayName("findAll: 他ユーザーのカテゴリは取得されないこと")
+    void testFindAll_ShouldNotReturnOtherUserCategories() {
+        List<Category> result = categoryMapper.findAll(USER_ID);
+
+        assertTrue(
+                result.stream().noneMatch(category -> Integer.valueOf(5).equals(category.getId())),
+                "他ユーザーのカテゴリが含まれないこと");
+    }
+
+    @Test
     @DisplayName("findAll: sortOrder順でカテゴリ一覧を取得できること")
     void testFindAll_ShouldOrderBySortOrder() {
-        List<Category> result = categoryMapper.findAll();
+        List<Category> result = categoryMapper.findAll(USER_ID);
 
         assertEquals(4, result.size());
 
@@ -58,9 +69,9 @@ class CategoryMapperTest {
     @Test
     @DisplayName("updateSortOrder: 指定カテゴリのsortOrderを更新できること")
     void testUpdateSortOrder_ShouldUpdateCategorySortOrder() {
-        categoryMapper.updateSortOrder(4, 1);
+        categoryMapper.updateSortOrder(4, 1, USER_ID);
 
-        Category result = categoryMapper.findById(4);
+        Category result = categoryMapper.findById(4, USER_ID);
 
         assertEquals(4, result.getId());
         assertEquals(1, result.getSortOrder());
@@ -69,34 +80,34 @@ class CategoryMapperTest {
     @Test
     @DisplayName("deleteSubTodosByCategoryId: 指定カテゴリ内の親タスクに紐づく子タスクを削除できること")
     void testDeleteSubTodosByCategoryId_ShouldDeleteChildrenOfCategoryTodos() {
-        assertNotNull(todoMapper.getOne(7));
-        assertNotNull(todoMapper.getOne(8));
+        assertNotNull(todoMapper.getOne(7, USER_ID));
+        assertNotNull(todoMapper.getOne(8, USER_ID));
 
-        categoryMapper.deleteSubTodosByCategoryId(1);
+        categoryMapper.deleteSubTodosByCategoryId(1, USER_ID);
 
-        assertNull(todoMapper.getOne(7));
-        assertNull(todoMapper.getOne(8));
-        assertNotNull(todoMapper.getOne(6), "親タスク自体はまだ削除されないこと");
+        assertNull(todoMapper.getOne(7, USER_ID));
+        assertNull(todoMapper.getOne(8, USER_ID));
+        assertNotNull(todoMapper.getOne(6, USER_ID), "親タスク自体はまだ削除されないこと");
     }
 
     @Test
     @DisplayName("deleteTodosByCategoryId: 指定カテゴリ内の親タスクを削除できること")
     void testDeleteTodosByCategoryId_ShouldDeleteTodosInCategory() {
-        assertNotNull(todoMapper.getOne(6));
+        assertNotNull(todoMapper.getOne(6, USER_ID));
 
-        categoryMapper.deleteSubTodosByCategoryId(1);
-        categoryMapper.deleteTodosByCategoryId(1);
+        categoryMapper.deleteSubTodosByCategoryId(1, USER_ID);
+        categoryMapper.deleteTodosByCategoryId(1, USER_ID);
 
-        assertNull(todoMapper.getOne(6));
+        assertNull(todoMapper.getOne(6, USER_ID));
     }
 
     @Test
     @DisplayName("deleteCategory: 指定カテゴリを削除できること")
     void testDeleteCategory_ShouldDeleteCategory() {
-        assertNotNull(categoryMapper.findById(3));
+        assertNotNull(categoryMapper.findById(3, USER_ID));
 
-        categoryMapper.deleteCategory(3);
+        categoryMapper.deleteCategory(3, USER_ID);
 
-        assertNull(categoryMapper.findById(3));
+        assertNull(categoryMapper.findById(3, USER_ID));
     }
 }

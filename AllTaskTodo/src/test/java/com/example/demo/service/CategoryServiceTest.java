@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import com.example.demo.dto.CategoryForm;
 import com.example.demo.entity.Category;
@@ -32,7 +33,9 @@ import com.example.demo.repository.TodoMapper;
         "classpath:schema-test.sql",
         "classpath:data-test.sql"
 })
+@WithMockUser(username = "test")
 class CategoryServiceTest {
+    private static final Integer USER_ID = 1;
 
     @Autowired
     private CategoryService categoryService;
@@ -55,7 +58,7 @@ class CategoryServiceTest {
         assertNotNull(result.getId());
         assertEquals("新規カテゴリ", result.getName());
         assertEquals(5, result.getSortOrder());
-        assertEquals(5, categoryMapper.findById(result.getId()).getSortOrder());
+        assertEquals(5, categoryMapper.findById(result.getId(), USER_ID).getSortOrder());
     }
 
     @Test
@@ -73,16 +76,16 @@ class CategoryServiceTest {
     @Test
     @DisplayName("カテゴリ削除時、対象カテゴリのTodoとSubTodoも削除されること")
     void testDeleteCategory_ShouldDeleteTodosAndSubTodos() {
-        assertNotNull(categoryMapper.findById(1));
-        assertNotNull(todoMapper.getOne(6));
-        assertNotNull(todoMapper.getOne(7));
-        assertNotNull(todoMapper.getOne(8));
+        assertNotNull(categoryMapper.findById(1, USER_ID));
+        assertNotNull(todoMapper.getOne(6, USER_ID));
+        assertNotNull(todoMapper.getOne(7, USER_ID));
+        assertNotNull(todoMapper.getOne(8, USER_ID));
 
         categoryService.deleteCategory(1);
 
-        assertNull(todoMapper.getOne(6));
-        assertNull(todoMapper.getOne(7));
-        assertNull(todoMapper.getOne(8));
-        assertNull(categoryMapper.findById(1));
+        assertNull(todoMapper.getOne(6, USER_ID));
+        assertNull(todoMapper.getOne(7, USER_ID));
+        assertNull(todoMapper.getOne(8, USER_ID));
+        assertNull(categoryMapper.findById(1, USER_ID));
     }
 }

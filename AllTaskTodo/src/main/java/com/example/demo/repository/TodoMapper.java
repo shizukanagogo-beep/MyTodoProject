@@ -16,25 +16,25 @@ public interface TodoMapper {
 
 	void add(Todo todo);
 
-	Integer findMaxSortOrderByParentId(@Param("parentId") Integer parentId);
+	Integer findMaxSortOrderByParentId(@Param("parentId") Integer parentId, @Param("userId") Integer userId);
 
-	Todo getOne(Integer id);
+	Todo getOne(@Param("id") Integer id, @Param("userId") Integer userId);
 
-	boolean delete(Integer id);
+	boolean delete(@Param("id") Integer id, @Param("userId") Integer userId);
 
-	void deleteByParentId(Integer parentId);
+	void deleteByParentId(@Param("parentId") Integer parentId, @Param("userId") Integer userId);
 
 	boolean update(Todo todo);
 
-	boolean updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
+	boolean updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder, @Param("userId") Integer userId);
 
 	// カテゴリーのみ変更
-	boolean updateCategory(@Param("id") Integer id, @Param("categoryId") Integer categoryId);
+	boolean updateCategory(@Param("id") Integer id, @Param("categoryId") Integer categoryId, @Param("userId") Integer userId);
 
 	// ステータス（完了/未完了）のみ変更
-	boolean updateStatus(@Param("id") Integer id, @Param("status") Status status);
+	boolean updateStatus(@Param("id") Integer id, @Param("status") Status status, @Param("userId") Integer userId);
 
 	// 2. 日課タスクを未完了(INCOMPLETE)に戻す
-	void resetDailyTasks();
+	void resetDailyTasks(Integer userId);
 
 }

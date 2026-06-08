@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
     "classpath:schema-test.sql",
     "classpath:data-test.sql"
 })
-@WithMockUser
+@WithMockUser(username = "test")
 class CategoryControllerTest {
 
   @Autowired

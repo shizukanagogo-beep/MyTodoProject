@@ -8,22 +8,23 @@ import com.example.demo.entity.Category;
 
 @Mapper
 public interface CategoryMapper {
-    List<Category> findAll();
+    List<Category> findAll(Integer userId);
 
     void addCategory(Category category);
 
-    Integer findMaxSortOrder();
+    Integer findMaxSortOrder(Integer userId);
 
     void updateCategory(Category category);
 
-    Category findById(Integer id);
+    Category findById(@Param("id") Integer id, @Param("userId") Integer userId);
 
-    void deleteSubTodosByCategoryId(Integer categoryId);
+    void deleteSubTodosByCategoryId(@Param("categoryId") Integer categoryId, @Param("userId") Integer userId);
 
-    void deleteTodosByCategoryId(Integer categoryId);
+    void deleteTodosByCategoryId(@Param("categoryId") Integer categoryId, @Param("userId") Integer userId);
 
-    void deleteCategory(Integer id);
+    void deleteCategory(@Param("id") Integer id, @Param("userId") Integer userId);
 
-    boolean updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder);
+    boolean updateSortOrder(@Param("id") Integer id, @Param("sortOrder") Integer sortOrder,
+            @Param("userId") Integer userId);
 
 }

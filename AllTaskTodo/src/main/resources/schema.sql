@@ -17,14 +17,17 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
         name VARCHAR(50) NOT NULL,
-        sort_order INT NULL
+        sort_order INT NULL,
+        foreign KEY (user_id) references users (id)
     );
 
 ---------------------------------------------------------------------------
 CREATE TABLE
     IF NOT EXISTS todos (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
         title varchar(100),
         status varchar(20),
         details varchar(500), 
@@ -38,6 +41,7 @@ CREATE TABLE
         parent_id int,
         overdue_behavior int DEFAULT 0,
         sort_order INT NULL,
+        foreign KEY (user_id) references users (id),
         foreign KEY (category_id) references categories (id),
         foreign KEY (parent_id) references todos (id) ON DELETE CASCADE
     );

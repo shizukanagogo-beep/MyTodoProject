@@ -13,6 +13,8 @@ import lombok.Data;
 @Data
 public class TodoForm {
 
+    private Integer userId;
+
     @NotBlank(message = "タイトルを入力してください")
     @Size(max = 100, message = "タイトルは100文字以内で入力してください")
     private String title;

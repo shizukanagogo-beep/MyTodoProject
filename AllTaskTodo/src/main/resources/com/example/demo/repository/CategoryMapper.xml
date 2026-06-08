@@ -5,10 +5,13 @@
     <select id="findAll" resultType="com.example.demo.entity.Category">
         SELECT
           id,
+          user_id AS userId,
           name,
           sort_order AS sortOrder
         FROM
           categories
+        WHERE
+          user_id = #{userId}
         ORDER BY
           CASE
             WHEN sort_order IS NULL THEN 1
@@ -23,13 +26,15 @@
           MAX(sort_order)
         FROM
           categories
+        WHERE
+          user_id = #{userId}
     </select>
 
     <!-- =============================================================== -->
     <insert id="addCategory" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO categories (name, sort_order)
+        INSERT INTO categories (user_id, name, sort_order)
         VALUES
-          (#{name}, #{sortOrder})
+          (#{userId}, #{name}, #{sortOrder})
     </insert>
 
     <!-- =============================================================== -->
@@ -40,18 +45,21 @@
           sort_order = #{sortOrder}
         WHERE
           id = #{id}
+          AND user_id = #{userId}
     </update>
 
     <!-- =============================================================== -->
     <select id="findById" parameterType="java.lang.Integer" resultType="com.example.demo.entity.Category">
         SELECT
           id,
+          user_id AS userId,
           name,
           sort_order AS sortOrder
         FROM
           categories
         WHERE
           id = #{id}
+          AND user_id = #{userId}
     </select>
 
     <!-- =============================================================== -->
@@ -67,19 +75,23 @@
             todos
           WHERE
             category_id = #{categoryId}
+            AND user_id = #{userId}
         ) AS category_todos
       )
+      AND user_id = #{userId}
     </delete>
     <delete id="deleteTodosByCategoryId" parameterType="java.lang.Integer">
         DELETE FROM todos
         WHERE
           category_id = #{categoryId}
+          AND user_id = #{userId}
     </delete>
 
     <delete id="deleteCategory" parameterType="java.lang.Integer">
         DELETE FROM categories
         WHERE
           id = #{id}
+          AND user_id = #{userId}
     </delete>
 
     <!-- ====================================================================== -->
@@ -89,6 +101,7 @@
           sort_order = #{sortOrder}
         WHERE
           id = #{id}
+          AND user_id = #{userId}
     </update>
 
     <!-- =========================================================================== -->

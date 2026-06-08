@@ -15,12 +15,15 @@ CREATE TABLE users (
 
 CREATE TABLE categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
         name VARCHAR(50) NOT NULL,
-        sort_order INT NULL
+        sort_order INT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id)
     );
 
 CREATE TABLE todos (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
         title VARCHAR(100),
         status VARCHAR(20),
         details VARCHAR(500),
@@ -34,6 +37,7 @@ CREATE TABLE todos (
         parent_id INT,
         overdue_behavior INT DEFAULT 0,
         sort_order INT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id),
         FOREIGN KEY (category_id) REFERENCES categories (id),
         FOREIGN KEY (parent_id) REFERENCES todos (id) ON DELETE CASCADE
     );

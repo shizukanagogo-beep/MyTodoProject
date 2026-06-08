@@ -15,6 +15,7 @@ import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CategoryMapper;
 import com.example.demo.repository.TodoMapper;
+import com.example.demo.security.CurrentUserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,27 +24,33 @@ import lombok.RequiredArgsConstructor;
 public class TodoService {
     private final TodoMapper todoMapper;
     private final CategoryMapper categoryMapper;
+    private final CurrentUserService currentUserService;
     private final Clock clock;
 
     // 全件取得（日課リセット・繰り越し処理を含む）-------------------------------------------------------
     @Transactional
     public List<Todo> getList(TodoForm condition) {
+        Integer userId = currentUserService.getCurrentUserId();
         LocalDate today = LocalDate.now(clock);
 
         // 既存の定時バッチ的な処理
-        todoMapper.resetDailyTasks();
-        applyOverdueBehaviors(today);
+        todoMapper.resetDailyTasks(userId);
+        applyOverdueBehaviors(today, userId);
         // 万能DTO（TodoForm）をそのままMapperに渡して検索
+        condition.setUserId(userId);
         return todoMapper.getList(condition);
     }
 
     // 新規追加-------------------------------------------------------------------------------
     public Todo add(TodoForm form) {
-        validateBusinessRules(null, form);
+        Integer userId = currentUserService.getCurrentUserId();
+        form.setUserId(userId);
+        validateBusinessRules(null, form, userId);
         adjustTaskOptions(form);
-        assignSortOrderIfNeeded(form);
+        assignSortOrderIfNeeded(form, userId);
 
         Todo todo = convertToEntity(form);
+        todo.setUserId(userId);
         // DBへ登録（MyBatisによりIDがセットされる）
         todoMapper.add(todo);
         return todo;
@@ -51,7 +58,8 @@ public class TodoService {
 
     // １件取得------------------------------------------------------------------------------
     public Todo getOne(Integer id) {
-        Todo todo = todoMapper.getOne(id);
+        Integer userId = currentUserService.getCurrentUserId();
+        Todo todo = todoMapper.getOne(id, userId);
         if (todo == null) {
             throw new ResourceNotFoundException("TODO not found");
         }
@@ -60,8 +68,9 @@ public class TodoService {
 
     // 削除------------------------------------------------------------------------------
     public boolean delete(Integer id) {
-        todoMapper.deleteByParentId(id);
-        boolean deleted = todoMapper.delete(id);
+        Integer userId = currentUserService.getCurrentUserId();
+        todoMapper.deleteByParentId(id, userId);
+        boolean deleted = todoMapper.delete(id, userId);
         if (!deleted) {
             throw new ResourceNotFoundException("TODO not found");
         }
@@ -70,7 +79,8 @@ public class TodoService {
 
     // 完了／未完了の切り替え-------------------------------------------------------------------
     public void updateStatus(Integer id, Status Status) {
-        boolean updated = todoMapper.updateStatus(id, Status);
+        Integer userId = currentUserService.getCurrentUserId();
+        boolean updated = todoMapper.updateStatus(id, Status, userId);
         if (!updated) {
             throw new ResourceNotFoundException("TODO not found");
         }
@@ -78,11 +88,12 @@ public class TodoService {
 
     // カテゴリの移動------------------------------------------------------------------
     public void updateCategory(Integer id, Integer categoryId) {
-        if (categoryId != null && categoryMapper.findById(categoryId) == null) {
+        Integer userId = currentUserService.getCurrentUserId();
+        if (categoryId != null && categoryMapper.findById(categoryId, userId) == null) {
             throw new ResourceNotFoundException("Category not found");
         }
 
-        boolean updated = todoMapper.updateCategory(id, categoryId);
+        boolean updated = todoMapper.updateCategory(id, categoryId, userId);
         if (!updated) {
             throw new ResourceNotFoundException("TODO not found");
         }
@@ -90,11 +101,14 @@ public class TodoService {
 
     // タスク更新-------------------------------------------------------------------------------
     public boolean update(Integer id, TodoForm form) {
-        validateBusinessRules(id, form);
+        Integer userId = currentUserService.getCurrentUserId();
+        form.setUserId(userId);
+        validateBusinessRules(id, form, userId);
         adjustTaskOptions(form);
 
         Todo todo = convertToEntity(form);
         todo.setId(id);
+        todo.setUserId(userId);
 
         Todo existingTodo = getOne(id);
         if (Boolean.TRUE.equals(todo.getDaily())) {
@@ -111,8 +125,9 @@ public class TodoService {
     // 並び順変更-------------------------------------------------
     @Transactional
     public void updateSortOrder(List<TodoSortOrderForm> forms) {
+        Integer userId = currentUserService.getCurrentUserId();
         for (TodoSortOrderForm form : forms) {
-            boolean updated = todoMapper.updateSortOrder(form.getId(), form.getSortOrder());
+            boolean updated = todoMapper.updateSortOrder(form.getId(), form.getSortOrder(), userId);
             if (!updated) {
                 throw new ResourceNotFoundException("TODO not found");
             }
@@ -122,7 +137,13 @@ public class TodoService {
     // 超過タスク処理ロジック（日付超過時の挙動オプション）-------------------------------------------
     @Transactional
     public List<Todo> applyOverdueBehaviors(LocalDate today) {
+        return applyOverdueBehaviors(today, currentUserService.getCurrentUserId());
+    }
+
+    @Transactional
+    public List<Todo> applyOverdueBehaviors(LocalDate today, Integer userId) {
         TodoForm allIncomplete = new TodoForm();
+        allIncomplete.setUserId(userId);
         allIncomplete.setStatus(Status.INCOMPLETE);
         List<Todo> list = todoMapper.getList(allIncomplete);
 
@@ -153,35 +174,35 @@ public class TodoService {
     }
 
     // 共通メソッド---------------------------------------------------------------
-    private void validateBusinessRules(Integer todoId, TodoForm form) {
-        validateCategoryId(form);
-        validateParentId(todoId, form);
+    private void validateBusinessRules(Integer todoId, TodoForm form, Integer userId) {
+        validateCategoryId(form, userId);
+        validateParentId(todoId, form, userId);
         validateDueDateOptions(form);
     }
 
-    private void assignSortOrderIfNeeded(TodoForm form) {
+    private void assignSortOrderIfNeeded(TodoForm form, Integer userId) {
         if (form.getSortOrder() != null) {
             return;
         }
 
-        Integer maxSortOrder = todoMapper.findMaxSortOrderByParentId(form.getParentId());
+        Integer maxSortOrder = todoMapper.findMaxSortOrderByParentId(form.getParentId(), userId);
 
         form.setSortOrder(maxSortOrder == null ? 1 : maxSortOrder + 1);
     }
 
     // ---------------------------------------------------------------
-    private void validateCategoryId(TodoForm form) {
+    private void validateCategoryId(TodoForm form, Integer userId) {
         if (form.getCategoryId() == null) {
             return;
         }
 
-        if (categoryMapper.findById(form.getCategoryId()) == null) {
+        if (categoryMapper.findById(form.getCategoryId(), userId) == null) {
             throw new ResourceNotFoundException("Category not found");
         }
     }
 
     // ---------------------------------------------------------------
-    private void validateParentId(Integer todoId, TodoForm form) {
+    private void validateParentId(Integer todoId, TodoForm form, Integer userId) {
         if (form.getParentId() == null) {
             return;
         }
@@ -190,7 +211,7 @@ public class TodoService {
             throw new BadRequestException("自分自身を親タスクには指定できません");
         }
 
-        Todo parentTodo = todoMapper.getOne(form.getParentId());
+        Todo parentTodo = todoMapper.getOne(form.getParentId(), userId);
 
         if (parentTodo == null) {
             throw new ResourceNotFoundException("Parent TODO not found");
