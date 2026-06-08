@@ -14,13 +14,17 @@ ALTER TABLE users AUTO_INCREMENT = 1;
 
 -- 開発用ユーザー
 -- username: test
--- password: password
+-- password: SleeperLocal2026!
 INSERT INTO
     users (username, password)
 VALUES
     (
         'test',
-        '$2y$10$S.N3y1Z0bbq14E8wprrl6ef71OLFJ4kmMJiG7.cAWHAsn7ybJd.Fi'
+        '$2y$10$2ishFR3.Fl.pSLvMCw4Xv.g/NB6Q7fpT7y/YJzlKrhkGNUK5EvMgm'
+    ),
+    (
+        'demo',
+        '$2y$10$JIv0whj67SRRcn6nDo18DeH8BGZisPtM1qvQcirZ3A1tVhHWluRGm'
     );
 
 -- カテゴリの挿入

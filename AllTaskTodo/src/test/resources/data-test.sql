@@ -4,12 +4,12 @@ VALUES
     (
         1,
         'test',
-        '$2y$10$S.N3y1Z0bbq14E8wprrl6ef71OLFJ4kmMJiG7.cAWHAsn7ybJd.Fi'
+        '$2y$10$2ishFR3.Fl.pSLvMCw4Xv.g/NB6Q7fpT7y/YJzlKrhkGNUK5EvMgm'
     ),
     (
         2,
         'other',
-        '$2y$10$S.N3y1Z0bbq14E8wprrl6ef71OLFJ4kmMJiG7.cAWHAsn7ybJd.Fi'
+        '$2y$10$2ishFR3.Fl.pSLvMCw4Xv.g/NB6Q7fpT7y/YJzlKrhkGNUK5EvMgm'
     );
 
 INSERT INTO

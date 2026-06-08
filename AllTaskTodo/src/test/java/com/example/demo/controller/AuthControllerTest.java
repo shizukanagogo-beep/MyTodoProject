@@ -50,7 +50,7 @@ class AuthControllerTest {
     String requestBody = """
         {
           "username": "test",
-          "password": "password"
+          "password": "SleeperLocal2026!"
         }
         """;
 
