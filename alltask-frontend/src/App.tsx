@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useCategories } from "./hooks/useCategories";
 import { useTodos } from "./hooks/useTodos";
 import { useTodoModal } from "./hooks/useTodoModal";
@@ -10,10 +11,18 @@ import MainContent from "./components/MainContent";
 import Modals from "./components/Modals";
 import TodoDetailModal from "./components/TodoDetailModal";
 import ConfirmModal from "./components/ConfirmModal";
+import LoginPage from "./components/LoginPage";
 import { useSelectedTodoModal } from "./hooks/useSelectedTodoModal";
 import { APP_MESSAGES } from "./constants/messages";
 import type { Category, NewTodo, Todo, ViewMode } from "./types";
 import { getLocalDateString } from "./utils/date";
+import {
+  AUTH_UNAUTHORIZED_EVENT,
+  clearAuthSession,
+  getStoredAuthSession,
+  saveAuthSession,
+  type AuthSession,
+} from "./api/client";
 
 const createInitialTodoForView = (
   viewMode: ViewMode,
@@ -35,7 +44,12 @@ const createInitialTodoForView = (
   sortOrder: null,
 });
 
-function App() {
+type AuthenticatedAppProps = {
+  username: string;
+  onLogout: () => void;
+};
+
+function AuthenticatedApp({ username, onLogout }: AuthenticatedAppProps) {
   const {
     viewMode,
     selectedCategoryId,
@@ -201,6 +215,8 @@ function App() {
 
   return (
     <AppLayout
+      username={username}
+      onLogout={onLogout}
       onTitleClick={() => {
         resetDatedFilters();
         goTop();
@@ -318,6 +334,46 @@ function App() {
         onChangeDatedFilter={setDatedFilter}
       />
     </AppLayout>
+  );
+}
+
+function App() {
+  const [authSession, setAuthSession] = useState<AuthSession | null>(() =>
+    getStoredAuthSession(),
+  );
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setAuthSession(null);
+    };
+
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+
+    return () => {
+      window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+    };
+  }, []);
+
+  const handleAuthenticated = (session: AuthSession) => {
+    saveAuthSession(session);
+    setAuthSession(session);
+  };
+
+  const handleLogout = () => {
+    clearAuthSession();
+    setAuthSession(null);
+  };
+
+  if (!authSession) {
+    return <LoginPage onAuthenticated={handleAuthenticated} />;
+  }
+
+  return (
+    <AuthenticatedApp
+      key={authSession.username}
+      username={authSession.username}
+      onLogout={handleLogout}
+    />
   );
 }
 

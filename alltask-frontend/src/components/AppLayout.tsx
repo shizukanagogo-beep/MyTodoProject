@@ -5,12 +5,23 @@ import ToastContainer from "./ToastContainer";
 type AppLayoutProps = {
   children: ReactNode;
   onTitleClick: () => void;
+  username: string;
+  onLogout: () => void;
 };
 
-function AppLayout({ children, onTitleClick }: AppLayoutProps) {
+function AppLayout({
+  children,
+  onTitleClick,
+  username,
+  onLogout,
+}: AppLayoutProps) {
   return (
     <div className="theme-dark min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <Header onTitleClick={onTitleClick} />
+      <Header
+        onTitleClick={onTitleClick}
+        username={username}
+        onLogout={onLogout}
+      />
       <ToastContainer />
 
       <div className="max-w-4xl mx-auto px-4 py-8">{children}</div>
