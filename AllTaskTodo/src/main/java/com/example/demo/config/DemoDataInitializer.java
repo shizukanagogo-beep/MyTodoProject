@@ -159,7 +159,7 @@ public class DemoDataInitializer implements ApplicationRunner {
                 false,
                 null,
                 false,
-                null,
+                workCategoryId,
                 releaseTodoId,
                 0,
                 1);
